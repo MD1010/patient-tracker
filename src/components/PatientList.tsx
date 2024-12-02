@@ -41,7 +41,7 @@ export function PatientList() {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border text-right" >
       <Table>
         <TableHeader>
           <TableRow>

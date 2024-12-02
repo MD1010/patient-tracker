@@ -1,16 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
-import { useMutation } from 'convex/react';
-import { api } from '../convex/_generated/api';
-import { Id } from '../convex/_generated/dataModel';
 import { toast } from 'sonner';
+import { Id } from '../convex/_generated/dataModel';
 
 interface WhatsAppButtonProps {
   phone: string;
   patientId: Id<'patients'>;
 }
 
-export function WhatsAppButton({ phone, patientId }: WhatsAppButtonProps) {
+export function WhatsAppButton({ phone }: WhatsAppButtonProps) {
   const sendMessage = () => {
     try {
       const formattedPhone = phone.replace(/\D/g, '');

@@ -78,7 +78,7 @@ export function TreatmentDialog({ patientId }: TreatmentDialogProps) {
         <Button>הוספת טיפול חדש</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] rtl">
-        <DialogHeader>
+        <DialogHeader className='m-auto'>
           <DialogTitle>הוספת טיפול חדש</DialogTitle>
         </DialogHeader>
         <Form {...form}>
