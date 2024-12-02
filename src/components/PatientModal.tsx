@@ -34,22 +34,22 @@ export function PatientModal() {
     if (!selectedPatient || !treatments) return;
 
     const workbook = new Excel.Workbook();
-    const worksheet = workbook.addWorksheet("Patient Report");
+    const worksheet = workbook.addWorksheet(`${selectedPatient.name} - פרטי מטופל`);
 
-    worksheet.addRow(["Patient Information"]);
-    worksheet.addRow(["Name", selectedPatient.name]);
-    worksheet.addRow(["Email", selectedPatient.email]);
-    worksheet.addRow(["Phone", selectedPatient.phone]);
-    worksheet.addRow(["Date of Birth", selectedPatient.dateOfBirth]);
+    worksheet.addRow(["נתוני לקוח"]);
+    worksheet.addRow(["שם", selectedPatient.name]);
+    worksheet.addRow(["אימייל", selectedPatient.email]);
+    worksheet.addRow(["טלפון", selectedPatient.phone]);
+    worksheet.addRow(["תאריך לידה", selectedPatient.dateOfBirth]);
     worksheet.addRow([]);
 
-    worksheet.addRow(["Treatments"]);
+    worksheet.addRow(["טיפולים"]);
     worksheet.addRow([
-      "Date",
-      "Type",
-      "Description",
-      "Cost",
-      "Next Appointment",
+      "תאריך",
+      "סוג",
+      "תיאור",
+      "עלות",
+      "הטיפול הבא",
     ]);
     treatments.forEach((treatment) => {
       worksheet.addRow([
@@ -68,7 +68,7 @@ export function PatientModal() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `patient-${selectedPatient._id}-report.xlsx`;
+    a.download = `פרטי מטופל-${selectedPatient.name}.xlsx`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
