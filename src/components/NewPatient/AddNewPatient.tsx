@@ -29,7 +29,7 @@ export function AddNewPatient() {
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>טופס הוספת מטופל</DialogTitle>
+              <DialogTitle className='text-right pr-6 mt-4'>הוספת מטופל</DialogTitle>
               <DialogClose onClick={toggleModal} />
             </DialogHeader>
             <MedicalRegistrationForm />

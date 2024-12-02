@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FormSteps } from './FormSteps';
-import { PersonalDetails } from './steps/PersonalDetails';
-import { MedicalBackground } from './steps/MedicalBackground';
-import { MedicalHistory } from './steps/MedicalHistory';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { FormSteps } from "./FormSteps";
+import { MedicalBackground } from "./steps/MedicalBackground";
+import { MedicalHistory } from "./steps/MedicalHistory";
+import { PersonalDetails } from "./steps/PersonalDetails";
+import { ArrowLeftIcon, MoveLeftIcon, MoveRight } from "lucide-react";
 
 export type FormData = {
   firstName: string;
@@ -51,9 +52,9 @@ export type FormData = {
 };
 
 const formVariants = {
-  enter: { x: 300, opacity: 0 },
-  center: { x: 0, opacity: 1 },
-  exit: { x: -300, opacity: 0 },
+  enter: { y: -20, opacity: 0 },
+  center: { y: 0, opacity: 1 },
+  exit: { y: 20, opacity: 0 },
 };
 
 export function MedicalRegistrationForm() {
@@ -65,8 +66,8 @@ export function MedicalRegistrationForm() {
   });
 
   const onSubmit = (data: FormData) => {
-    console.log('Form submitted:', data);
-    toast.success('הטופס נשלח בהצלחה!');
+    console.log("Form submitted:", data);
+    toast.success("הטופס נשלח בהצלחה!");
   };
 
   const nextStep = async () => {
@@ -79,40 +80,49 @@ export function MedicalRegistrationForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card rounded-xl shadow-lg">
-      <FormSteps currentStep={currentStep} />
-      
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            variants={formVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.3 }}
-          >
-            {currentStep === 1 && <PersonalDetails form={form} />}
-            {currentStep === 2 && <MedicalBackground form={form} />}
-            {currentStep === 3 && <MedicalHistory form={form} />}
-          </motion.div>
-        </AnimatePresence>
+    <div className="max-w-4xl mx-auto p-6">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentStep}
+          variants={formVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+        >
+          <FormSteps currentStep={currentStep} />
 
-        <div className="mt-8 flex justify-between">
-          {currentStep > 1 && (
-            <Button type="button" variant="outline" onClick={prevStep}>
-              הקודם
-            </Button>
-          )}
-          {currentStep < 3 ? (
-            <Button type="button" onClick={nextStep}>
-              הבא
-            </Button>
-          ) : (
-            <Button type="submit">שלח טופס</Button>
-          )}
-        </div>
-      </form>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
+            <div>
+              {currentStep === 1 && <PersonalDetails form={form} />}
+              {currentStep === 2 && <MedicalBackground form={form} />}
+              {currentStep === 3 && <MedicalHistory form={form} />}
+            </div>
+
+            <div className="mt-12 flex justify-between gap-4">
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={prevStep}
+                  className="flex-1"
+                >
+                  הקודם
+                </Button>
+              )}
+              {currentStep < 3 ? (
+                <Button type="button" onClick={nextStep} className="flex-1">
+                  <span>לשלב הבא</span>
+                  <ArrowLeftIcon />
+                </Button>
+              ) : (
+                <Button type="submit" className="flex-1">
+                  שלח טופס
+                </Button>
+              )}
+            </div>
+          </form>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
