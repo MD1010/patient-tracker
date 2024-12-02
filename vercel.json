@@ -1,0 +1,7 @@
+{
+    "rewrites": [
+      { "source": "/register", "destination": "/" },
+      { "source": "/registration-success", "destination": "/" },
+      { "source": "/:path*", "destination": "/" }
+    ]
+  }

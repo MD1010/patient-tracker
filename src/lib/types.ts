@@ -1,4 +1,4 @@
-import { Id } from 'convex/_generated/convex/_generated/dataModel';
+import { Id } from '../../convex/_generated/dataModel';
 
 export interface Patient {
   _id: Id<'patients'>;
