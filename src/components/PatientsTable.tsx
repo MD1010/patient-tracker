@@ -39,16 +39,15 @@ export function PatientTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex items-center gap-2 ">
         <Input
+          startIcon={<Search className="h-4 w-4 text-muted-foreground" />}
           placeholder="חיפוש מטופלים..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-sm"
           dir="rtl"
         />
-
-        <Search className="h-4 w-4 text-muted-foreground" />
       </div>
 
       <div className={cn("rounded-md border", isLoading && "opacity-50")}>
@@ -66,13 +65,13 @@ export function PatientTable() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell className="h-24 text-center">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : filteredPatients?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell className="h-24 text-center">
                   לא נמצאו מטופלים
                 </TableCell>
               </TableRow>
@@ -103,15 +102,17 @@ export function PatientTable() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent >
+                        <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle className="ml-auto">מחיקת מטופל</AlertDialogTitle>
-                            <AlertDialogDescription className='ml-auto'>
+                            <AlertDialogTitle className="ml-auto">
+                              מחיקת מטופל
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="ml-auto">
                               האם אתה בטוח שברצונך למחוק את המטופל{" "}
                               {patient.name}? פעולה זו לא ניתנת לביטול.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
-                          <AlertDialogFooter className='flex gap-3 mt-4'>
+                          <AlertDialogFooter className="flex gap-3 mt-4">
                             <AlertDialogCancel>ביטול</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => deletePatient(patient._id)}
