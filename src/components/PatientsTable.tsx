@@ -108,7 +108,7 @@ export function PatientTable() {
                 >
                   <div className="w-28 ">
                     {column.label}
-                    {sortColumn === column.key && (
+                    {column.key && sortColumn === column.key && (
                       <span className="ml-1 text-muted-foreground">
                         {sortDirection === "asc" ? "↑" : "↓"}
                       </span>

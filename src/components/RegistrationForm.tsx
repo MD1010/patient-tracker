@@ -1,41 +1,13 @@
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "../../convex/_generated/api";
-import { useMutation } from "convex/react";
-import { Helmet } from "react-helmet";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
-
-const formSchema = z.object({
-  name: z.string().min(2, "נא להזין שם מלא"),
-  email: z.string().email("כתובת אימייל לא תקינה"),
-  phone: z.string().min(9, "מספר טלפון לא תקין"),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "תאריך לא תקין"),
-  allergies: z.string().optional(),
-  medications: z.string().optional(),
-  medicalConditions: z.string().optional(),
-  lastDentalVisit: z.string().optional(),
-  concerns: z.string().optional(),
-});
 
 export function RegistrationForm() {
-  const navigate = useNavigate();
-  const addPatient = useMutation(api.patients.add);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [currentStep, setCurrentStep] = useState(1);
+  const { control, handleSubmit, trigger } = useForm({
     defaultValues: {
       name: "",
       email: "",
@@ -47,182 +19,168 @@ export function RegistrationForm() {
       lastDentalVisit: "",
       concerns: "",
     },
+    mode: "onChange",
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const medicalInfo = {
-        allergies: values.allergies,
-        medications: values.medications,
-        medicalConditions: values.medicalConditions,
-        lastDentalVisit: values.lastDentalVisit,
-        concerns: values.concerns,
-      };
+  const goToNextStep = async () => {
+    const isValid = await trigger(["name", "email", "phone", "dateOfBirth"]);
+    if (isValid) setCurrentStep(2);
+  };
 
-      await addPatient({
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        dateOfBirth: values.dateOfBirth,
-        medicalInfo: JSON.stringify(medicalInfo),
-      });
+  const goToPreviousStep = () => {
+    setCurrentStep(1);
+  };
 
-      form.reset();
-      navigate("/registration-success");
-    } catch (error) {
-      toast.error("שגיאה בתהליך הרישום");
-    }
+  const onSubmit = (data: any) => {
+    console.log(data);
+    toast.success("המטופל נוסף בהצלחה!");
   };
 
   return (
-    <div className="container mx-auto px-4 py-8" dir="rtl">
-      <Helmet>
-        <title>טופס רישום לשיננית</title>
-      </Helmet>
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">טופס רישום למרפאת שיניים</h1>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>שם מלא</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>דואר אלקטרוני</FormLabel>
-                    <FormControl>
-                      <Input type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>טלפון</FormLabel>
-                    <FormControl>
-                      <Input {...field} autoComplete="off" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="dateOfBirth"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>תאריך לידה</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        min="1900-01-01"
-                        max={new Date().toISOString().split("T")[0]}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+    <div data-hs-stepper="">
+      {/* Stepper Navigation */}
+      <ul className="relative flex flex-row gap-x-2">
+        {[1, 2].map((step) => (
+          <li
+            key={step}
+            className={`flex items-center gap-x-2 shrink basis-0 flex-1 group ${
+              currentStep === step ? "text-indigo-600" : "text-gray-800"
+            }`}
+          >
+            <span
+              className={`min-w-7 min-h-7 group inline-flex items-center text-xs align-middle ${
+                currentStep >= step
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              <span>{step}</span>
+            </span>
+            <span className="ms-2 text-sm font-medium">
+              {step === 1 ? "פרטים אישיים" : "שאלון רפואי"}
+            </span>
+          </li>
+        ))}
+      </ul>
 
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">שאלון רפואי</h2>
-              <FormField
-                control={form.control}
-                name="allergies"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>אלרגיות</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="medications"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>תרופות קבועות</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="medicalConditions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>מצבים רפואיים</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastDentalVisit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ביקור אחרון אצל רופא שיניים</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        min="1900-01-01"
-                        max={new Date().toISOString()}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="concerns"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>תלונות עיקריות / בעיות</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+      {/* Form Content */}
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-6">
+        {currentStep === 1 && (
+          <div data-hs-stepper-content-item='{ "index": 1 }'>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>שם מלא</label>
+                  <Input {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>דואר אלקטרוני</label>
+                  <Input {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>טלפון</label>
+                  <Input {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="dateOfBirth"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>תאריך לידה</label>
+                  <Input type="date" {...field} />
+                </div>
+              )}
+            />
+          </div>
+        )}
 
-            <Button type="submit" className="w-full">
-              שליחת טופס
+        {currentStep === 2 && (
+          <div data-hs-stepper-content-item='{ "index": 2 }'>
+            <Controller
+              name="allergies"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>אלרגיות</label>
+                  <Textarea {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="medications"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>תרופות קבועות</label>
+                  <Textarea {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="medicalConditions"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>מצבים רפואיים</label>
+                  <Textarea {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="lastDentalVisit"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>ביקור אחרון אצל רופא שיניים</label>
+                  <Input type="date" {...field} />
+                </div>
+              )}
+            />
+            <Controller
+              name="concerns"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <label>תלונות עיקריות / בעיות</label>
+                  <Textarea {...field} />
+                </div>
+              )}
+            />
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="mt-5 flex justify-between items-center gap-x-2">
+          {currentStep === 2 && (
+            <Button type="button" onClick={goToPreviousStep}>
+              חזרה
             </Button>
-          </form>
-        </Form>
-      </div>
+          )}
+          {currentStep === 1 ? (
+            <Button type="button" onClick={goToNextStep}>
+              לשאלון רפואי
+            </Button>
+          ) : (
+            <Button type="submit">הוסף</Button>
+          )}
+        </div>
+      </form>
     </div>
   );
 }

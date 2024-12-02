@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { GenerateAddNewPatientFormLink } from "./RegisterLink";
 import { ThemeToggle } from "./ThemeToggle";
+import { AddNewPatient } from './RegisterLink';
 
 export function Header() {
   return (
@@ -16,7 +16,7 @@ export function Header() {
             {/* <h1 className="text-2xl font-bold"></h1> */}
           </div>
           <div className="flex items-center space-x-4 space-x-reverse">
-            <GenerateAddNewPatientFormLink />
+            <AddNewPatient />
             <ThemeToggle />
           </div>
         </div>
