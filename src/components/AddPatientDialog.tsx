@@ -16,7 +16,7 @@ export function GenerateAddNewPatientFormLink() {
         onClick={generateLink}
         className="flex items-center"
       >
-        יצירת קישור לרישום
+       קישור לרישום
         <ClipboardIcon className="mr-2 h-4 w-4" />
       </Button>
     </div>
