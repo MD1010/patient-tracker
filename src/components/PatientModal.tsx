@@ -12,15 +12,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePatients } from "@/lib/store";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
 import { Download, Loader2, Trash2 } from "lucide-react";
 import { api } from "../../convex/_generated/api";
-import { WhatsAppButton } from "./WhatsAppButton";
 import { AddTreatmentDialog } from "./AddTreatmentDialog";
 import {
   AlertDialog,
@@ -33,6 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import { WhatsAppButton } from "./WhatsAppButton";
 
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();

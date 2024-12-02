@@ -1,5 +1,3 @@
-import { Stethoscope } from "lucide-react";
-import { translations } from "@/lib/translations";
 import { motion } from "framer-motion";
 import { GenerateAddNewPatientFormLink } from "./RegisterLink";
 import { ThemeToggle } from "./ThemeToggle";
