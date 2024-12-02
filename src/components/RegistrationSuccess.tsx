@@ -21,7 +21,7 @@ export function RegistrationSuccess() {
         
         <h1 className="text-2xl font-bold">תודה על ההרשמה!</h1>
         <p className="text-muted-foreground">
-          פרטיך נקלטו בהצלחה במערכת. ניצור איתך קשר בהקדם.
+          פרטיך נקלטו בהצלחה במערכת.
         </p>
         
         <Button 
