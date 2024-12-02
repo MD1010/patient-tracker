@@ -18,6 +18,7 @@ import * as Excel from 'exceljs';
 import { useQuery } from 'convex/react';
 import { TreatmentDialog } from './TreatmentDialog';
 import { WhatsAppButton } from './WhatsAppButton';
+import { api } from '@/convex/_generated/api';
 
 
 export function PatientModal() {

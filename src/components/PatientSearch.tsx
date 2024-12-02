@@ -1,35 +1,49 @@
-import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { usePatients } from '@/lib/store';
-import { Search } from 'lucide-react';
-import { useQuery } from 'convex/react';
-import { api } from '../convex/_generated/api';
-import { useDebounce } from '@/hooks/use-debounce';
+import { SearchInput } from "./ui/search-input";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
+import { useState } from "react";
 
 export function PatientSearch() {
-  const [query, setQuery] = useState('');
-  const { setPatients } = usePatients();
-  const debouncedQuery = useDebounce(query, 300);
+  const [query, setQuery] = useState("");
+  const patients = useQuery(api.patients.get);
 
-  const searchResults = useQuery(api.patients.search, { 
-    searchTerm: debouncedQuery 
-  });
+  console.log("patients", patients);
+  
 
-  useEffect(() => {
-    if (searchResults) {
-      setPatients(searchResults);
-    }
-  }, [searchResults, setPatients]);
+  const searchResults =
+    patients?.filter(
+      (patient) =>
+        !query.trim() ||
+        patient._id.toLowerCase().includes(query.toLowerCase()) ||
+        patient.name.toLowerCase().includes(query.toLowerCase()) ||
+        patient.email.toLowerCase().includes(query.toLowerCase())
+    ) ?? [];
 
   return (
-    <div className="relative">
-      <Search className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground" />
-      <Input
-        placeholder="חיפוש מטופלים..."
+    <div className="space-y-4">
+      <SearchInput
+        placeholder="Search patients (name,id, email)..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="pr-8"
       />
+
+      <div className="space-y-2">
+        {searchResults.map((patient) => (
+          <div
+            key={patient._id}
+            className="p-4 rounded-lg border bg-card text-card-foreground hover:bg-accent/50 transition-colors"
+          >
+            <h3 className="font-medium">{patient.name}</h3>
+            <p className="text-sm text-muted-foreground">{patient.email}</p>
+          </div>
+        ))}
+
+        {searchResults.length === 0 && query && (
+          <div className="text-center py-8 text-muted-foreground">
+            No patients found matching "{query}"
+          </div>
+        )}
+      </div>
     </div>
   );
 }
