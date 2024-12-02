@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { generateRegistrationLink } from '@/lib/db';
-import { QRCodeSVG } from 'qrcode.react';
-import { Copy } from 'lucide-react';
-import { toast } from 'sonner';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { generateRegistrationLink } from "@/lib/db";
+import { QRCodeSVG } from "qrcode.react";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
 
 export function RegistrationLinkDialog() {
   const [open, setOpen] = useState(false);
-  const [registrationLink, setRegistrationLink] = useState('');
+  const [registrationLink, setRegistrationLink] = useState("");
 
   const generateLink = async () => {
     const link = await generateRegistrationLink();
@@ -24,7 +24,7 @@ export function RegistrationLinkDialog() {
 
   const copyLink = () => {
     navigator.clipboard.writeText(registrationLink);
-    toast.success('הקישור הועתק ללוח');
+    toast.success("הקישור הועתק ללוח");
   };
 
   return (
@@ -43,6 +43,9 @@ export function RegistrationLinkDialog() {
           <DialogTitle>טופס רישום למטופל חדש</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <p className="text-sm text-muted-foreground text-center">
+            שלח את הקישור למטופל או סרוק את הקוד QR
+          </p>
           <div className="flex items-center space-x-2 space-x-reverse">
             <Input value={registrationLink} readOnly />
             <Button size="icon" variant="outline" onClick={copyLink}>
@@ -52,9 +55,6 @@ export function RegistrationLinkDialog() {
           <div className="flex justify-center">
             <QRCodeSVG value={registrationLink} size={200} />
           </div>
-          <p className="text-sm text-muted-foreground text-center">
-            שלח את הקישור למטופל או סרוק את הקוד QR
-          </p>
         </div>
       </DialogContent>
     </Dialog>

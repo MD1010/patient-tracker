@@ -18,10 +18,10 @@ import * as Excel from "exceljs";
 import { useQuery } from "convex/react";
 import { TreatmentDialog } from "./TreatmentDialog";
 import { WhatsAppButton } from "./WhatsAppButton";
-import { api } from "@/convex/_generated/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { api } from '../../convex/_generated/api';
 
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -83,7 +83,7 @@ export function PatientModal() {
         onOpenChange={(open) => !open && setSelectedPatient(null)}
       >
         <DialogContent className="max-w-3xl rtl max-h-[90vh] p-0">
-          <DialogHeader className="p-6 pb-0">
+          <DialogHeader className="p-6 ml-8 pb-0">
             <DialogTitle className="flex justify-between items-center text-2xl">
               <span className="m-auto">
                 פרטי מטופל - {selectedPatient.name}

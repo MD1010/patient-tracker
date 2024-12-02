@@ -21,10 +21,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useMutation } from 'convex/react';
-import { api } from '../convex/_generated/api';
-import { Id } from '../convex/_generated/dataModel';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { api } from '../../convex/_generated/api';
+import { Id } from 'convex/_generated/dataModel';
 
 const formSchema = z.object({
   type: z.string().min(2, 'נא להזין סוג טיפול'),
@@ -47,7 +47,7 @@ export function TreatmentDialog({ patientId }: TreatmentDialogProps) {
     defaultValues: {
       type: '',
       description: '',
-      cost: '',
+      cost: NaN,
       nextAppointment: '',
       notes: '',
     },

@@ -1,6 +1,7 @@
 import App from '@/App';
 import { RegistrationForm } from '@/components/RegistrationForm';
-import { createBrowserRouter } from 'react-router-dom';
+import { RegistrationSuccess } from '@/components/RegistrationSuccess';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 export const router = createBrowserRouter([
   {
@@ -8,7 +9,15 @@ export const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: '/register/:token',
+    path: '/register',
     element: <RegistrationForm />,
+  },
+  {
+    path: '/registration-success',
+    element: <RegistrationSuccess />,
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   },
 ]);

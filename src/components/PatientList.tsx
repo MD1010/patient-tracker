@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/button';
 import { usePatients } from '@/lib/store';
 import { format } from 'date-fns';
 import { useQuery } from 'convex/react';
-import { api } from '../convex/_generated/api';
 import { Loader2 } from 'lucide-react';
+import { api } from '../../convex/_generated/api';
 
 export function PatientList() {
   const { setPatients, setSelectedPatient, patients } = usePatients();

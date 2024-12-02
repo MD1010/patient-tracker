@@ -1,6 +1,4 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -8,20 +6,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useMutation } from 'convex/react';
-import { api } from '../convex/_generated/api';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { api } from '../../convex/_generated/api';
+import { useMutation } from "convex/react";
+import { Helmet } from 'react-helmet';
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import * as z from "zod";
+
 
 const formSchema = z.object({
-  name: z.string().min(2, 'נא להזין שם מלא'),
-  email: z.string().email('כתובת אימייל לא תקינה'),
-  phone: z.string().min(9, 'מספר טלפון לא תקין'),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'תאריך לא תקין'),
+  name: z.string().min(2, "נא להזין שם מלא"),
+  email: z.string().email("כתובת אימייל לא תקינה"),
+  phone: z.string().min(9, "מספר טלפון לא תקין"),
+  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "תאריך לא תקין"),
   allergies: z.string().optional(),
   medications: z.string().optional(),
   medicalConditions: z.string().optional(),
@@ -36,15 +38,15 @@ export function RegistrationForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      dateOfBirth: '',
-      allergies: '',
-      medications: '',
-      medicalConditions: '',
-      lastDentalVisit: '',
-      concerns: '',
+      name: "",
+      email: "",
+      phone: "",
+      dateOfBirth: "",
+      allergies: "",
+      medications: "",
+      medicalConditions: "",
+      lastDentalVisit: "",
+      concerns: "",
     },
   });
 
@@ -66,16 +68,18 @@ export function RegistrationForm() {
         medicalInfo: JSON.stringify(medicalInfo),
       });
 
-      toast.success('הרישום הושלם בהצלחה');
       form.reset();
-      navigate('/');
+      navigate("/registration-success");
     } catch (error) {
-      toast.error('שגיאה בתהליך הרישום');
+      toast.error("שגיאה בתהליך הרישום");
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8" dir="rtl">
+      <Helmet>
+        <title>טופס רישום לשיננית</title>
+      </Helmet>
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">טופס רישום למרפאת שיניים</h1>
         <Form {...form}>
@@ -114,7 +118,7 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>טלפון</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} autoComplete='off'/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,7 +187,12 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>ביקור אחרון אצל רופא שיניים</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                    <Input
+                        type="date"
+                        min="1900-01-01"
+                        max={new Date().toISOString()}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
