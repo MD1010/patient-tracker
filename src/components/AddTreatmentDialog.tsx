@@ -22,8 +22,8 @@ export function AddTreatmentDialog({
     type: "",
     description: "",
     cost: "",
-    date: new Date().toISOString(),
     nextAppointment: "",
+    notes: "",
   });
 
   const addTreatment = useMutation(api.treatments.add);
@@ -32,20 +32,26 @@ export function AddTreatmentDialog({
     await addTreatment({
       patientId,
       cost: +form.cost,
-      date: form.date,
+      date: new Date().toISOString(),
       description: form.description,
       type: form.type,
+      notes: form.notes,
+      nextAppointment: form.nextAppointment,
     });
     setIsOpen(false);
   };
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>הוסף טיפול</Button>
+      <Button variant="secondary" onClick={() => setIsOpen(true)}>
+        הוסף טיפול
+      </Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg px-12 pt-6 ">
           <DialogHeader>
-            <DialogTitle>הוסף טיפול</DialogTitle>
+            <DialogTitle className="text-right text-xl p-2">
+              הוסף טיפול
+            </DialogTitle>
           </DialogHeader>
           <form
             className="space-y-4"
@@ -67,6 +73,13 @@ export function AddTreatmentDialog({
                 setForm({ ...form, description: e.target.value })
               }
             />
+            <Textarea
+              placeholder="הערות"
+              value={form.notes}
+              onChange={(e) =>
+                setForm({ ...form, notes: e.target.value })
+              }
+            />
             <Input
               type="number"
               placeholder="עלות"
@@ -75,21 +88,18 @@ export function AddTreatmentDialog({
               required
             />
             <Input
+              className="text-right ml-auto"
               type="date"
-              placeholder="תאריך"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              required
-            />
-            <Input
-              type="date"
-              placeholder="תור הבא"
+              placeholder="התור הבא"
+              min={new Date().toISOString().split("T")[0]}
               value={form.nextAppointment}
               onChange={(e) =>
                 setForm({ ...form, nextAppointment: e.target.value })
               }
             />
-            <Button type="submit">שמור</Button>
+            <Button type="submit" className="w-full">
+              שמור
+            </Button>
           </form>
         </DialogContent>
       </Dialog>

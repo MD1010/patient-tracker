@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { usePatients } from "@/lib/store";
 import { useQuery, useMutation } from "convex/react";
 import { format } from "date-fns";
@@ -96,11 +96,11 @@ export function PatientModal() {
       open={!!selectedPatient}
       onOpenChange={(open) => !open && setSelectedPatient(null)}
     >
-      <DialogContent className="max-w-3xl rtl max-h-[90vh] p-0">
-        <DialogHeader className="p-6 ml-8 pb-0">
-          <DialogTitle className="flex justify-between items-center text-2xl">
-            <span className="m-auto">פרטי מטופל - {selectedPatient.name}</span>
-            <div className="flex items-center gap-2">
+      <DialogContent className="p-4 max-w-2xl">
+        <DialogHeader className="pb-0 pt-8 pr-4">
+          <DialogTitle className="flex justify-between w-full text-2xl">
+            <span className="">פרטי מטופל - {selectedPatient.name}</span>
+            <div className="flex justify-end items-center gap-2">
               <WhatsAppButton
                 phone={selectedPatient.phone}
                 patientId={selectedPatient._id}
@@ -117,12 +117,12 @@ export function PatientModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="p-6 text-right">
+        <ScrollArea className="p-4 text-right">
           <div className="space-y-6">
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             >
               <Card className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -161,135 +161,126 @@ export function PatientModal() {
             </motion.div>
 
             <div className="flex justify-between items-center">
-              <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
               <AddTreatmentDialog patientId={selectedPatient._id} />
+              <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
             </div>
 
-            <ScrollArea>
-              <div>
-                <Accordion type="single" collapsible className="w-full">
-                  {treatments === undefined && (
-                    <div className="flex justify-center items-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  )}
-                  {treatments && treatments.length > 0
-                    ? treatments.map((treatment, i) => (
-                        <motion.div
-                          key={treatment._id}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.05 }}
+            <ScrollArea className="h-[300px]">
+              <Accordion type="single" collapsible className="w-full h-full">
+                {treatments === undefined && (
+                  <div className="flex justify-center items-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                )}
+                {treatments && treatments.length > 0
+                  ? treatments.map((treatment, i) => (
+                      <motion.div
+                        key={treatment._id}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                      >
+                        <AccordionItem
+                          value={treatment._id}
+                          className="border-b last:border-none"
                         >
-                          <AccordionItem
-                            value={treatment._id}
-                            className="border-b last:border-none"
-                          >
-                            <AccordionTrigger className="p-2 py-4 flex justify-between">
-                              <div className="flex w-full gap-10 justify-end">
-                                <span className="font-medium">
-                                  {treatment.type}
-                                </span>
-                                <span className="text-sm text-muted-foreground text-right">
-                                  {format(
-                                    new Date(treatment.date),
-                                    "dd/MM/yyyy"
-                                  )}
-                                </span>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <Card className="p-4 grid grid-cols-2 gap-4 relative">
-                                <div>
-                                  <h4 className="text-sm font-semibold">
-                                    תיאור
-                                  </h4>
+                          <AccordionTrigger className="p-2 py-4 flex justify-between">
+                            <div className="flex w-full gap-10 justify-end">
+                              <span className="font-medium">
+                                {treatment.type}
+                              </span>
+                              <span className="text-sm text-muted-foreground text-right">
+                                {format(new Date(treatment.date), "dd/MM/yyyy")}
+                              </span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <Card className="p-4 grid grid-cols-2 gap-4 relative">
+                              <div>
+                                <h4 className="text-sm font-semibold">תיאור</h4>
 
-                                  <p className="text-sm text-muted-foreground">
-                                    {treatment.description || "N/A"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <h4 className="text-sm font-semibold">
-                                    עלות
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    ₪{treatment.cost}
-                                  </p>
-                                </div>
-                                <div>
-                                  {treatment.nextAppointment && (
-                                    <>
-                                      <h4 className="text-sm font-semibold">
-                                        תור הבא
-                                      </h4>
-                                      <p className="text-sm text-muted-foreground">
-                                        {format(
-                                          new Date(treatment.nextAppointment),
-                                          "dd/MM/yyyy"
-                                        )}
-                                      </p>
-                                    </>
-                                  )}
-                                </div>
-                                {treatment.notes && (
-                                  <div>
+                                <p className="text-sm text-muted-foreground">
+                                  {treatment.description || "N/A"}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-semibold">עלות</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  ₪{treatment.cost}
+                                </p>
+                              </div>
+                              <div>
+                                {treatment.nextAppointment && (
+                                  <>
                                     <h4 className="text-sm font-semibold">
-                                      הערות
+                                      תור הבא
                                     </h4>
                                     <p className="text-sm text-muted-foreground">
-                                      {treatment.notes}
+                                      {format(
+                                        new Date(treatment.nextAppointment),
+                                        "dd/MM/yyyy"
+                                      )}
                                     </p>
-                                  </div>
+                                  </>
                                 )}
+                              </div>
+                              {treatment.notes && (
+                                <div>
+                                  <h4 className="text-sm font-semibold">
+                                    הערות
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    {treatment.notes}
+                                  </p>
+                                </div>
+                              )}
 
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="secondary" size="icon" className='absolute top-2 left-2'>
-                                      <Trash2 className="h-4 w-4 " />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle className="text-right">
-                                        מחיקת טיפול
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription className="ml-auto text-right">
-                                        האם אתה בטוח שברצונך למחוק את הטיפול?{" "}
-                                       פעולה זו לא
-                                        ניתנת לביטול.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter className="flex gap-3 mt-4">
-                                      <AlertDialogCancel>
-                                        ביטול
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() =>
-                                          deleteTreatment({
-                                            treatmentId: treatment._id,
-                                          })
-                                        }
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                      >
-                                        מחק
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                                
-                              </Card>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </motion.div>
-                      ))
-                    : treatments !== undefined && (
-                        <p className="text-center text-muted-foreground py-4">
-                          אין היסטוריית טיפולים
-                        </p>
-                      )}
-                </Accordion>
-              </div>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute top-2 left-2"
+                                  >
+                                    <Trash2 className="h-4 w-4 " />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-right">
+                                      מחיקת טיפול
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="ml-auto text-right">
+                                      האם אתה בטוח שברצונך למחוק את הטיפול?{" "}
+                                      פעולה זו לא ניתנת לביטול.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter className="flex gap-3 mt-4">
+                                    <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        deleteTreatment({
+                                          treatmentId: treatment._id,
+                                        })
+                                      }
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      מחק
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </Card>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </motion.div>
+                    ))
+                  : treatments !== undefined && (
+                      <div className="text-center text-muted-foreground py-4 h-[200px] grid items-center">
+                        <p>אין היסטוריית טיפולים</p>
+                      </div>
+                    )}
+              </Accordion>
             </ScrollArea>
           </div>
         </ScrollArea>

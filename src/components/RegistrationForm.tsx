@@ -10,14 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from '../../convex/_generated/api';
+import { api } from "../../convex/_generated/api";
 import { useMutation } from "convex/react";
-import { Helmet } from 'react-helmet';
+import { Helmet } from "react-helmet";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as z from "zod";
-
 
 const formSchema = z.object({
   name: z.string().min(2, "נא להזין שם מלא"),
@@ -118,7 +117,7 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>טלפון</FormLabel>
                     <FormControl>
-                      <Input {...field} autoComplete='off'/>
+                      <Input {...field} autoComplete="off" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +130,12 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>תאריך לידה</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input
+                        type="date"
+                        {...field}
+                        min="1900-01-01"
+                        max={new Date().toISOString().split("T")[0]}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -187,7 +191,7 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>ביקור אחרון אצל רופא שיניים</FormLabel>
                     <FormControl>
-                    <Input
+                      <Input
                         type="date"
                         min="1900-01-01"
                         max={new Date().toISOString()}
