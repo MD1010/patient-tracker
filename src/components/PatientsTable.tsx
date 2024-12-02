@@ -103,18 +103,18 @@ export function PatientTable() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent >
                           <AlertDialogHeader>
-                            <AlertDialogTitle>מחיקת מטופל</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogTitle className="ml-auto">מחיקת מטופל</AlertDialogTitle>
+                            <AlertDialogDescription className='ml-auto'>
                               האם אתה בטוח שברצונך למחוק את המטופל{" "}
                               {patient.name}? פעולה זו לא ניתנת לביטול.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
-                          <AlertDialogFooter>
+                          <AlertDialogFooter className='flex gap-3 mt-4'>
                             <AlertDialogCancel>ביטול</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => deletePatient()}
+                              onClick={() => deletePatient(patient._id)}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
                               מחק
