@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
-import { AddNewPatient } from './RegisterLink';
+import { AddNewPatient } from './NewPatient/AddNewPatient';
 
 export function Header() {
   return (

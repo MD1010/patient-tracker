@@ -1,23 +1,14 @@
-import App from '@/App';
-import { RegistrationForm } from '@/components/RegistrationForm';
-import { RegistrationSuccess } from '@/components/RegistrationSuccess';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import App from "@/App";
+
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <App />,
   },
   {
-    path: '/register',
-    element: <RegistrationForm />,
-  },
-  {
-    path: '/registration-success',
-    element: <RegistrationSuccess />,
-  },
-  {
-    path: '*',
+    path: "*",
     element: <Navigate to="/" replace />,
   },
 ]);
