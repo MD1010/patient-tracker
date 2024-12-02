@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Id } from '@/convex/_generated/dataModel';
+import { Id } from 'convex/_generated/dataModel';
 import { MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 

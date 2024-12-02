@@ -141,9 +141,10 @@ export function PatientModal() {
               </Card>
             </motion.div>
 
+            <h1 className="text-xl font-bold p-2">היסטוריית טיפולים</h1>
+
             {/* Treatment History Section */}
-            <ScrollArea className="h-[400px] overflow-y-auto">
-              <h1 className="font-bold p-2 py-4">היסטוריית טיפולים</h1>
+            <ScrollArea>
               <div>
                 <Accordion type="single" collapsible className="w-full">
                   {treatments === undefined && (
