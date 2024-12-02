@@ -1,3 +1,4 @@
+import { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
@@ -28,5 +29,15 @@ export const add = mutation({
       createdAt: new Date().toISOString(),
     });
     return treatmentId;
+  },
+});
+
+export const deleteOne = mutation({
+  args: {
+    treatmentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Delete the patient by their ID
+    await ctx.db.delete(args.treatmentId as Id<"treatments">);
   },
 });

@@ -154,7 +154,7 @@ export function PatientTable() {
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="icon">
+                          <Button variant="secondary" size="icon">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

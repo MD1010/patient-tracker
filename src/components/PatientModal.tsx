@@ -14,16 +14,29 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePatients } from "@/lib/store";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, Trash2 } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { WhatsAppButton } from "./WhatsAppButton";
+import { AddTreatmentDialog } from "./AddTreatmentDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
+  const deleteTreatment = useMutation(api.treatments.deleteOne);
 
   const treatments = useQuery(
     api.treatments.get,
@@ -69,6 +82,13 @@ export function PatientModal() {
     window.URL.revokeObjectURL(url);
   };
 
+  // const handleDeleteTreatment = async (treatmentId: string) => {
+  //   const confirmed = confirm("האם אתה בטוח שברצונך למחוק טיפול זה?");
+  //   if (confirmed) {
+  //     await deleteTreatment({ treatmentId });
+  //   }
+  // };
+
   if (!selectedPatient) return null;
 
   return (
@@ -99,7 +119,6 @@ export function PatientModal() {
 
         <ScrollArea className="p-6 text-right">
           <div className="space-y-6">
-            {/* Patient Details */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -141,9 +160,11 @@ export function PatientModal() {
               </Card>
             </motion.div>
 
-            <h1 className="text-xl font-bold p-2">היסטוריית טיפולים</h1>
+            <div className="flex justify-between items-center">
+              <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
+              <AddTreatmentDialog patientId={selectedPatient._id} />
+            </div>
 
-            {/* Treatment History Section */}
             <ScrollArea>
               <div>
                 <Accordion type="single" collapsible className="w-full">
@@ -178,11 +199,12 @@ export function PatientModal() {
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>
-                              <Card className="p-4 grid grid-cols-2 gap-4">
+                              <Card className="p-4 grid grid-cols-2 gap-4 relative">
                                 <div>
                                   <h4 className="text-sm font-semibold">
                                     תיאור
                                   </h4>
+
                                   <p className="text-sm text-muted-foreground">
                                     {treatment.description || "N/A"}
                                   </p>
@@ -220,6 +242,42 @@ export function PatientModal() {
                                     </p>
                                   </div>
                                 )}
+
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="secondary" size="icon" className='absolute top-2 left-2'>
+                                      <Trash2 className="h-4 w-4 " />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle className="text-right">
+                                        מחיקת טיפול
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription className="ml-auto text-right">
+                                        האם אתה בטוח שברצונך למחוק את הטיפול?{" "}
+                                       פעולה זו לא
+                                        ניתנת לביטול.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="flex gap-3 mt-4">
+                                      <AlertDialogCancel>
+                                        ביטול
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() =>
+                                          deleteTreatment({
+                                            treatmentId: treatment._id,
+                                          })
+                                        }
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        מחק
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                                
                               </Card>
                             </AccordionContent>
                           </AccordionItem>
