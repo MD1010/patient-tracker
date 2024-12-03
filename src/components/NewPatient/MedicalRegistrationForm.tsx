@@ -12,6 +12,7 @@ import { revalidateFormBySpecialValidators } from "./formSpecialValidators";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import DEFAULT_FORM_VALUES from "./defualtFormValues";
 
 export type FormData = Doc<"patients">;
 const formVariants = {
@@ -27,9 +28,7 @@ type Props = {
 export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<FormData>({
-    defaultValues: {
-      lastTreatmentDate: new Date().toISOString(),
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
     mode: "onBlur",
   });
   const addPatientMutation = useMutation(api.patients.add);
@@ -37,7 +36,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
   const onSubmit = async (data: FormData) => {
     console.log(data);
     await addPatientMutation(data);
-    toast.success("הטופס נשלח בהצלחה!");
+    toast.success("המטופל נוסף בהצלחה");
     onCloseModal();
   };
 

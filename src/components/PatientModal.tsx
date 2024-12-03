@@ -99,7 +99,7 @@ export function PatientModal() {
       <DialogContent className="p-4 max-w-2xl">
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
-            <span className="">פרטי מטופל - {selectedPatient.firstName} ${selectedPatient.lastName}</span>
+            <span className="">פרטי מטופל - {selectedPatient.firstName} {selectedPatient.lastName}</span>
             <div className="flex justify-end items-center gap-2">
               <WhatsAppButton
                 phone={selectedPatient.phone}

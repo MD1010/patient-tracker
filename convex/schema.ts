@@ -31,17 +31,17 @@ export default defineSchema({
       cancer: v.boolean(),
     }),
     medications: v.object({
-      coumadin: v.optional(v.boolean()),
-      penicillinLatex: v.optional(v.boolean()),
-      otherMedications: v.optional(v.string()), // Any other medication info
+      coumadin: v.boolean(),
+      penicillinLatex: v.boolean(),
+      otherMedications: v.string(), // Any other medication ino
     }),
-    surgeries: v.optional(v.string()),
+    surgeries: v.string(),
     smoking: v.boolean(),
     pregnancy: v.boolean(),
     anesthesia: v.boolean(),
     pregnancyWeek: v.optional(v.string()),
-    cancerDetails: v.optional(v.string()),
-    otherAllergies: v.optional(v.string()),
+    cancerDetails: v.string(),
+    otherAllergies: v.string(),
     createdAt: v.string(),
   }),
 
