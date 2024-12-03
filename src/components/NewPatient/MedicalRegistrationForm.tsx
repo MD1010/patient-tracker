@@ -63,6 +63,7 @@ export function MedicalRegistrationForm() {
     defaultValues: {
       date: new Date().toISOString(),
     },
+    mode: "onBlur",
   });
 
   const onSubmit = (data: FormData) => {

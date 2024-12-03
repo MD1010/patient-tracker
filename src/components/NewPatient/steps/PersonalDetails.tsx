@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { PhoneInput } from "@/components/ui/phone-input";
-import { cn } from "@/lib/utils";
+import { NumericOTPInput } from "@/components/ui/numeric-otp-input";
+import { validateIsraeliPhone } from "@/lib/validators";
+import { useOutsideClick } from "rooks";
+import { useRef } from "react";
 
 interface PersonalDetailsProps {
   form: UseFormReturn<FormData>;
@@ -23,15 +25,20 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
   const {
     register,
     setValue,
+    setError,
     watch,
     formState: { errors },
   } = form;
 
-  // Set default value for lastTreatmentDate to today if not already set
-  if (!watch("lastTreatmentDate")) {
-    setValue("lastTreatmentDate", new Date());
-  }
+  const phoneInputRef = useRef(null);
 
+  useOutsideClick(phoneInputRef, () => {
+    // Trigger validation when clicking outside
+
+    if (!validateIsraeliPhone(watch("phone"))) {
+      setError("phone", { message: "מספר טלפון לא תקין" });
+    }
+  });
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-6">
@@ -111,16 +118,22 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         </div>
       </div>
       <div className="flex flex-col gap-6">
-        <div className="w-full flex-1">
+        <div className="space-y-2">
           <Label htmlFor="phone">טלפון</Label>
-          <PhoneInput
-            value={watch("phone") || ""}
-            onChange={(value) => setValue("phone", value)}
-            className={cn(
-              "w-full",
-              errors.phone ? "border-red-500 shadow-sm" : ""
-            )}
-          />
+          <div ref={phoneInputRef}>
+            <NumericOTPInput
+              isPhoneNumber
+              value={watch("phone") || ""}
+              error={!!errors.phone}
+              {...register("phone", { required: "שדה חובה" })}
+              onChange={(value) => {
+                setValue("phone", value);
+              }}
+            />
+          </div>
+          {errors.phone && (
+            <p className="text-sm text-red-600">{errors.phone.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">

@@ -17,6 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {startIcon}
           </div>
         )}
+
         <input
           type={type}
           className={cn(
@@ -28,7 +29,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           ref={ref}
           {...props}
+          autoComplete="new-password"
         />
+
         {endIcon && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             {endIcon}

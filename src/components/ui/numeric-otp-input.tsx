@@ -1,5 +1,5 @@
-import React, { useRef, useState, forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import React, { forwardRef, useRef } from "react";
 import { Input } from "./input";
 
 interface PhoneInputProps
@@ -9,12 +9,21 @@ interface PhoneInputProps
   error?: boolean;
 }
 
-export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ value, onChange, className, error, ...props }, ref) => {
+interface PhoneInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+  value: string;
+  onChange: (value: string) => void;
+  error?: boolean;
+  isPhoneNumber?: boolean; // New optional prop for dashes
+}
+
+export const NumericOTPInput = forwardRef<HTMLInputElement, PhoneInputProps>(
+  ({ value, onChange, className, error, isPhoneNumber: withDashes = false, ...props }) => {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    // Split phone number into segments
+    // Ensure the value is always 10 characters long with "_" placeholders
     const segments = value.padEnd(10, "_").split("");
+
 
     const handleSegmentChange = (index: number, newValue: string) => {
       if (/^\d$/.test(newValue)) {
@@ -23,17 +32,14 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
         const newPhone = newSegments.join("");
         onChange(newPhone);
 
-        // Auto-advance to next input
+        // Auto-advance to the next input field
         if (index < 9) {
           inputRefs.current[index + 1]?.focus();
         }
       }
     };
 
-    const handleKeyDown = (
-      index: number,
-      e: React.KeyboardEvent<HTMLInputElement>
-    ) => {
+    const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
       const newSegments = [...segments];
 
       if (e.key === "Backspace") {
@@ -55,38 +61,19 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 
     const handlePaste = (e: React.ClipboardEvent) => {
       e.preventDefault();
-      const pastedData = e.clipboardData
-        .getData("text")
-        .replace(/\D/g, "")
-        .slice(0, 10);
+      const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 10);
       onChange(pastedData.padEnd(10, "_"));
     };
 
     return (
-      <div
-        dir="ltr"
-        className={cn(
-          "flex gap-2 items-center rounded-md",
-          error && "ring-2 ring-destructive",
-          className
-        )}
-      >
+      <div dir="ltr" className={cn("flex gap-2 items-center rounded-md", className)}>
         <div className="flex gap-0.5">
-          {/* Area code */}
+          {/* First 3 digits (area code) */}
           <div className="flex gap-0.5">
             {segments.slice(0, 3).map((digit, i) => (
               <Input
                 key={i}
-                ref={(el) => {
-                  inputRefs.current[i] = el;
-                  if (i === 0) {
-                    if (typeof ref === "function") {
-                      ref(el);
-                    } else if (ref) {
-                      ref.current = el;
-                    }
-                  }
-                }}
+                ref={(el) => (inputRefs.current[i] = el)}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -94,15 +81,22 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
                 onChange={(e) => handleSegmentChange(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 onPaste={handlePaste}
-                className="w-6 h-8 text-center p-1 text-foreground font-semibold text-[1rem]"
+                autoComplete="new-password"
+                className={cn(
+                  `w-7 h-8 text-center p-1 text-foreground font-semibold text-[1rem]`,
+                  error && "ring-2 ring-destructive"
+                )}
                 {...props}
               />
             ))}
           </div>
-          <span className="text-muted-foreground mx-1">-</span>
-          {/* First segment */}
-          <div className="flex gap-1">
-            {segments.slice(3, 6).map((digit, i) => (
+
+          {/* Optional Dash */}
+          {withDashes && <span className="text-muted-foreground mx-1">-</span>}
+
+          {/* Middle 3 digits */}
+          <div className="flex gap-0.5">
+            {segments.slice(3, 10).map((digit, i) => (
               <Input
                 key={i + 3}
                 ref={(el) => (inputRefs.current[i + 3] = el)}
@@ -113,33 +107,21 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
                 onChange={(e) => handleSegmentChange(i + 3, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i + 3, e)}
                 onPaste={handlePaste}
-                className="w-6 h-8 text-center p-1 text-foreground font-semibold text-[1rem]"
+                autoComplete="new-password"
+                className={cn(
+                  `w-7 h-8 text-center p-1 text-foreground font-semibold text-[1rem]`,
+                  error && "ring-2 ring-destructive"
+                )}
                 {...props}
               />
             ))}
           </div>
-          {/* Second segment */}
-          <div className="flex gap-1">
-            {segments.slice(6, 10).map((digit, i) => (
-              <Input
-                key={i + 6}
-                ref={(el) => (inputRefs.current[i + 6] = el)}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit === "_" ? "" : digit}
-                onChange={(e) => handleSegmentChange(i + 6, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i + 6, e)}
-                onPaste={handlePaste}
-                className="w-6 h-8 text-center p-1 text-foreground font-semibold text-[1rem]"
-                {...props}
-              />
-            ))}
-          </div>
+
+        
         </div>
       </div>
     );
   }
 );
 
-PhoneInput.displayName = "PhoneInput";
+NumericOTPInput.displayName = "PhoneInput";
