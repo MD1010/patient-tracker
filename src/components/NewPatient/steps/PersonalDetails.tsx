@@ -1,9 +1,7 @@
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NumericOTPInput } from "@/components/ui/numeric-otp-input";
 import { he } from "date-fns/locale";
-import { useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
 import { validateIsraeliPhone } from "@/lib/validators";
@@ -17,13 +15,14 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     register,
     setValue,
     watch,
+    trigger,
     formState: { errors },
   } = form;
-
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-6">
+        {/* First Name */}
         <div className="space-y-2">
           <Label htmlFor="firstName">שם פרטי</Label>
           <Input
@@ -38,6 +37,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           )}
         </div>
 
+        {/* Last Name */}
         <div className="space-y-2">
           <Label htmlFor="lastName">שם משפחה</Label>
           <Input
@@ -51,16 +51,18 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           )}
         </div>
 
-        <div className="space-y-2">
+       {/* Date of Birth */}
+       <div className="space-y-2">
           <Label>תאריך לידה</Label>
-
           <DatePicker
             fromYear={1901}
             toDate={new Date()}
             date={watch("dateOfBirth")}
             onDateChange={(date) => {
               setValue("dateOfBirth", date!.toISOString());
+              trigger("dateOfBirth")
             }}
+            {...register("dateOfBirth", { required: "שדה חובה" })}
             locale={he}
             className={`w-full justify-start text-right ${
               errors.dateOfBirth ? "border-red-500 shadow-sm" : ""
@@ -71,6 +73,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           )}
         </div>
 
+        {/* ID Number */}
         <div className="space-y-2">
           <Label htmlFor="idNumber">תעודת זהות</Label>
           <Input
@@ -86,36 +89,28 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             <p className="text-sm text-red-600">{errors.idNumber.message}</p>
           )}
         </div>
-      </div>
-      <div className="flex flex-col gap-6">
+
+        {/* Phone */}
         <div className="space-y-2">
           <Label htmlFor="phone">טלפון</Label>
-          {/* Hidden Input for React Hook Form */}
           <Input
-            type="hidden"
+            autoComplete="off"
             id="phone"
             {...register("phone", {
               required: "שדה חובה",
               validate: (value) =>
                 validateIsraeliPhone(value) || "מספר טלפון לא תקין",
             })}
+            className={errors.phone ? "border-red-500 shadow-sm" : ""}
           />
-            <NumericOTPInput
-              isPhoneNumber
-              value={watch("phone") || ""}
-              error={!!errors.phone}
-              onChange={(value) => {
-                setValue("phone", value);
-              }}
-            />
           {errors.phone && (
             <p className="text-sm text-red-600">{errors.phone.message}</p>
           )}
         </div>
 
+        {/* Last Treatment Date */}
         <div className="space-y-2">
           <Label>תאריך טיפול אחרון</Label>
-
           <DatePicker
             fromYear={2000}
             toDate={new Date()}
