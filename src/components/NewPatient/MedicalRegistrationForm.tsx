@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeftIcon } from "lucide-react";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FormSteps } from "./FormSteps";
@@ -10,48 +10,8 @@ import { MedicalHistory } from "./steps/MedicalHistory";
 import { PersonalDetails } from "./steps/PersonalDetails";
 import { revalidateFormBySpecialValidators } from "./formSpecialValidators";
 import { Doc } from "../../../convex/_generated/dataModel";
-
-// export type FormData = {
-//   firstName: string;
-//   lastName: string;
-//   dateOfBirth: Date | undefined;
-//   idNumber: string;
-//   phone: string;
-//   lastTreatmentDate: Date | undefined;
-//   // Medical conditions
-//   diabetes: boolean;
-//   osteoporosis: boolean;
-//   asthma: boolean;
-//   thyroidProblems: boolean;
-//   bloodClottingProblems: boolean;
-//   hepatitisB: boolean;
-//   hepatitisC: boolean;
-//   aids: boolean;
-//   hypertension: boolean;
-//   heartDisease: boolean;
-//   artificialValve: boolean;
-//   pacemaker: boolean;
-//   heartDefect: boolean;
-//   tuberculosis: boolean;
-//   kidneyDisease: boolean;
-//   neurologicalProblems: boolean;
-//   psychiatricProblems: boolean;
-//   cancer: boolean;
-//   cancerDetails: string;
-//   chemotherapy: boolean;
-//   pregnancy: boolean;
-//   pregnancyWeek: string;
-//   smoking: boolean;
-//   // Medical history
-//   medications: string;
-//   surgeries: string;
-//   coumadin: boolean;
-//   // Allergies
-//   penicillinLatex: boolean;
-//   anesthesia: boolean;
-//   otherAllergies: string;
-//   date: Date;
-// };
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 export type FormData = Doc<"patients">;
 const formVariants = {
@@ -60,18 +20,26 @@ const formVariants = {
   exit: { y: 20, opacity: 0 },
 };
 
-export function MedicalRegistrationForm() {
+type Props = {
+  onCloseModal: () => void;
+}
+
+export const MedicalRegistrationForm: FC<Props> = ({onCloseModal}) => {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<FormData>({
     defaultValues: {
-      lastTreatmentDate: new Date().toISOString()
+      lastTreatmentDate: new Date().toISOString(),
     },
     mode: "onBlur",
   });
+  const addPatientMutation = useMutation(api.patients.add);
 
-  const onSubmit = (data: FormData) => {
-    console.log("Form submitted:", data);
+  const onSubmit = async (data: FormData) => {
+    console.log(data);
+    await addPatientMutation(data);
     toast.success("הטופס נשלח בהצלחה!");
+    onCloseModal()
+    
   };
 
   const nextStep = async () => {

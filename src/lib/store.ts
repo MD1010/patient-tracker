@@ -1,5 +1,7 @@
+import { Doc } from '../../convex/_generated/dataModel';
 import { create } from 'zustand';
-import type { Patient } from './types';
+
+type Patient = Doc<"patients">
 
 interface PatientsState {
   patients: Patient[];

@@ -89,7 +89,6 @@ export function PatientTable() {
             <TableRow>
               {[
                 { label: "שם", key: "name" },
-                { label: "דוא״ל", key: "email" },
                 { label: "טלפון", key: "phone" },
                 { label: "תאריך לידה", key: "dateOfBirth" },
                 { label: "נוסף בתאריך", key: "createdAt" },
@@ -134,8 +133,7 @@ export function PatientTable() {
             ) : (
               sortedPatients?.map((patient) => (
                 <TableRow key={patient._id}>
-                  <TableCell className="font-medium pr-4">{patient.name}</TableCell>
-                  <TableCell>{patient.email}</TableCell>
+                  <TableCell className="font-medium pr-4">{`${patient.firstName} ${patient.lastName}`}</TableCell>
                   <TableCell>{patient.phone}</TableCell>
                   <TableCell>
                     {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
@@ -165,7 +163,7 @@ export function PatientTable() {
                             </AlertDialogTitle>
                             <AlertDialogDescription className="ml-auto text-right">
                               האם אתה בטוח שברצונך למחוק את המטופל{" "}
-                              {patient.name}? פעולה זו לא ניתנת לביטול.
+                              {patient.firstName}? פעולה זו לא ניתנת לביטול.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter className="flex gap-3 mt-4">

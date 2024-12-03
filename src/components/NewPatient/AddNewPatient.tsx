@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog"; // Assumes you're using a modal component library
 import { useState } from "react";
 import { PlusIcon } from "lucide-react";
-import { MedicalRegistrationForm } from './MedicalRegistrationForm';
+import { MedicalRegistrationForm } from "./MedicalRegistrationForm";
 
 export function AddNewPatient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,10 +29,12 @@ export function AddNewPatient() {
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className='text-right pr-6 mt-4'>הוספת מטופל</DialogTitle>
+              <DialogTitle className="text-right pr-6 mt-4">
+                הוספת מטופל
+              </DialogTitle>
               <DialogClose onClick={toggleModal} />
             </DialogHeader>
-            <MedicalRegistrationForm />
+            <MedicalRegistrationForm onCloseModal={toggleModal} />
           </DialogContent>
         </Dialog>
       )}

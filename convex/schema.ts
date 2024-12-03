@@ -5,10 +5,10 @@ export default defineSchema({
   patients: defineTable({
     firstName: v.string(),
     lastName: v.string(),
-    email: v.string(),
     phone: v.string(),
     dateOfBirth: v.string(),
     lastTreatmentDate: v.string(),
+    idNumber: v.string(),
     conditions: v.object({
       diabetes: v.boolean(),
       osteoporosis: v.boolean(),
@@ -31,8 +31,8 @@ export default defineSchema({
       cancer: v.boolean(),
     }),
     medications: v.object({
-      coumadin: v.boolean(),
-      penicillinLatex: v.boolean(),
+      coumadin: v.optional(v.boolean()),
+      penicillinLatex: v.optional(v.boolean()),
       otherMedications: v.optional(v.string()), // Any other medication info
     }),
     surgeries: v.optional(v.string()),
@@ -43,7 +43,7 @@ export default defineSchema({
     cancerDetails: v.optional(v.string()),
     otherAllergies: v.optional(v.string()),
     createdAt: v.string(),
-  }).index("by_email", ["email"]),
+  }),
 
   treatments: defineTable({
     patientId: v.id("patients"),

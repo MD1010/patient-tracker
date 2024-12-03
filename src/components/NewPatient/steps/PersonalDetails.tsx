@@ -60,9 +60,9 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           <DatePicker
             fromYear={1901}
             toDate={new Date()}
-            date={watch("dateOfBirth")}
+            date={new Date(watch("dateOfBirth"))}
             onDateChange={(date) => {
-              setValue("dateOfBirth", date);
+              setValue("dateOfBirth", date!.toISOString());
             }}
             locale={he}
             className={`w-full justify-start text-right ${
@@ -118,9 +118,9 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           <DatePicker
             fromYear={2000}
             toDate={new Date()}
-            date={watch("lastTreatmentDate")}
+            date={new Date(watch("lastTreatmentDate"))}
             onDateChange={(date) => {
-              setValue("lastTreatmentDate", date);
+              setValue("lastTreatmentDate", date!.toISOString());
               // clearErrors("lastTreatmentDate");
             }}
             locale={he}
