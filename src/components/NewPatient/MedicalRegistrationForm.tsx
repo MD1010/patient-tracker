@@ -22,9 +22,9 @@ const formVariants = {
 
 type Props = {
   onCloseModal: () => void;
-}
+};
 
-export const MedicalRegistrationForm: FC<Props> = ({onCloseModal}) => {
+export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<FormData>({
     defaultValues: {
@@ -38,8 +38,7 @@ export const MedicalRegistrationForm: FC<Props> = ({onCloseModal}) => {
     console.log(data);
     await addPatientMutation(data);
     toast.success("הטופס נשלח בהצלחה!");
-    onCloseModal()
-    
+    onCloseModal();
   };
 
   const nextStep = async () => {
@@ -101,4 +100,4 @@ export const MedicalRegistrationForm: FC<Props> = ({onCloseModal}) => {
       </AnimatePresence>
     </div>
   );
-}
+};

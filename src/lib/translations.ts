@@ -7,7 +7,7 @@ export const translations = {
   questionnaires: 'שאלונים רפואיים',
   login: 'כניסה',
   logout: 'יציאה',
-  email: 'דואר אלקטרוני',
+  idNumber: 'תעודת זהות',
   password: 'סיסמה',
   name: 'שם',
   phone: 'טלפון',

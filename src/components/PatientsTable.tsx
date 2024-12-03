@@ -89,6 +89,7 @@ export function PatientTable() {
             <TableRow>
               {[
                 { label: "שם", key: "name" },
+                { label: "ת.ז", key: "idNumber" },
                 { label: "טלפון", key: "phone" },
                 { label: "תאריך לידה", key: "dateOfBirth" },
                 { label: "נוסף בתאריך", key: "createdAt" },
@@ -98,7 +99,7 @@ export function PatientTable() {
                   key={index}
                   onClick={() => column.key && handleSort(column.key)}
                   className={cn(
-                    "text-right cursor-pointer select-none pr-4",
+                    "text-right cursor-pointer select-none pr-2",
                     column.key && "hover:text-primary"
                   )}
                   style={{
@@ -134,6 +135,7 @@ export function PatientTable() {
               sortedPatients?.map((patient) => (
                 <TableRow key={patient._id}>
                   <TableCell className="font-medium pr-4">{`${patient.firstName} ${patient.lastName}`}</TableCell>
+                  <TableCell>{patient.idNumber}</TableCell>
                   <TableCell>{patient.phone}</TableCell>
                   <TableCell>
                     {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}

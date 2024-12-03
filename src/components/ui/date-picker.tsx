@@ -23,7 +23,7 @@ export function DatePicker({
   fromYear,
   fromDate,
 }: {
-  date: Date | undefined;
+  date: string | undefined;
   onDateChange: (date: Date | undefined) => void;
   className?: string;
   locale?: Locale;
@@ -57,7 +57,7 @@ export function DatePicker({
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
-          selected={date}
+          // selected={date}
           onSelect={handleDateSelect}
           locale={locale} // Pass locale to Calendar
           initialFocus

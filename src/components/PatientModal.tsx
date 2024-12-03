@@ -48,12 +48,12 @@ export function PatientModal() {
 
     const workbook = new Excel.Workbook();
     const worksheet = workbook.addWorksheet(
-      `${selectedPatient.name} - פרטי מטופל`
+      `${selectedPatient.firstName} ${selectedPatient.lastName} - פרטי מטופל`
     );
 
     worksheet.addRow(["נתוני לקוח"]);
-    worksheet.addRow(["שם", selectedPatient.name]);
-    worksheet.addRow(["אימייל", selectedPatient.email]);
+    worksheet.addRow(["שם", `${selectedPatient.firstName} ${selectedPatient.lastName}`]);
+    worksheet.addRow(["ת.ז", selectedPatient.idNumber]);
     worksheet.addRow(["טלפון", selectedPatient.phone]);
     worksheet.addRow(["תאריך לידה", selectedPatient.dateOfBirth]);
     worksheet.addRow([]);
@@ -77,7 +77,7 @@ export function PatientModal() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `פרטי מטופל-${selectedPatient.name}.xlsx`;
+    a.download = `פרטי מטופל-${selectedPatient.firstName}_${selectedPatient.lastName}.xlsx`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -99,7 +99,7 @@ export function PatientModal() {
       <DialogContent className="p-4 max-w-2xl">
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
-            <span className="">פרטי מטופל - {selectedPatient.name}</span>
+            <span className="">פרטי מטופל - {selectedPatient.firstName} ${selectedPatient.lastName}</span>
             <div className="flex justify-end items-center gap-2">
               <WhatsAppButton
                 phone={selectedPatient.phone}
@@ -127,9 +127,9 @@ export function PatientModal() {
               <Card className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-semibold">דואר אלקטרוני</h4>
+                    <h4 className="text-sm font-semibold">תעודת זהות</h4>
                     <p className="text-sm text-muted-foreground">
-                      {selectedPatient.email}
+                      {selectedPatient.idNumber}
                     </p>
                   </div>
                   <div>
