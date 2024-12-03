@@ -48,7 +48,7 @@ export type FormData = {
   penicillinLatex: boolean;
   anesthesia: boolean;
   otherAllergies: string;
-  date: string;
+  date: Date;
 };
 
 const formVariants = {
@@ -61,7 +61,8 @@ export function MedicalRegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<FormData>({
     defaultValues: {
-      date: new Date().toISOString(),
+      date: new Date(),
+      lastTreatmentDate: new Date(),
     },
     mode: "onBlur",
   });

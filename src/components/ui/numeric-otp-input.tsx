@@ -67,9 +67,9 @@ export const NumericOTPInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 
     return (
       <div dir="ltr" className={cn("flex gap-2 items-center rounded-md", className)}>
-        <div className="flex gap-0.5">
+        <div className="flex gap-1">
           {/* First 3 digits (area code) */}
-          <div className="flex gap-0.5">
+          <div className="flex gap-1">
             {segments.slice(0, 3).map((digit, i) => (
               <Input
                 key={i}
@@ -95,7 +95,7 @@ export const NumericOTPInput = forwardRef<HTMLInputElement, PhoneInputProps>(
           {withDashes && <span className="text-muted-foreground mx-1">-</span>}
 
           {/* Middle 3 digits */}
-          <div className="flex gap-0.5">
+          <div className="flex gap-1">
             {segments.slice(3, 10).map((digit, i) => (
               <Input
                 key={i + 3}

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
+import { format, Locale } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -16,9 +16,17 @@ import {
 export function DatePicker({
   date,
   onDateChange,
+  className,
+  locale,
+  toDate,
+  fromDate,
 }: {
   date: Date | undefined;
   onDateChange: (date: Date | undefined) => void;
+  className?: string;
+  locale?: Locale; // Pass locale to handle date formatting
+  fromDate?: Date; // Pass locale to handle date formatting
+  toDate?: Date; // Pass locale to handle date formatting
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -34,15 +42,24 @@ export function DatePicker({
           variant={"outline"}
           className={cn(
             "w-[280px] justify-start text-left font-normal",
-            !date && "text-muted-foreground"
+            !date && "text-muted-foreground",
+            className // Apply custom styles passed as props
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "dd/M/y") : <span>Pick a date</span>}
+          {date ? format(date, "PP", { locale }) : <span>בחר תאריך</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={handleDateSelect} initialFocus />
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={handleDateSelect}
+          locale={locale} // Pass locale to Calendar
+          initialFocus
+          toDate={toDate}
+          fromDate={fromDate}
+        />
       </PopoverContent>
     </Popover>
   );

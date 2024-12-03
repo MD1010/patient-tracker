@@ -16,6 +16,7 @@ import { NumericOTPInput } from "@/components/ui/numeric-otp-input";
 import { validateIsraeliPhone } from "@/lib/validators";
 import { useOutsideClick } from "rooks";
 import { useRef } from "react";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface PersonalDetailsProps {
   form: UseFormReturn<FormData>;
@@ -71,31 +72,21 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
 
         <div className="space-y-2">
           <Label>תאריך לידה</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={`w-full justify-start text-right ${
-                  errors.dateOfBirth ? "border-red-500 shadow-sm" : ""
-                }`}
-              >
-                <CalendarIcon className="ml-2 h-4 w-4" />
-                {watch("dateOfBirth") ? (
-                  format(watch("dateOfBirth")!, "PP", { locale: he })
-                ) : (
-                  <span>בחר תאריך</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={watch("dateOfBirth")}
-                onSelect={(date) => setValue("dateOfBirth", date)}
-                locale={he}
-              />
-            </PopoverContent>
-          </Popover>
+
+          <DatePicker
+            toDate={new Date()}
+            date={watch("dateOfBirth")}
+            onDateChange={(date) => {
+              setValue("dateOfBirth", date);
+            }}
+            locale={he}
+            className={`w-full justify-start text-right ${
+              errors.dateOfBirth ? "border-red-500 shadow-sm" : ""
+            }`}
+          />
+          {errors.dateOfBirth && (
+            <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
+          )}
           {errors.dateOfBirth && (
             <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
           )}
@@ -138,31 +129,18 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
 
         <div className="space-y-2">
           <Label>תאריך טיפול אחרון</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={`w-full justify-start text-right ${
-                  errors.lastTreatmentDate ? "border-red-500 shadow-sm" : ""
-                }`}
-              >
-                <CalendarIcon className="ml-2 h-4 w-4" />
-                {watch("lastTreatmentDate") ? (
-                  format(watch("lastTreatmentDate")!, "PP", { locale: he })
-                ) : (
-                  <span>בחר תאריך</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={watch("lastTreatmentDate")}
-                onSelect={(date) => setValue("lastTreatmentDate", date)}
-                locale={he}
-              />
-            </PopoverContent>
-          </Popover>
+
+          <DatePicker
+            date={watch("lastTreatmentDate")}
+            onDateChange={(date) => {
+              setValue("lastTreatmentDate", date);
+              // clearErrors("lastTreatmentDate");
+            }}
+            locale={he}
+            className={`w-full justify-start text-right ${
+              errors.lastTreatmentDate ? "border-red-500 shadow-sm" : ""
+            }`}
+          />
           {errors.lastTreatmentDate && (
             <p className="text-sm text-red-600">
               {errors.lastTreatmentDate.message}
