@@ -16,7 +16,7 @@ export function MedicalHistory({ form }: MedicalHistoryProps) {
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="medications">תרופות קבועות</Label>
-        <Textarea id="medications" {...register("medications")} />
+        <Textarea id="medications" {...register("medications.otherMedications")} />
       </div>
 
       <div className="space-y-2">
@@ -30,8 +30,8 @@ export function MedicalHistory({ form }: MedicalHistoryProps) {
         </Label>
         <Switch
           id="coumadin"
-          checked={watch("coumadin")}
-          onCheckedChange={(checked) => setValue("coumadin", checked)}
+          checked={watch("medications.coumadin")}
+          onCheckedChange={(checked) => setValue("medications.coumadin", checked)}
         />
       </div>
 
@@ -41,8 +41,8 @@ export function MedicalHistory({ form }: MedicalHistoryProps) {
         </Label>
         <Switch
           id="penicillinLatex"
-          checked={watch("penicillinLatex")}
-          onCheckedChange={(checked) => setValue("penicillinLatex", checked)}
+          checked={watch("medications.penicillinLatex")}
+          onCheckedChange={(checked) => setValue("medications.penicillinLatex", checked)}
         />
       </div>
 
@@ -58,7 +58,7 @@ export function MedicalHistory({ form }: MedicalHistoryProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="otherAllergies">אחר</Label>
+        <Label htmlFor="otherAllergies">אלרגיות נוספות/אחר</Label>
         <Input id="otherAllergies" {...register("otherAllergies")} />
       </div>
     </div>

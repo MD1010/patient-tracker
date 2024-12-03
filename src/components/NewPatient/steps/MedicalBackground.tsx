@@ -41,9 +41,9 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
             <Checkbox
               className="ml-2"
               id={condition.id}
-              checked={watch(condition.id as keyof FormData) as boolean}
+              checked={watch(`conditions.${condition.id}` as keyof FormData) as boolean}
               onCheckedChange={(checked) =>
-                setValue(condition.id as keyof FormData, checked)
+                setValue(`conditions.${condition.id}` as keyof FormData, checked as boolean)
               }
             />
             <Label htmlFor={condition.id}>{condition.label}</Label>
@@ -51,19 +51,19 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
         ))}
       </div>
 
-      <div className="flex items-center space-x-4 h-8 ">
+      <div className="flex items-center space-x-4 h-8">
         <div className="flex items-center space-x-2 ">
           <Checkbox
             className="ml-2"
             id="cancer"
-            checked={watch("cancer")}
+            checked={watch("conditions.cancer")}
             onCheckedChange={(checked) =>
-              setValue("cancer", checked as boolean)
+              setValue("conditions.cancer", checked as boolean)
             }
           />
           <Label htmlFor="cancer">סרטן</Label>
         </div>
-        {watch("cancer") && (
+        {watch("conditions.cancer") && (
           <div className="flex items-center gap-x-2">
             <Label htmlFor="cancerDetails" className="mr-4">
               פירוט
@@ -77,7 +77,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
         )}
       </div>
 
-      <div className="flex items-center space-x-4 h-8">
+      <div className="flex items-center space-x-4 h-4">
         <Label htmlFor="pregnancy" className="ml-3">
           הריון
         </Label>
@@ -102,7 +102,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
         )}
       </div>
 
-      <div className="flex items-center space-x-4 h-8">
+      <div className="flex items-center space-x-4 h-4">
         <Label htmlFor="smoking" className="ml-3">
           עישון
         </Label>

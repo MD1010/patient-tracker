@@ -9,49 +9,51 @@ import { MedicalBackground } from "./steps/MedicalBackground";
 import { MedicalHistory } from "./steps/MedicalHistory";
 import { PersonalDetails } from "./steps/PersonalDetails";
 import { revalidateFormBySpecialValidators } from "./formSpecialValidators";
+import { Doc } from "../../../convex/_generated/dataModel";
 
-export type FormData = {
-  firstName: string;
-  lastName: string;
-  dateOfBirth: Date | undefined;
-  idNumber: string;
-  phone: string;
-  lastTreatmentDate: Date | undefined;
-  // Medical conditions
-  diabetes: boolean;
-  osteoporosis: boolean;
-  asthma: boolean;
-  thyroidProblems: boolean;
-  bloodClottingProblems: boolean;
-  hepatitisB: boolean;
-  hepatitisC: boolean;
-  aids: boolean;
-  hypertension: boolean;
-  heartDisease: boolean;
-  artificialValve: boolean;
-  pacemaker: boolean;
-  heartDefect: boolean;
-  tuberculosis: boolean;
-  kidneyDisease: boolean;
-  neurologicalProblems: boolean;
-  psychiatricProblems: boolean;
-  cancer: boolean;
-  cancerDetails: string;
-  chemotherapy: boolean;
-  pregnancy: boolean;
-  pregnancyWeek: string;
-  smoking: boolean;
-  // Medical history
-  medications: string;
-  surgeries: string;
-  coumadin: boolean;
-  // Allergies
-  penicillinLatex: boolean;
-  anesthesia: boolean;
-  otherAllergies: string;
-  date: Date;
-};
+// export type FormData = {
+//   firstName: string;
+//   lastName: string;
+//   dateOfBirth: Date | undefined;
+//   idNumber: string;
+//   phone: string;
+//   lastTreatmentDate: Date | undefined;
+//   // Medical conditions
+//   diabetes: boolean;
+//   osteoporosis: boolean;
+//   asthma: boolean;
+//   thyroidProblems: boolean;
+//   bloodClottingProblems: boolean;
+//   hepatitisB: boolean;
+//   hepatitisC: boolean;
+//   aids: boolean;
+//   hypertension: boolean;
+//   heartDisease: boolean;
+//   artificialValve: boolean;
+//   pacemaker: boolean;
+//   heartDefect: boolean;
+//   tuberculosis: boolean;
+//   kidneyDisease: boolean;
+//   neurologicalProblems: boolean;
+//   psychiatricProblems: boolean;
+//   cancer: boolean;
+//   cancerDetails: string;
+//   chemotherapy: boolean;
+//   pregnancy: boolean;
+//   pregnancyWeek: string;
+//   smoking: boolean;
+//   // Medical history
+//   medications: string;
+//   surgeries: string;
+//   coumadin: boolean;
+//   // Allergies
+//   penicillinLatex: boolean;
+//   anesthesia: boolean;
+//   otherAllergies: string;
+//   date: Date;
+// };
 
+export type FormData = Doc<"patients">;
 const formVariants = {
   enter: { y: -20, opacity: 0 },
   center: { y: 0, opacity: 1 },
@@ -62,8 +64,7 @@ export function MedicalRegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<FormData>({
     defaultValues: {
-      date: new Date(),
-      lastTreatmentDate: new Date(),
+      lastTreatmentDate: new Date().toISOString()
     },
     mode: "onBlur",
   });
@@ -74,12 +75,12 @@ export function MedicalRegistrationForm() {
   };
 
   const nextStep = async () => {
-    
     const isValid = await form.trigger();
     const isSpecialValid = revalidateFormBySpecialValidators(form);
     console.log("is special valid", isSpecialValid);
 
-    if (isSpecialValid && isValid) setCurrentStep((prev) => Math.min(prev + 1, 3));
+    if (isSpecialValid && isValid)
+      setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
   const prevStep = () => {
@@ -113,7 +114,7 @@ export function MedicalRegistrationForm() {
                   onClick={prevStep}
                   className="flex-1 "
                 >
-                  <span className='text-right ml-auto'>הקודם</span>
+                  <span className="text-right ml-auto">הקודם</span>
                 </Button>
               )}
               {currentStep < 3 ? (
