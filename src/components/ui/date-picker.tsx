@@ -41,7 +41,7 @@ export function DatePicker({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild >
         <Button
           variant={"outline"}
           className={cn(
@@ -54,10 +54,9 @@ export function DatePicker({
           {date ? format(date, "PP", { locale }) : <span>בחר תאריך</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0" side="top" sideOffset={10}  align='center'>
         <Calendar
           mode="single"
-          // selected={date}
           onSelect={handleDateSelect}
           locale={locale} // Pass locale to Calendar
           initialFocus
