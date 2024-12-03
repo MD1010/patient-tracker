@@ -11,6 +11,8 @@ import { useMutation } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
+import { DatePicker } from "./ui/date-picker";
+import { he } from "date-fns/locale";
 
 export function AddTreatmentDialog({
   patientId,
@@ -54,7 +56,7 @@ export function AddTreatmentDialog({
             </DialogTitle>
           </DialogHeader>
           <form
-            className="space-y-4"
+            className="space-y-4 flex flex-col gap-3"
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit();
@@ -76,9 +78,7 @@ export function AddTreatmentDialog({
             <Textarea
               placeholder="הערות"
               value={form.notes}
-              onChange={(e) =>
-                setForm({ ...form, notes: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
             />
             <Input
               type="number"
@@ -87,16 +87,21 @@ export function AddTreatmentDialog({
               onChange={(e) => setForm({ ...form, cost: e.target.value })}
               required
             />
-            <Input
-              className="text-right ml-auto"
-              type="date"
-              placeholder="התור הבא"
-              min={new Date().toISOString().split("T")[0]}
-              value={form.nextAppointment}
-              onChange={(e) =>
-                setForm({ ...form, nextAppointment: e.target.value })
-              }
+
+            <DatePicker
+              fromDate={new Date()}
+              date={form.nextAppointment}
+              onDateChange={(date) => {
+
+                setForm({
+                  ...form,
+                  nextAppointment: date ? new Date(date).toISOString() : "",
+                });
+              }}
+              locale={he}
+              className={`w-full justify-start text-right h-10 p-2`}
             />
+            
             <Button type="submit" className="w-full">
               שמור
             </Button>
