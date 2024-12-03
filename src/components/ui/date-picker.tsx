@@ -19,14 +19,18 @@ export function DatePicker({
   className,
   locale,
   toDate,
+  toYear,
+  fromYear,
   fromDate,
 }: {
   date: Date | undefined;
   onDateChange: (date: Date | undefined) => void;
   className?: string;
-  locale?: Locale; // Pass locale to handle date formatting
-  fromDate?: Date; // Pass locale to handle date formatting
-  toDate?: Date; // Pass locale to handle date formatting
+  locale?: Locale;
+  fromDate?: Date;
+  fromYear?: number;
+  toYear?: number;
+  toDate?: Date;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -58,6 +62,8 @@ export function DatePicker({
           locale={locale} // Pass locale to Calendar
           initialFocus
           toDate={toDate}
+          fromYear={fromYear}
+          toYear={toYear}
           fromDate={fromDate}
         />
       </PopoverContent>

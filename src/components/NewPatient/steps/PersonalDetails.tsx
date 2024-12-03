@@ -1,22 +1,13 @@
-import { UseFormReturn } from "react-hook-form";
-import { FormData } from "../MedicalRegistrationForm";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { he } from "date-fns/locale";
 import { NumericOTPInput } from "@/components/ui/numeric-otp-input";
-import { validateIsraeliPhone } from "@/lib/validators";
-import { useOutsideClick } from "rooks";
+import { he } from "date-fns/locale";
 import { useRef } from "react";
-import { DatePicker } from "@/components/ui/date-picker";
+import { UseFormReturn } from "react-hook-form";
+import { useOutsideClick } from "rooks";
+import { revalidateFormBySpecialValidators } from "../formSpecialValidators";
+import { FormData } from "../MedicalRegistrationForm";
 
 interface PersonalDetailsProps {
   form: UseFormReturn<FormData>;
@@ -26,20 +17,13 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
   const {
     register,
     setValue,
-    setError,
     watch,
     formState: { errors },
   } = form;
 
   const phoneInputRef = useRef(null);
 
-  useOutsideClick(phoneInputRef, () => {
-    // Trigger validation when clicking outside
-
-    if (!validateIsraeliPhone(watch("phone"))) {
-      setError("phone", { message: "מספר טלפון לא תקין" });
-    }
-  });
+  useOutsideClick(phoneInputRef, () => revalidateFormBySpecialValidators(form));
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-6">
@@ -74,6 +58,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           <Label>תאריך לידה</Label>
 
           <DatePicker
+            fromYear={1901}
             toDate={new Date()}
             date={watch("dateOfBirth")}
             onDateChange={(date) => {
@@ -131,6 +116,8 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           <Label>תאריך טיפול אחרון</Label>
 
           <DatePicker
+            fromYear={2000}
+            toDate={new Date()}
             date={watch("lastTreatmentDate")}
             onDateChange={(date) => {
               setValue("lastTreatmentDate", date);

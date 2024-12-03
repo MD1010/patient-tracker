@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -7,7 +8,7 @@ import { FormSteps } from "./FormSteps";
 import { MedicalBackground } from "./steps/MedicalBackground";
 import { MedicalHistory } from "./steps/MedicalHistory";
 import { PersonalDetails } from "./steps/PersonalDetails";
-import { ArrowLeftIcon, MoveLeftIcon, MoveRight } from "lucide-react";
+import { revalidateFormBySpecialValidators } from "./formSpecialValidators";
 
 export type FormData = {
   firstName: string;
@@ -73,8 +74,12 @@ export function MedicalRegistrationForm() {
   };
 
   const nextStep = async () => {
+    
     const isValid = await form.trigger();
-    if (isValid) setCurrentStep((prev) => Math.min(prev + 1, 3));
+    const isSpecialValid = revalidateFormBySpecialValidators(form);
+    console.log("is special valid", isSpecialValid);
+
+    if (isSpecialValid && isValid) setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
   const prevStep = () => {
@@ -82,7 +87,7 @@ export function MedicalRegistrationForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl p-6">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
@@ -100,15 +105,15 @@ export function MedicalRegistrationForm() {
               {currentStep === 3 && <MedicalHistory form={form} />}
             </div>
 
-            <div className="mt-12 flex justify-between gap-4">
+            <div className="mt-12 flex justify-between gap-4 ">
               {currentStep > 1 && (
                 <Button
                   type="button"
                   variant="link"
                   onClick={prevStep}
-                  className="flex-1"
+                  className="flex-1 "
                 >
-                  הקודם
+                  <span className='text-right ml-auto'>הקודם</span>
                 </Button>
               )}
               {currentStep < 3 ? (
@@ -118,7 +123,7 @@ export function MedicalRegistrationForm() {
                 </Button>
               ) : (
                 <Button type="submit" className="flex-1">
-                  שלח טופס
+                  שמור
                 </Button>
               )}
             </div>
