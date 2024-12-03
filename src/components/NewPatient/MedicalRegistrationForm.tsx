@@ -8,7 +8,6 @@ import { FormSteps } from "./FormSteps";
 import { MedicalBackground } from "./steps/MedicalBackground";
 import { MedicalHistory } from "./steps/MedicalHistory";
 import { PersonalDetails } from "./steps/PersonalDetails";
-import { revalidateFormBySpecialValidators } from "./formSpecialValidators";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -42,11 +41,10 @@ export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
 
   const nextStep = async () => {
     const isValid = await form.trigger();
-    const isSpecialValid = revalidateFormBySpecialValidators(form);
-    console.log("is special valid", isSpecialValid);
+    // const isSpecialValid = revalidateFormBySpecialValidators(form);
+    // console.log("is special valid", isSpecialValid);
 
-    if (isSpecialValid && isValid)
-      setCurrentStep((prev) => Math.min(prev + 1, 3));
+    isValid && setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
   const prevStep = () => {

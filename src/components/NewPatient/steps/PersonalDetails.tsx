@@ -5,9 +5,8 @@ import { NumericOTPInput } from "@/components/ui/numeric-otp-input";
 import { he } from "date-fns/locale";
 import { useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { useOutsideClick } from "rooks";
-import { revalidateFormBySpecialValidators } from "../formSpecialValidators";
 import { FormData } from "../MedicalRegistrationForm";
+import { validateIsraeliPhone } from "@/lib/validators";
 
 interface PersonalDetailsProps {
   form: UseFormReturn<FormData>;
@@ -21,9 +20,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     formState: { errors },
   } = form;
 
-  const phoneInputRef = useRef(null);
 
-  useOutsideClick(phoneInputRef, () => revalidateFormBySpecialValidators(form));
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-6">
@@ -72,9 +69,6 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           {errors.dateOfBirth && (
             <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
           )}
-          {errors.dateOfBirth && (
-            <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
-          )}
         </div>
 
         <div className="space-y-2">
@@ -96,17 +90,24 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
       <div className="flex flex-col gap-6">
         <div className="space-y-2">
           <Label htmlFor="phone">טלפון</Label>
-          <div ref={phoneInputRef}>
+          {/* Hidden Input for React Hook Form */}
+          <Input
+            type="hidden"
+            id="phone"
+            {...register("phone", {
+              required: "שדה חובה",
+              validate: (value) =>
+                validateIsraeliPhone(value) || "מספר טלפון לא תקין",
+            })}
+          />
             <NumericOTPInput
               isPhoneNumber
               value={watch("phone") || ""}
               error={!!errors.phone}
-              {...register("phone", { required: "שדה חובה" })}
               onChange={(value) => {
                 setValue("phone", value);
               }}
             />
-          </div>
           {errors.phone && (
             <p className="text-sm text-red-600">{errors.phone.message}</p>
           )}
@@ -121,7 +122,6 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             date={watch("lastTreatmentDate")}
             onDateChange={(date) => {
               setValue("lastTreatmentDate", date!.toISOString());
-              // clearErrors("lastTreatmentDate");
             }}
             locale={he}
             className={`w-full justify-start text-right ${
