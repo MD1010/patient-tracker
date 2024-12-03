@@ -32,6 +32,7 @@ function CalendarHeader({
   return (
     <div className="flex justify-center items-center gap-2">
       <Select
+        dir="rtl"
         value={displayMonth.getMonth().toString()}
         onValueChange={(value) => {
           const newMonth = new Date(displayMonth);
@@ -39,7 +40,7 @@ function CalendarHeader({
           setMonth(newMonth);
         }}
       >
-        <SelectTrigger className="h-7 w-[100px]">
+        <SelectTrigger className="h-7 w-full ">
           <SelectValue>{format(displayMonth, "LLLL", { locale })}</SelectValue>
         </SelectTrigger>
         <SelectContent position="popper">
@@ -52,6 +53,7 @@ function CalendarHeader({
       </Select>
 
       <Select
+        dir="rtl"
         value={displayMonth.getFullYear().toString()}
         onValueChange={(value) => {
           const newMonth = new Date(displayMonth);
@@ -59,12 +61,12 @@ function CalendarHeader({
           setMonth(newMonth);
         }}
       >
-        <SelectTrigger className="h-7 w-[80px]">
+        <SelectTrigger className="h-7 w-full">
           <SelectValue>{displayMonth.getFullYear()}</SelectValue>
         </SelectTrigger>
         <SelectContent position="popper">
           {years.map((year) => (
-            <SelectItem key={year} value={year.toString()}>
+            <SelectItem key={year} value={year.toString()} className="">
               {year}
             </SelectItem>
           ))}
