@@ -47,24 +47,34 @@ export function PatientModal() {
   );
 
   const handleAccordionOpen = useCallback((id: string | null) => {
-    if (!id) return;
-
+    if (!id || !accordionRefs.current[id]) return;
+  
     // Wait for the next frame to ensure the DOM is updated
     requestAnimationFrame(() => {
       // Add a small delay to ensure content is expanded
       setTimeout(() => {
         const viewport = document.querySelector('[data-radix-scroll-area-viewport]');
-        if (!(viewport instanceof HTMLDivElement)) return;
-
-        // Calculate the total height of all content
-        const totalHeight = viewport.scrollHeight;
+        const itemElement = accordionRefs.current[id];
         
-        // Scroll to the bottom with smooth animation
+        if (!(viewport instanceof HTMLDivElement) || !itemElement) return;
+  
+        // Get the positions
+        const viewportRect = viewport.getBoundingClientRect();
+        const itemRect = itemElement.getBoundingClientRect();
+        
+        // Calculate the relative position of the item within the viewport
+        const relativeTop = itemRect.top - viewportRect.top;
+        
+        // Calculate the target scroll position
+        // Subtract some padding (e.g., 100px) to show some content above the item
+        const targetScroll = viewport.scrollTop + relativeTop;
+  
+        // Scroll to the target position
         viewport.scrollTo({
-          top: totalHeight,
+          top: targetScroll,
           behavior: 'smooth'
         });
-      }, 150); // Increased delay to ensure content expansion
+      }, 100);
     });
   }, []);
 
