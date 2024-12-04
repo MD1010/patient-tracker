@@ -34,6 +34,7 @@ import {
 } from "./ui/alert-dialog";
 import { WhatsAppButton } from "./WhatsAppButton";
 import { useRef, useCallback } from "react";
+import { generateMedicalConditionReport } from "./NewPatient/generateMedicalInfo";
 
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -47,31 +48,33 @@ export function PatientModal() {
 
   const handleAccordionOpen = useCallback((id: string | null) => {
     if (!id || !accordionRefs.current[id]) return;
-  
+
     // Wait for the next frame to ensure the DOM is updated
     requestAnimationFrame(() => {
       // Add a small delay to ensure content is expanded
       setTimeout(() => {
-        const viewport = document.querySelector('[data-radix-scroll-area-viewport]');
+        const viewport = document.querySelector(
+          "[data-radix-scroll-area-viewport]"
+        );
         const itemElement = accordionRefs.current[id];
-        
+
         if (!(viewport instanceof HTMLDivElement) || !itemElement) return;
-  
+
         // Get the positions
         const viewportRect = viewport.getBoundingClientRect();
         const itemRect = itemElement.getBoundingClientRect();
-        
+
         // Calculate the relative position of the item within the viewport
         const relativeTop = itemRect.top - viewportRect.top;
-        
+
         // Calculate the target scroll position
         // Subtract some padding (e.g., 100px) to show some content above the item
         const targetScroll = viewport.scrollTop + relativeTop;
-  
+
         // Scroll to the target position
         viewport.scrollTo({
           top: targetScroll,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }, 100);
     });
@@ -201,12 +204,11 @@ export function PatientModal() {
             transition={{ duration: 0.3, delay: 0.1 }}
             className="py-6 space-y-6"
           >
-            <h4 className="text-xl font-bold ">עבר רפואי</h4>
+            <h4 className="text-xl font-bold ">רקע רפואי</h4>
             <Card className="p-4">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro
-              nostrum, aperiam, molestias mollitia harum natus officiis facere
-              quod voluptate, ab sed temporibus tempora. Rerum nesciunt in
-              veniam nostrum dolore quod.
+              <div dir="rtl">
+                {generateMedicalConditionReport(selectedPatient)}
+              </div>
             </Card>
           </motion.div>
 
