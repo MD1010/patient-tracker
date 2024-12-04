@@ -38,8 +38,8 @@ import { useRef, useCallback } from "react";
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
   const deleteTreatment = useMutation(api.treatments.deleteOne);
-  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const treatments = useQuery(
     api.treatments.get,
@@ -47,26 +47,24 @@ export function PatientModal() {
   );
 
   const handleAccordionOpen = useCallback((id: string | null) => {
-    if (!id || !accordionRefs.current[id] || !scrollAreaRef.current) return;
+    if (!id) return;
 
-    // Wait for next frame to ensure DOM is updated
+    // Wait for the next frame to ensure the DOM is updated
     requestAnimationFrame(() => {
-      const itemRef = accordionRefs.current[id];
-      const scrollArea = scrollAreaRef.current;
+      // Add a small delay to ensure content is expanded
+      setTimeout(() => {
+        const viewport = document.querySelector('[data-radix-scroll-area-viewport]');
+        if (!(viewport instanceof HTMLDivElement)) return;
 
-      if (!itemRef || !scrollArea) return;
-
-      const itemRect = itemRef.getBoundingClientRect();
-      const scrollRect = scrollArea.getBoundingClientRect();
-
-      // Calculate the relative position within the scroll area
-      const relativeTop = itemRect.top - scrollRect.top;
-      const targetScroll = scrollArea.scrollTop + relativeTop - 20; // 20px offset from top
-
-      scrollArea.scrollTo({
-        top: targetScroll,
-        behavior: "smooth",
-      });
+        // Calculate the total height of all content
+        const totalHeight = viewport.scrollHeight;
+        
+        // Scroll to the bottom with smooth animation
+        viewport.scrollTo({
+          top: totalHeight,
+          behavior: 'smooth'
+        });
+      }, 150); // Increased delay to ensure content expansion
     });
   }, []);
 
@@ -143,7 +141,7 @@ export function PatientModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="p-4 text-right" ref={scrollAreaRef}>
+        <ScrollArea className="p-4 text-right h-full" ref={scrollAreaRef}>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -218,7 +216,7 @@ export function PatientModal() {
               type="single"
               onValueChange={handleAccordionOpen}
               collapsible
-              className="w-full overscroll-y-auto"
+              className="w-full"
             >
               {treatments === undefined && (
                 <div className="flex justify-center items-center py-8">
