@@ -28,7 +28,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<FormData>({
     defaultValues: DEFAULT_FORM_VALUES,
-    mode: "onBlur",
+    mode: "onChange",
   });
   const addPatientMutation = useMutation(api.patients.add);
 
@@ -41,9 +41,6 @@ export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
 
   const nextStep = async () => {
     const isValid = await form.trigger();
-    // const isSpecialValid = revalidateFormBySpecialValidators(form);
-    // console.log("is special valid", isSpecialValid);
-
     isValid && setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 

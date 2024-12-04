@@ -46,7 +46,7 @@ export function AddTreatmentDialog({
       nextAppointment: "",
       notes: "",
     },
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
