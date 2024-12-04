@@ -217,7 +217,7 @@ export function PatientModal() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="space-y-6 min-h-[300px]"
           >
-            <div className="flex justify-between items-center top-0 bg-background z-20 py-2">
+            <div className="flex justify-between items-center sticky top-0 bg-background z-20 py-2">
               <AddTreatmentDialog patientId={selectedPatient._id} />
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
             </div>
