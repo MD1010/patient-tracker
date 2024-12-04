@@ -68,10 +68,13 @@ export function AddTreatmentDialog({
       <Button variant="secondary" onClick={() => setIsOpen(true)}>
         הוסף טיפול
       </Button>
-      <Dialog open={isOpen} onOpenChange={() => {
-        reset();
-        setIsOpen(!isOpen)
-      }}>
+      <Dialog
+        open={isOpen}
+        onOpenChange={() => {
+          reset();
+          setIsOpen(!isOpen);
+        }}
+      >
         <DialogContent className="max-w-lg px-12 pt-6">
           <DialogHeader>
             <DialogTitle className="text-right text-xl p-2">
@@ -93,7 +96,18 @@ export function AddTreatmentDialog({
               )}
             </div>
 
-            <Textarea placeholder="תיאור" {...register("description")} />
+            <div className="space-y-2">
+              <Textarea
+                placeholder="תיאור"
+                className={errors.description ? "border-red-500 shadow-sm" : ""}
+                {...register("description", { required: "שדה חובה" })}
+              />
+              {errors.description && (
+                <p className="text-sm text-red-600">
+                  {errors.description?.message}
+                </p>
+              )}
+            </div>
 
             <Textarea placeholder="הערות" {...register("notes")} />
 
@@ -114,6 +128,7 @@ export function AddTreatmentDialog({
 
             <div className="space-y-2">
               <DatePicker
+                placeholder="בחר תאריך לטיפול הבא"
                 fromDate={new Date()}
                 date={watch("nextAppointment")}
                 onDateChange={(date) => {

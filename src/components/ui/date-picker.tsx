@@ -22,6 +22,7 @@ export function DatePicker({
   toYear,
   fromYear,
   fromDate,
+  placeholder
 }: {
   date: string | undefined;
   onDateChange: (date: Date | undefined) => void;
@@ -31,6 +32,7 @@ export function DatePicker({
   fromYear?: number;
   toYear?: number;
   toDate?: Date;
+  placeholder?: string;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -51,7 +53,7 @@ export function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PP", { locale }) : <span>בחר תאריך</span>}
+          {date ? format(date, "PP", { locale }) : placeholder ? <span>{placeholder}</span> : <span>בחר תאריך</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" side="top" sideOffset={10}  align='center'>
