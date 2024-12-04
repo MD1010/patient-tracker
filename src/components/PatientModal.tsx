@@ -52,7 +52,10 @@ export function PatientModal() {
     );
 
     worksheet.addRow(["נתוני לקוח"]);
-    worksheet.addRow(["שם", `${selectedPatient.firstName} ${selectedPatient.lastName}`]);
+    worksheet.addRow([
+      "שם",
+      `${selectedPatient.firstName} ${selectedPatient.lastName}`,
+    ]);
     worksheet.addRow(["ת.ז", selectedPatient.idNumber]);
     worksheet.addRow(["טלפון", selectedPatient.phone]);
     worksheet.addRow(["תאריך לידה", selectedPatient.dateOfBirth]);
@@ -99,7 +102,10 @@ export function PatientModal() {
       <DialogContent className="p-4 max-w-2xl">
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
-            <span className="">פרטי מטופל - {selectedPatient.firstName} {selectedPatient.lastName}</span>
+            <span className="">
+              פרטי מטופל - {selectedPatient.firstName}{" "}
+              {selectedPatient.lastName}
+            </span>
             <div className="flex justify-end items-center gap-2">
               <WhatsAppButton
                 phone={selectedPatient.phone}
@@ -120,12 +126,12 @@ export function PatientModal() {
         <ScrollArea className="p-4 text-right">
           <div className="space-y-6">
             <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
             >
               <Card className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="text-sm font-semibold">תעודת זהות</h4>
                     <p className="text-sm text-muted-foreground">
@@ -184,7 +190,7 @@ export function PatientModal() {
                           value={treatment._id}
                           className="border-b last:border-none"
                         >
-                          <AccordionTrigger className="p-2 py-4 flex justify-between">
+                          <AccordionTrigger className="p-2 py-4 flex justify-between sticky top-0">
                             <div className="flex w-full gap-10 justify-end">
                               <span className="font-medium">
                                 {treatment.type}
@@ -194,42 +200,47 @@ export function PatientModal() {
                               </span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent>
-                            <Card className="p-4 grid grid-cols-2 gap-4 relative">
-                              <div>
-                                <h4 className="text-sm font-semibold">תיאור</h4>
 
-                                <p className="text-sm text-muted-foreground">
-                                  {treatment.description || "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <h4 className="text-sm font-semibold">עלות</h4>
-                                <p className="text-sm text-muted-foreground">
+                          <AccordionContent>
+                            <Card className="p-4 flex flex-col gap-4 relative">
+                              <div className="col-span-1 break-words">
+                                <h4 className="text-sm font-semibold text-right">
+                                  עלות
+                                </h4>
+                                <p className="text-sm text-muted-foreground break-words">
                                   ₪{treatment.cost}
                                 </p>
                               </div>
-                              <div>
-                                {treatment.nextAppointment && (
-                                  <>
-                                    <h4 className="text-sm font-semibold">
-                                      תור הבא
-                                    </h4>
-                                    <p className="text-sm text-muted-foreground">
-                                      {format(
-                                        new Date(treatment.nextAppointment),
-                                        "dd/MM/yyyy"
-                                      )}
-                                    </p>
-                                  </>
-                                )}
+
+                              <div className="col-span-1 break-words">
+                                <h4 className="text-sm font-semibold text-right">
+                                  תיאור
+                                </h4>
+                                <p className="text-sm text-muted-foreground break-words">
+                                  {treatment.description || "-"}
+                                </p>
                               </div>
+
+                              {treatment?.nextAppointment && (
+                                <div className="col-span-2 break-words">
+                                  <h4 className="text-sm font-semibold text-right">
+                                    תור הבא
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground break-words">
+                                    {format(
+                                      new Date(treatment?.nextAppointment),
+                                      "dd/MM/yyyy"
+                                    )}
+                                  </p>
+                                </div>
+                              )}
+
                               {treatment.notes && (
-                                <div>
-                                  <h4 className="text-sm font-semibold">
+                                <div className="col-span-2 break-words">
+                                  <h4 className="text-sm font-semibold text-right">
                                     הערות
                                   </h4>
-                                  <p className="text-sm text-muted-foreground">
+                                  <p className="text-sm text-muted-foreground break-words">
                                     {treatment.notes}
                                   </p>
                                 </div>
@@ -242,7 +253,7 @@ export function PatientModal() {
                                     size="icon"
                                     className="absolute top-2 left-2"
                                   >
-                                    <Trash2 className="h-4 w-4 " />
+                                    <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
@@ -251,7 +262,7 @@ export function PatientModal() {
                                       מחיקת טיפול
                                     </AlertDialogTitle>
                                     <AlertDialogDescription className="ml-auto text-right">
-                                      האם אתה בטוח שברצונך למחוק את הטיפול?{" "}
+                                      האם אתה בטוח שברצונך למחוק את הטיפול?
                                       פעולה זו לא ניתנת לביטול.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
