@@ -184,16 +184,12 @@ export function PatientModal() {
                     )}
                   </p>
                 </div>
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
+                <div>
                   <h1 className="text-sm font-semibold">מטופל מתאריך</h1>
                   <p className="text-sm text-muted-foreground">
                     {format(new Date(selectedPatient.createdAt), "dd/MM/yyyy")}
                   </p>
-                </motion.div>
+                </div>
               </div>
             </Card>
           </motion.div>
@@ -235,116 +231,133 @@ export function PatientModal() {
                 </div>
               )}
               {treatments && treatments.length > 0
-                ? treatments.map((treatment, i) => (
-                    <motion.div
-                      key={treatment._id}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 + i * 0.05 }}
-                      ref={(el) => {
-                        accordionRefs.current[treatment._id] = el;
-                      }}
-                    >
-                      <AccordionItem
-                        value={treatment._id}
-                        className="border-b last:border-none"
+                ? treatments
+                    .sort(
+                      (a, b) =>
+                        new Date(b.date).getTime() - new Date(a.date).getTime()
+                    )
+                    .map((treatment, i) => (
+                      <motion.div
+                        key={treatment._id}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + i * 0.05 }}
+                        ref={(el) => {
+                          accordionRefs.current[treatment._id] = el;
+                        }}
                       >
-                        <AccordionTrigger className="sticky top-0 bg-background z-10">
-                          <div className="flex w-full gap-12 justify-end">
-                            <span className="font-medium">
-                              {treatment.type}
-                            </span>
-                            <span className="text-sm text-muted-foreground text-right">
-                              {format(new Date(treatment.date), "dd/MM/yyyy")}
-                            </span>
-                          </div>
-                        </AccordionTrigger>
-
-                        <AccordionContent>
-                          <Card className="p-4 flex flex-col gap-4 relative">
-                            <div className="col-span-1 break-words">
-                              <h4 className="text-sm font-semibold text-right">
-                                עלות
-                              </h4>
-                              <p className="text-sm text-muted-foreground break-words">
-                                ₪{treatment.cost}
-                              </p>
+                        <AccordionItem
+                          value={treatment._id}
+                          className="border-b last:border-none"
+                        >
+                          <AccordionTrigger className="sticky top-0 bg-background z-10">
+                            <div className="flex w-full gap-12 justify-end">
+                              <span className="font-medium">
+                                {treatment.type}
+                              </span>
+                              <span className="text-sm text-muted-foreground text-right">
+                                {format(new Date(treatment.date), "dd/MM/yyyy")}
+                              </span>
                             </div>
+                          </AccordionTrigger>
 
-                            <div className="col-span-1 break-words">
-                              <h4 className="text-sm font-semibold text-right">
-                                תיאור
-                              </h4>
-                              <p className="text-sm text-muted-foreground break-words">
-                                {treatment.description || "-"}
-                              </p>
-                            </div>
-
-                            {treatment?.nextAppointment && (
-                              <div className="col-span-2 break-words">
+                          <AccordionContent>
+                            <Card className="p-4 flex flex-col gap-4 relative">
+                              <div className="col-span-1 break-words">
                                 <h4 className="text-sm font-semibold text-right">
-                                  תור הבא
+                                  עלות
+                                </h4>
+                                <p className="text-sm text-muted-foreground break-words">
+                                  ₪{treatment.cost}
+                                </p>
+                              </div>
+
+                              <div className="col-span-1 break-words">
+                                <h4 className="text-sm font-semibold text-right">
+                                  תאריך הטיפול
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
                                   {format(
-                                    new Date(treatment?.nextAppointment),
+                                    new Date(treatment?.date),
                                     "dd/MM/yyyy"
                                   )}
                                 </p>
                               </div>
-                            )}
 
-                            {treatment.notes && (
-                              <div className="col-span-2 break-words">
+                              <div className="col-span-1 break-words">
                                 <h4 className="text-sm font-semibold text-right">
-                                  הערות
+                                  תיאור
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
-                                  {treatment.notes}
+                                  {treatment.description || "-"}
                                 </p>
                               </div>
-                            )}
 
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="secondary"
-                                  size="icon"
-                                  className="absolute top-2 left-2"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle className="text-right">
-                                    מחיקת טיפול
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription className="ml-auto text-right">
-                                    האם אתה בטוח שברצונך למחוק את הטיפול? פעולה
-                                    זו לא ניתנת לביטול.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter className="flex gap-3 mt-4">
-                                  <AlertDialogCancel>ביטול</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() =>
-                                      deleteTreatment({
-                                        treatmentId: treatment._id,
-                                      })
-                                    }
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              {treatment?.nextAppointment && (
+                                <div className="col-span-2 break-words">
+                                  <h4 className="text-sm font-semibold text-right">
+                                    תור הבא
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground break-words">
+                                    {format(
+                                      new Date(treatment?.nextAppointment),
+                                      "dd/MM/yyyy"
+                                    )}
+                                  </p>
+                                </div>
+                              )}
+
+                              {treatment.notes && (
+                                <div className="col-span-2 break-words">
+                                  <h4 className="text-sm font-semibold text-right">
+                                    הערות
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground break-words">
+                                    {treatment.notes}
+                                  </p>
+                                </div>
+                              )}
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute top-2 left-2"
                                   >
-                                    מחק
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </Card>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </motion.div>
-                  ))
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-right">
+                                      מחיקת טיפול
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="ml-auto text-right">
+                                      האם אתה בטוח שברצונך למחוק את הטיפול?
+                                      פעולה זו לא ניתנת לביטול.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter className="flex gap-3 mt-4">
+                                    <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        deleteTreatment({
+                                          treatmentId: treatment._id,
+                                        })
+                                      }
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      מחק
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </Card>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </motion.div>
+                    ))
                 : treatments !== undefined && (
                     <div className="text-center text-muted-foreground py-4 h-[200px] grid items-center">
                       <p>אין היסטוריית טיפולים</p>

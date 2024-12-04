@@ -7,21 +7,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Id } from "convex/_generated/dataModel";
+import { Id, Doc } from "../../convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { he } from "date-fns/locale";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { api } from "../../convex/_generated/api";
 import { DatePicker } from "./ui/date-picker";
-
-interface FormInputs {
-  type: string;
-  description: string;
-  cost: string;
-  nextAppointment: string | undefined;
-  notes: string;
-}
 
 export function AddTreatmentDialog({
   patientId,
@@ -37,23 +29,25 @@ export function AddTreatmentDialog({
     setValue,
     watch,
     reset,
+    trigger,
     formState: { errors },
-  } = useForm<FormInputs>({
+  } = useForm<Doc<"treatments">>({
     defaultValues: {
       type: "",
       description: "",
-      cost: "",
+      cost: NaN,
       nextAppointment: "",
       notes: "",
+      date: "",
     },
     mode: "onChange",
   });
 
-  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<Doc<"treatments">> = async (data) => {
     await addTreatment({
       patientId,
       cost: +data.cost,
-      date: new Date().toISOString(),
+      date: data.date,
       description: data.description,
       type: data.type,
       notes: data.notes,
@@ -87,7 +81,7 @@ export function AddTreatmentDialog({
           >
             <div className="space-y-2">
               <Input
-                placeholder="סוג"
+                placeholder="סוג הטיפול"
                 {...register("type", { required: "שדה חובה" })}
                 className={errors.type ? "border-red-500 shadow-sm" : ""}
               />
@@ -109,7 +103,27 @@ export function AddTreatmentDialog({
               )}
             </div>
 
-            <Textarea placeholder="הערות" {...register("notes")} />
+            <div className="space-y-2">
+              <DatePicker
+                fromYear={2000}
+                toYear={new Date().getFullYear()}
+                toDate={new Date()}
+                placeholder="תאריך הטיפול"
+                date={watch("date")}
+                {...register("date", { required: "שדה חובה" })}
+                onDateChange={(date) => {
+                  setValue("date", date ? new Date(date).toISOString() : "");
+                  trigger("date");
+                }}
+                locale={he}
+                className={`w-full justify-start text-right h-10 p-2 ${
+                  errors.date ? "border-red-500 shadow-sm" : ""
+                }`}
+              />
+              {errors.date && (
+                <p className="text-sm text-red-600">{errors.date.message}</p>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Input
@@ -117,7 +131,7 @@ export function AddTreatmentDialog({
                 placeholder="עלות"
                 {...register("cost", {
                   required: "שדה חובה",
-                  validate: (value) => parseFloat(value) > 0 || "עלות לא תקינה",
+                  validate: (value) => value > 0 || "עלות לא תקינה",
                 })}
                 className={errors.cost ? "border-red-500 shadow-sm" : ""}
               />
@@ -125,6 +139,8 @@ export function AddTreatmentDialog({
                 <p className="text-sm text-red-600">{errors.cost.message}</p>
               )}
             </div>
+
+            <Textarea placeholder="הערות" {...register("notes")} />
 
             <div className="space-y-2">
               <DatePicker
