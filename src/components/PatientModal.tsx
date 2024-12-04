@@ -99,7 +99,7 @@ export function PatientModal() {
       open={!!selectedPatient}
       onOpenChange={(open) => !open && setSelectedPatient(null)}
     >
-      <DialogContent className="p-4 max-w-2xl">
+      <DialogContent className="p-4 max-w-3xl h-[75%]">
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
             <span className="">
@@ -129,8 +129,10 @@ export function PatientModal() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
+              // className="space-y-6"
             >
-              <Card className="p-4">
+              <h1 className="text-xl font-bold">פרטים כלליים</h1>
+              <Card className="p-4 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="text-sm font-semibold">תעודת זהות</h4>
@@ -153,52 +155,77 @@ export function PatientModal() {
                       )}
                     </p>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-semibold">מטופל מתאריך</h4>
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h1 className="text-sm font-semibold">מטופל מתאריך</h1>
                     <p className="text-sm text-muted-foreground">
                       {format(
                         new Date(selectedPatient.createdAt),
                         "dd/MM/yyyy"
                       )}
                     </p>
-                  </div>
+                  </motion.div>
                 </div>
               </Card>
             </motion.div>
 
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="py-6 space-y-6"
+            >
+              <h4 className="text-xl font-bold ">עבר רפואי</h4>
+              <Card className="p-4">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro
+                nostrum, aperiam, molestias mollitia harum natus officiis facere
+                quod voluptate, ab sed temporibus tempora. Rerum nesciunt in
+                veniam nostrum dolore quod.
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="space-y-6"
+            >
               {/* Sticky Title */}
-              <div className="flex justify-between items-center sticky top-0 bg-background z-20 py-2">
+              <div className="flex justify-between items-center top-0 bg-background z-20 py-2">
                 <AddTreatmentDialog patientId={selectedPatient._id} />
                 <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
               </div>
 
               {/* Add margin to create space between title and accordion */}
-              
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="w-full max-h-[300px] overscroll-y-auto"
-                >
-                  {treatments === undefined && (
-                    <div className="flex justify-center items-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  )}
-                  {treatments && treatments.length > 0
-                    ? treatments.map((treatment, i) => (
-                        <motion.div
-                          key={treatment._id}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.05 }}
+
+              <Accordion
+                type="single"
+                collapsible
+                  className="w-full overscroll-y-auto"
+              >
+                {treatments === undefined && (
+                  <div className="flex justify-center items-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                )}
+                {treatments && treatments.length > 0
+                  ? treatments.map((treatment, i) => (
+                      <motion.div
+                        key={treatment._id}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + i * 0.05 }}
+                      >
+                        <AccordionItem
+                          value={treatment._id}
+                          className="border-b last:border-none"
                         >
-                          <AccordionItem
-                            value={treatment._id}
-                            className="border-b last:border-none"
-                          >
-                            {/* Sticky Accordion Header */}
-                            <AccordionTrigger className='sticky top-12 bg-background z-10'>
+                          
+                          {/* Sticky Accordion Header */}
+                          <AccordionTrigger className="sticky top-0 bg-background z-10">
                             <div className="flex w-full gap-12 justify-end">
                               <span className="font-medium">
                                 {treatment.type}
@@ -207,52 +234,52 @@ export function PatientModal() {
                                 {format(new Date(treatment.date), "dd/MM/yyyy")}
                               </span>
                             </div>
-                            </AccordionTrigger>
+                          </AccordionTrigger>
 
-                            <AccordionContent>
-                              <Card className="p-4 flex flex-col gap-4 relative">
-                                <div className="col-span-1 break-words">
+                          <AccordionContent>
+                            <Card className="p-4 flex flex-col gap-4 relative">
+                              <div className="col-span-1 break-words">
+                                <h4 className="text-sm font-semibold text-right">
+                                  עלות
+                                </h4>
+                                <p className="text-sm text-muted-foreground break-words">
+                                  ₪{treatment.cost}
+                                </p>
+                              </div>
+
+                              <div className="col-span-1 break-words">
+                                <h4 className="text-sm font-semibold text-right">
+                                  תיאור
+                                </h4>
+                                <p className="text-sm text-muted-foreground break-words">
+                                  {treatment.description || "-"}
+                                </p>
+                              </div>
+
+                              {treatment?.nextAppointment && (
+                                <div className="col-span-2 break-words">
                                   <h4 className="text-sm font-semibold text-right">
-                                    עלות
+                                    תור הבא
                                   </h4>
                                   <p className="text-sm text-muted-foreground break-words">
-                                    ₪{treatment.cost}
+                                    {format(
+                                      new Date(treatment?.nextAppointment),
+                                      "dd/MM/yyyy"
+                                    )}
                                   </p>
                                 </div>
+                              )}
 
-                                <div className="col-span-1 break-words">
+                              {treatment.notes && (
+                                <div className="col-span-2 break-words">
                                   <h4 className="text-sm font-semibold text-right">
-                                    תיאור
+                                    הערות
                                   </h4>
                                   <p className="text-sm text-muted-foreground break-words">
-                                    {treatment.description || "-"}
+                                    {treatment.notes}
                                   </p>
                                 </div>
-
-                                {treatment?.nextAppointment && (
-                                  <div className="col-span-2 break-words">
-                                    <h4 className="text-sm font-semibold text-right">
-                                      תור הבא
-                                    </h4>
-                                    <p className="text-sm text-muted-foreground break-words">
-                                      {format(
-                                        new Date(treatment?.nextAppointment),
-                                        "dd/MM/yyyy"
-                                      )}
-                                    </p>
-                                  </div>
-                                )}
-
-                                {treatment.notes && (
-                                  <div className="col-span-2 break-words">
-                                    <h4 className="text-sm font-semibold text-right">
-                                      הערות
-                                    </h4>
-                                    <p className="text-sm text-muted-foreground break-words">
-                                      {treatment.notes}
-                                    </p>
-                                  </div>
-                                )}
+                              )}
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -289,18 +316,18 @@ export function PatientModal() {
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
-                              </Card>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </motion.div>
-                      ))
-                    : treatments !== undefined && (
-                        <div className="text-center text-muted-foreground py-4 h-[200px] grid items-center">
-                          <p>אין היסטוריית טיפולים</p>
-                        </div>
-                      )}
-                </Accordion>
-            </div>
+                            </Card>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </motion.div>
+                    ))
+                  : treatments !== undefined && (
+                      <div className="text-center text-muted-foreground py-4 h-[200px] grid items-center">
+                        <p>אין היסטוריית טיפולים</p>
+                      </div>
+                    )}
+              </Accordion>
+            </motion.div>
           </div>
         </ScrollArea>
       </DialogContent>
