@@ -39,7 +39,6 @@ export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
   const deleteTreatment = useMutation(api.treatments.deleteOne);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const treatments = useQuery(
     api.treatments.get,
@@ -151,7 +150,7 @@ export function PatientModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="p-4 text-right h-full" ref={scrollAreaRef}>
+        <ScrollArea className="p-4 text-right h-full">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
