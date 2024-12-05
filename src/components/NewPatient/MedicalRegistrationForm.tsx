@@ -13,6 +13,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import DEFAULT_FORM_VALUES from "./defualtFormValues";
 import { useModal } from "@/store/modal-store";
+import { ScrollArea } from "../ui/scroll-area";
 
 export type FormData = Doc<"patients">;
 const formVariants = {
@@ -38,7 +39,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const onSubmit = async (data: FormData) => {
     patient ? await editPatientMutation(data) : await addPatientMutation(data);
     let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";
-    toast.success(completedText, {position: "bottom-right"});
+    toast.success(completedText, { position: "bottom-right" });
     closeModal();
   };
 
@@ -74,11 +75,11 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           />
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-            <div>
-              {currentStep === 1 && <PersonalDetails form={form} />}
-              {currentStep === 2 && <MedicalBackground form={form} />}
-              {currentStep === 3 && <MedicalHistory form={form} />}
-            </div>
+            <ScrollArea className="h-[300px] rtl px-4">
+                {currentStep === 1 && <PersonalDetails form={form} />}
+                {currentStep === 2 && <MedicalBackground form={form} />}
+                {currentStep === 3 && <MedicalHistory form={form} />}
+            </ScrollArea>
 
             <div className="mt-12 flex justify-between gap-4">
               {patient ? (
