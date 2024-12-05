@@ -42,6 +42,12 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
     closeModal();
   };
 
+  const onStepClick = (stepNumber: number) => {
+    if (patient) {
+      setCurrentStep(stepNumber);
+    }
+  };
+
   const nextStep = async () => {
     const isValid = await form.trigger();
     isValid && setCurrentStep((prev) => Math.min(prev + 1, 3));
@@ -61,7 +67,11 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           animate="center"
           exit="exit"
         >
-          <FormSteps currentStep={currentStep} />
+          <FormSteps
+            currentStep={currentStep}
+            editable={!!patient}
+            onStepClick={onStepClick}
+          />
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
             <div>
@@ -70,13 +80,13 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
               {currentStep === 3 && <MedicalHistory form={form} />}
             </div>
 
-            <div className="mt-12 flex justify-between gap-4 ">
+            <div className="mt-12 flex justify-between gap-4">
               {currentStep > 1 && (
                 <Button
                   type="button"
                   variant="link"
                   onClick={prevStep}
-                  className="flex-1 "
+                  className="flex-1"
                 >
                   <span className="text-right ml-auto">הקודם</span>
                 </Button>
