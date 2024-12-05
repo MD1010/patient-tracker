@@ -81,25 +81,35 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             </div>
 
             <div className="mt-12 flex justify-between gap-4">
-              {currentStep > 1 && (
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={prevStep}
-                  className="flex-1"
-                >
-                  <span className="text-right ml-auto">הקודם</span>
-                </Button>
-              )}
-              {currentStep < 3 ? (
-                <Button type="button" onClick={nextStep} className="flex-1">
-                  <span>לשלב הבא</span>
-                  <ArrowLeftIcon />
+              {patient ? (
+                // Render only the submit button if patient exists
+                <Button type="submit" className="flex-1">
+                  עדכן
                 </Button>
               ) : (
-                <Button type="submit" className="flex-1">
-                  שמור
-                </Button>
+                // Render navigation buttons for steps if no patient
+                <>
+                  {currentStep > 1 && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={prevStep}
+                      className="flex-1"
+                    >
+                      <span className="text-right ml-auto">הקודם</span>
+                    </Button>
+                  )}
+                  {currentStep < 3 ? (
+                    <Button type="button" onClick={nextStep} className="flex-1">
+                      <span>לשלב הבא</span>
+                      <ArrowLeftIcon />
+                    </Button>
+                  ) : (
+                    <Button type="submit" className="flex-1">
+                      שמור
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </form>
