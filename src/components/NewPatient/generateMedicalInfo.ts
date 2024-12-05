@@ -10,6 +10,8 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
     otherAllergies,
     surgeries,
     medications,
+    pregnancy,
+    pregnancyWeek,
   } = patient;
 
   const conditionDescriptions = {
@@ -34,8 +36,18 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
     tuberculosis: "שחפת",
   };
 
+  const negativePhrases = [
+    "אין",
+    "לא ידוע",
+    "לא נוטל",
+    "ללא",
+    "לא בוצע",
+    "לא רלוונטי",
+    "אין מידע",
+  ];
+
   // Process conditions
-  const existingConditions = Object.entries(conditions)
+  const existingConditions = Object.entries(conditions || {})
     .filter(([_, hasCondition]) => hasCondition)
     .map(([key]) => (conditionDescriptions as any)[key]);
 
@@ -56,28 +68,47 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
     report += "המטופל מעשן. ";
   }
 
-  // Add allergies if they exist
-  if (otherAllergies) {
+  // Add allergies if they exist and are not negative
+  if (otherAllergies && !negativePhrases.some((phrase) => otherAllergies.includes(phrase))) {
     report += `אלרגיות ידועות: ${otherAllergies}. `;
   }
 
-  // Add surgeries if they exist
-  if (surgeries) {
+  // Add surgeries if they exist and are not negative
+  if (surgeries && !negativePhrases.some((phrase) => surgeries.includes(phrase))) {
     report += `ניתוחים שבוצעו בעבר: ${surgeries}. `;
   }
 
-  // Add medication information if applicable
+  // Add pregnancy information if applicable
+  if (pregnancy) {
+    if (pregnancyWeek) {
+      report += `המטופלת בהריון, שבוע ${pregnancyWeek}. `;
+    } else {
+      report += "המטופלת בהריון. ";
+    }
+  }
+
+  // Add medication information if applicable and not negative
   const medicationInfo = [];
-  if (medications.coumadin) medicationInfo.push("קומדין");
-  if (medications.otherMedications) medicationInfo.push(medications.otherMedications);
+  if (medications?.coumadin) medicationInfo.push("קומדין");
+  if (
+    medications?.otherMedications &&
+    !negativePhrases.some((phrase) => medications.otherMedications.includes(phrase))
+  ) {
+    medicationInfo.push(medications.otherMedications);
+  }
 
   if (medicationInfo.length > 0) {
-    report += `המטופל מטופל בתרופות הבאות: ${medicationInfo.join(", ")}. `;
+    report += `המטופל נוטל את התרופות הבאות: ${medicationInfo.join(", ")}. `;
   }
 
   // Add general note if no relevant details exist
   const hasRelevantInfo =
-    existingConditions.length > 0 || smoking || otherAllergies || surgeries || medicationInfo.length > 0;
+    existingConditions.length > 0 ||
+    smoking ||
+    (otherAllergies && !negativePhrases.some((phrase) => otherAllergies.includes(phrase))) ||
+    (surgeries && !negativePhrases.some((phrase) => surgeries.includes(phrase))) ||
+    medicationInfo.length > 0 ||
+    pregnancy;
 
   if (!hasRelevantInfo) {
     report += "המטופל אינו סובל מבעיות רפואיות ידועות.";
