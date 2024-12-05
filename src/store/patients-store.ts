@@ -1,7 +1,7 @@
-import { Doc } from '../../convex/_generated/dataModel';
-import { create } from 'zustand';
+import { Doc } from "../../convex/_generated/dataModel";
+import { create } from "zustand";
 
-type Patient = Doc<"patients">
+type Patient = Doc<"patients">;
 
 interface PatientsState {
   patients: Patient[];
@@ -13,6 +13,7 @@ interface PatientsState {
 export const usePatients = create<PatientsState>((set) => ({
   patients: [],
   selectedPatient: null,
-  setPatients: (patients) => set({ patients: Array.isArray(patients) ? patients : [] }),
+  setPatients: (patients) =>
+    set({ patients: Array.isArray(patients) ? patients : [] }),
   setSelectedPatient: (patient) => set({ selectedPatient: patient }),
 }));

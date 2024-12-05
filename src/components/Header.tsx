@@ -1,8 +1,11 @@
+import { useModal } from "@/store/modal-store";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
-import { AddNewPatient } from './NewPatient/AddNewPatient';
+import { Button } from "./ui/button";
+import { PlusIcon } from 'lucide-react';
 
 export function Header() {
+  const { openModal } = useModal();
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -16,7 +19,14 @@ export function Header() {
             {/* <h1 className="text-2xl font-bold"></h1> */}
           </div>
           <div className="flex items-center space-x-4 space-x-reverse">
-            <AddNewPatient />
+            <Button
+              variant="outline"
+              onClick={() => openModal("addOrEditPatient")}
+              className="flex items-center"
+            >
+              <span className="ml-1">הוספת מטופל</span>
+              <PlusIcon className="w-4 h-4" />
+            </Button>
             <ThemeToggle />
           </div>
         </div>

@@ -20,10 +20,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { usePatientActions } from "@/hooks/use-patient-actions";
-import { usePatients } from "@/lib/store";
+import { usePatients } from "@/store/patients-store";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Loader2, Search, Trash2 } from "lucide-react";
+import { EditIcon, Loader2, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 export function PatientTable() {
@@ -93,7 +93,7 @@ export function PatientTable() {
                 { label: "טלפון", key: "phone" },
                 { label: "תאריך לידה", key: "dateOfBirth" },
                 { label: "נוסף בתאריך", key: "createdAt" },
-                { label: "פעולות", key: "" },
+                { label: "", key: "" },
               ].map((column, index) => (
                 <TableHead
                   key={index}
@@ -127,13 +127,20 @@ export function PatientTable() {
               </TableRow>
             ) : sortedPatients?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 md:text-center text-right pr-4">
+                <TableCell
+                  colSpan={6}
+                  className="h-24 md:text-center text-right pr-4"
+                >
                   לא נמצאו מטופלים
                 </TableCell>
               </TableRow>
             ) : (
               sortedPatients?.map((patient) => (
-                <TableRow key={patient._id}>
+                <TableRow
+                  key={patient._id}
+                  onClick={() => setSelectedPatient(patient)}
+                  className='cursor-pointer'
+                >
                   <TableCell className="font-medium pr-4">{`${patient.firstName} ${patient.lastName}`}</TableCell>
                   <TableCell>{patient.idNumber}</TableCell>
                   <TableCell>{patient.phone}</TableCell>
@@ -145,12 +152,11 @@ export function PatientTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedPatient(patient)}
-                      >
-                        הצג פרטים
+                      <Button variant="secondary" size="icon">
+                        <EditIcon
+                          className="h-4 w-4"
+                          onClick={() => setSelectedPatient(patient)}
+                        />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>

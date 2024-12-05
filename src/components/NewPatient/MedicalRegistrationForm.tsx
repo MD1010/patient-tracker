@@ -12,6 +12,7 @@ import { Doc } from "../../../convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import DEFAULT_FORM_VALUES from "./defualtFormValues";
+import { useModal } from "@/store/modal-store";
 
 export type FormData = Doc<"patients">;
 const formVariants = {
@@ -21,13 +22,14 @@ const formVariants = {
 };
 
 type Props = {
-  onCloseModal: () => void;
+  patient?: Doc<"patients">;
 };
 
-export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
+export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const { closeModal } = useModal();
   const form = useForm<FormData>({
-    defaultValues: DEFAULT_FORM_VALUES,
+    defaultValues: patient || DEFAULT_FORM_VALUES,
     mode: "onChange",
   });
   const addPatientMutation = useMutation(api.patients.add);
@@ -35,8 +37,9 @@ export const MedicalRegistrationForm: FC<Props> = ({ onCloseModal }) => {
   const onSubmit = async (data: FormData) => {
     console.log(data);
     await addPatientMutation(data);
-    toast.success("המטופל נוסף בהצלחה");
-    onCloseModal();
+    let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";
+    toast.success(completedText);
+    closeModal();
   };
 
   const nextStep = async () => {

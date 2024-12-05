@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { usePatients } from "@/lib/store";
+import { usePatients } from "@/store/patients-store";
 import { useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";

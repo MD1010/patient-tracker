@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 import { Header } from "./components/Header";
 import { PatientDashboard } from "./components/PatientDashboard";
+import { ModalProvider } from './components/ModalProvider';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Header />
         <main className="container mx-auto px-4 py-8">
           <PatientDashboard />
+          <ModalProvider/>
         </main>
       </div>
       <Toaster dir="rtl" position="top-left" />
