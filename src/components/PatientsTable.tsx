@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { EditIcon, Loader2, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useModal } from "@/store/modal-store";
 
 export function PatientTable() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +33,7 @@ export function PatientTable() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const { patients, isLoading, deletePatient } = usePatientActions();
   const { setSelectedPatient } = usePatients();
+  const { openModal } = useModal();
 
   // Search functionality
   const filteredPatients = patients?.filter((patient) =>
@@ -139,7 +141,7 @@ export function PatientTable() {
                 <TableRow
                   key={patient._id}
                   onClick={() => setSelectedPatient(patient)}
-                  className='cursor-pointer'
+                  className="cursor-pointer"
                 >
                   <TableCell className="font-medium pr-4">{`${patient.firstName} ${patient.lastName}`}</TableCell>
                   <TableCell>{patient.idNumber}</TableCell>
@@ -152,11 +154,17 @@ export function PatientTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="secondary" size="icon">
-                        <EditIcon
-                          className="h-4 w-4"
-                          onClick={() => setSelectedPatient(patient)}
-                        />
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal("addOrEditPatient", {
+                            patientToEdit: patient,
+                          });
+                        }}
+                      >
+                        <EditIcon className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>

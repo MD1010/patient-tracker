@@ -33,10 +33,10 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
     mode: "onChange",
   });
   const addPatientMutation = useMutation(api.patients.add);
+  const editPatientMutation = useMutation(api.patients.edit);
 
   const onSubmit = async (data: FormData) => {
-    console.log(data);
-    await addPatientMutation(data);
+    patient ? await editPatientMutation(data) : await addPatientMutation(data);
     let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";
     toast.success(completedText);
     closeModal();

@@ -43,32 +43,18 @@ export const add = mutation({
       penicillinLatex: v.boolean(),
       otherMedications: v.string(),
     }),
-    smoking: v.boolean(),
-    pregnancy: v.boolean(),
-    anesthesia: v.boolean(),
+    smoking: v.optional(v.boolean()),
+    pregnancy: v.optional(v.boolean()),
+    anesthesia: v.optional(v.boolean()),
     pregnancyWeek: v.optional(v.string()),
-    cancerDetails: v.string(),
-    otherAllergies: v.string(),
-    surgeries: v.string(),
+    cancerDetails: v.optional(v.string()),
+    otherAllergies: v.optional(v.string()),
+    surgeries: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const patientId = await ctx.db.insert("patients", {
-      firstName: args.firstName,
-      lastName: args.lastName,
-      phone: args.phone,
-      dateOfBirth: args.dateOfBirth,
-      idNumber: args.idNumber,
-      lastTreatmentDate: args.lastTreatmentDate,
-      conditions: args.conditions,
-      medications: args.medications,
-      smoking: args.smoking,
-      pregnancy: args.pregnancy,
-      pregnancyWeek: args.pregnancyWeek,
-      cancerDetails: args.cancerDetails,
-      otherAllergies: args.otherAllergies,
-      anesthesia: args.anesthesia,
+      ...args,
       createdAt: new Date().toISOString(),
-      surgeries: args.surgeries
     });
     return patientId;
   },
@@ -86,14 +72,16 @@ export const deleteOne = mutation({
 // Mutation: Edit a patient by ID
 export const edit = mutation({
   args: {
-    patientId: v.id("patients"), // The patient's ID to update
+    _id: v.id("patients"), // Allow optional _id
+    _creationTime: v.optional(v.number()),
+    createdAt: v.optional(v.string()),
     firstName: v.string(),
     lastName: v.string(),
     phone: v.string(),
     dateOfBirth: v.string(),
     lastTreatmentDate: v.string(),
     idNumber: v.string(),
-    conditions: v.object({
+    conditions: v.optional(v.object({
       diabetes: v.boolean(),
       osteoporosis: v.boolean(),
       asthma: v.boolean(),
@@ -113,37 +101,21 @@ export const edit = mutation({
       psychiatricProblems: v.boolean(),
       chemotherapy: v.boolean(),
       cancer: v.boolean(),
-    }),
-    medications: v.object({
+    })),
+    medications: v.optional(v.object({
       coumadin: v.boolean(),
       penicillinLatex: v.boolean(),
       otherMedications: v.string(),
-    }),
-    smoking: v.boolean(),
-    pregnancy: v.boolean(),
-    anesthesia: v.boolean(),
+    })),
+    smoking: v.optional(v.boolean()),
+    pregnancy: v.optional(v.boolean()),
+    anesthesia: v.optional(v.boolean()),
     pregnancyWeek: v.optional(v.string()),
-    cancerDetails: v.string(),
-    otherAllergies: v.string(),
-    surgeries: v.string(),
+    cancerDetails: v.optional(v.string()),
+    otherAllergies: v.optional(v.string()),
+    surgeries: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.patientId, {
-      firstName: args.firstName,
-      lastName: args.lastName,
-      phone: args.phone,
-      dateOfBirth: args.dateOfBirth,
-      idNumber: args.idNumber,
-      lastTreatmentDate: args.lastTreatmentDate,
-      conditions: args.conditions,
-      medications: args.medications,
-      smoking: args.smoking,
-      pregnancy: args.pregnancy,
-      pregnancyWeek: args.pregnancyWeek,
-      cancerDetails: args.cancerDetails,
-      otherAllergies: args.otherAllergies,
-      anesthesia: args.anesthesia,
-      surgeries: args.surgeries,
-    });
+    await ctx.db.patch(args._id, args);
   },
 });

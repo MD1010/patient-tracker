@@ -6,18 +6,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"; // Assumes you're using a modal component library
 import { useModal } from "@/store/modal-store";
-import { Doc } from "../../../convex/_generated/dataModel";
 import { MedicalRegistrationForm } from "../NewPatient/MedicalRegistrationForm";
 
-export const AddOrEditPatientModal = ({
-  patient,
-}: {
-  patient?: Doc<"patients">;
-}) => {
-  const { isOpen, closeModal, type } = useModal();
-  
+export const AddOrEditPatientModal = ({}) => {
+  const { isOpen, closeModal, type, data } = useModal();
+  const { patientToEdit } = data || {};
+
   const isModalOpen = isOpen && type === "addOrEditPatient";
-  const formTitle = patient ? "עריכת מטופל" : "הוספת מטופל";
+  const formTitle = patientToEdit ? "עריכת מטופל" : "הוספת מטופל";
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -30,7 +26,7 @@ export const AddOrEditPatientModal = ({
               </DialogTitle>
               <DialogClose onClick={closeModal} />
             </DialogHeader>
-            <MedicalRegistrationForm patient={patient} />
+            <MedicalRegistrationForm patient={patientToEdit} />
           </DialogContent>
         </Dialog>
       )}

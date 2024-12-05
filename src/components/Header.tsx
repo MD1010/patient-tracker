@@ -1,8 +1,8 @@
 import { useModal } from "@/store/modal-store";
 import { motion } from "framer-motion";
+import { PlusIcon } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
-import { PlusIcon } from 'lucide-react';
 
 export function Header() {
   const { openModal } = useModal();

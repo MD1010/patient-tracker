@@ -51,8 +51,8 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           )}
         </div>
 
-       {/* Date of Birth */}
-       <div className="space-y-2">
+        {/* Date of Birth */}
+        <div className="space-y-2">
           <Label>תאריך לידה</Label>
           <DatePicker
             fromYear={1901}
@@ -60,7 +60,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             date={watch("dateOfBirth")}
             onDateChange={(date) => {
               setValue("dateOfBirth", date!.toISOString());
-              trigger("dateOfBirth")
+              trigger("dateOfBirth");
             }}
             {...register("dateOfBirth", { required: "שדה חובה" })}
             locale={he}
