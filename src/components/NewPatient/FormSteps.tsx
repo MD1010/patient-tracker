@@ -1,7 +1,6 @@
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { edit } from 'convex/patients';
 
 const steps = [
   { number: 1, title: "פרטים אישיים" },
