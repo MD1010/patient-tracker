@@ -37,8 +37,14 @@ export const deleteOne = mutation({
 });
 
 export const edit = mutation({
-  args: v.object({ ...patientsSchema, _id: v.id("patients"), _creationTime: v.optional(v.number()) }),
+  args: v.object({
+    ...patientsSchema,
+    _id: v.id("patients"),
+    _creationTime: v.optional(v.number()),
+  }),
   handler: async (ctx, args) => {
-    await ctx.db.patch(args._id, args);
+    const dateOfBirth = new Date(args.dateOfBirth);
+    const age = new Date().getFullYear() - dateOfBirth.getFullYear();
+    await ctx.db.patch(args._id, { ...args, isAdult: age >= 18 });
   },
 });

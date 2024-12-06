@@ -29,7 +29,7 @@ import { useModal } from "@/store/modal-store";
 
 export function PatientTable() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortColumn, setSortColumn] = useState("");
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const { patients, isLoading, deletePatient } = usePatientActions();
   const { setSelectedPatient } = usePatients();
@@ -38,29 +38,54 @@ export function PatientTable() {
   // Search functionality
   const filteredPatients = patients?.filter((patient) =>
     Object.values(patient).some((value) =>
-      String(value).toLowerCase().includes(searchQuery.toLowerCase())
+      String(value ?? "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     )
   );
 
-  // Sort functionality
-  const sortedPatients = filteredPatients?.sort((a, b) => {
+  const sortedPatients = filteredPatients?.slice().sort((a, b) => {
     if (!sortColumn) return 0;
-    const aValue = (a as any)[sortColumn];
-    const bValue = (b as any)[sortColumn];
 
+    const getValue = (patient: any, column: string) => {
+      if (column === "name") {
+        return `${patient.firstName} ${patient.lastName}`.toLowerCase();
+      }
+      return patient[column] ?? "";
+    };
+
+    const aValue = getValue(a, sortColumn);
+    const bValue = getValue(b, sortColumn);
+
+    // Handle null or undefined values
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortDirection === "asc" ? 1 : -1;
+    if (bValue == null) return sortDirection === "asc" ? -1 : 1;
+
+    // String sorting
     if (typeof aValue === "string" && typeof bValue === "string") {
       return sortDirection === "asc"
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
+
+    // Date sorting
     if (aValue instanceof Date && bValue instanceof Date) {
       return sortDirection === "asc"
         ? aValue.getTime() - bValue.getTime()
         : bValue.getTime() - aValue.getTime();
     }
-    return 0;
-  });
 
+    // Number sorting
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // Default: treat values as strings
+    return sortDirection === "asc"
+      ? String(aValue).localeCompare(String(bValue))
+      : String(bValue).localeCompare(String(aValue));
+  });
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -110,7 +135,7 @@ export function PatientTable() {
                     width: column.key === "" ? "10%" : "auto", // Actions column narrower
                   }}
                 >
-                  <div className="w-28 ">
+                  <div className="w-28">
                     {column.label}
                     {column.key && sortColumn === column.key && (
                       <span className="ml-1 text-muted-foreground">
@@ -125,14 +150,14 @@ export function PatientTable() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : sortedPatients?.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={8}
                   className="h-24 md:text-center text-right pr-4"
                 >
                   לא נמצאו מטופלים
@@ -142,8 +167,8 @@ export function PatientTable() {
               sortedPatients?.map((patient) => (
                 <TableRow
                   key={patient._id}
-                  onClick={() => setSelectedPatient(patient)}
                   className="cursor-pointer"
+                  onClick={() => setSelectedPatient(patient)}
                 >
                   <TableCell className="font-medium pr-4">{`${patient.firstName} ${patient.lastName}`}</TableCell>
                   <TableCell>{patient.idNumber}</TableCell>
@@ -152,21 +177,18 @@ export function PatientTable() {
                     {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
                   </TableCell>
                   <TableCell>{patient.isAdult ? "מבוגר" : "ילד"}</TableCell>
-                  {/** last treatment */}
                   <TableCell>
-                    {patient.lastTreatmentDate ? (
-                      format(new Date(patient.lastTreatmentDate), "dd/MM/yyyy")
-                    ) : (
-                      <span className="px-10">-</span>
-                    )}
+                    {patient.lastTreatmentDate
+                      ? format(
+                          new Date(patient.lastTreatmentDate),
+                          "dd/MM/yyyy"
+                        )
+                      : "-"}
                   </TableCell>
-                  {/** next treatment */}
                   <TableCell>
-                    {patient.nextTreatment ? (
-                      format(new Date(patient.nextTreatment), "dd/MM/yyyy")
-                    ) : (
-                      <span className="px-10">-</span>
-                    )}
+                    {patient.nextTreatment
+                      ? format(new Date(patient.nextTreatment), "dd/MM/yyyy")
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -183,7 +205,10 @@ export function PatientTable() {
                         <EditIcon className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                        <AlertDialogTrigger
+                          asChild
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Button variant="secondary" size="icon">
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -201,7 +226,10 @@ export function PatientTable() {
                           <AlertDialogFooter className="flex gap-3 mt-4">
                             <AlertDialogCancel>ביטול</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => deletePatient(patient._id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deletePatient(patient._id);
+                              }}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
                               מחק
