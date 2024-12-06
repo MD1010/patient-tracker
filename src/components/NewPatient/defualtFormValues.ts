@@ -8,10 +8,9 @@ type RequiredFields =
   | "_creationTime"
   | "dateOfBirth"
   | "idNumber"
-  | "createdAt"
+  | "isAdult"
 
 export default {
-  lastTreatmentDate: new Date().toISOString(),
   anesthesia: false,
   pregnancy: false,
   smoking: false,
@@ -44,4 +43,6 @@ export default {
     otherMedications: "",
     penicillinLatex: false,
   },
+  lastTreatmentDate: null,
+  nextTreatment: null
 } satisfies Omit<Doc<"patients">, RequiredFields>;

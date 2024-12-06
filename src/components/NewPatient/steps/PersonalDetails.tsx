@@ -109,7 +109,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         </div>
 
         {/* Last Treatment Date */}
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label>תאריך טיפול אחרון</Label>
           <DatePicker
             fromYear={2000}
@@ -128,7 +128,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
               {errors.lastTreatmentDate.message}
             </p>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );

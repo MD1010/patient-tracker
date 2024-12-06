@@ -188,7 +188,7 @@ export function PatientModal() {
                 <div>
                   <h1 className="text-sm font-semibold">מטופל מתאריך</h1>
                   <p className="text-sm text-muted-foreground">
-                    {format(new Date(selectedPatient.createdAt), "dd/MM/yyyy")}
+                    {format(new Date(selectedPatient._creationTime), "dd/MM/yyyy")}
                   </p>
                 </div>
               </div>

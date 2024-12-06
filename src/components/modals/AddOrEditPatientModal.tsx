@@ -11,6 +11,8 @@ import { MedicalRegistrationForm } from "../NewPatient/MedicalRegistrationForm";
 export const AddOrEditPatientModal = ({}) => {
   const { isOpen, closeModal, type, data } = useModal();
   const { patientToEdit } = data || {};
+  console.log("patient to edit ", patientToEdit);
+  
 
   const isModalOpen = isOpen && type === "addOrEditPatient";
   const formTitle = patientToEdit ? "עריכת מטופל" : "הוספת מטופל";

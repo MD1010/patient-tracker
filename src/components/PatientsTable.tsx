@@ -94,7 +94,9 @@ export function PatientTable() {
                 { label: "ת.ז", key: "idNumber" },
                 { label: "טלפון", key: "phone" },
                 { label: "תאריך לידה", key: "dateOfBirth" },
-                { label: "נוסף בתאריך", key: "createdAt" },
+                { label: "מבוגר/ילד", key: "isAdult" },
+                { label: "טיפול אחרון", key: "lastTreatmentDate" },
+                { label: "טיפול עתידי", key: "nextTreatment" },
                 { label: "", key: "" },
               ].map((column, index) => (
                 <TableHead
@@ -149,8 +151,22 @@ export function PatientTable() {
                   <TableCell>
                     {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
                   </TableCell>
+                  <TableCell>{patient.isAdult ? "מבוגר" : "ילד"}</TableCell>
+                  {/** last treatment */}
                   <TableCell>
-                    {format(new Date(patient.createdAt), "dd/MM/yyyy")}
+                    {patient.lastTreatmentDate ? (
+                      format(new Date(patient.lastTreatmentDate), "dd/MM/yyyy")
+                    ) : (
+                      <span className="px-10">-</span>
+                    )}
+                  </TableCell>
+                  {/** next treatment */}
+                  <TableCell>
+                    {patient.nextTreatment ? (
+                      format(new Date(patient.nextTreatment), "dd/MM/yyyy")
+                    ) : (
+                      <span className="px-10">-</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">

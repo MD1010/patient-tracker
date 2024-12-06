@@ -15,6 +15,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { api } from "../../convex/_generated/api";
 import { DatePicker } from "./ui/date-picker";
 import { parseCurrencyInput } from "@/lib/utils";
+import { CurrencyInput } from "./ui/currency-input";
 
 export function AddTreatmentDialog({
   patientId,
@@ -36,7 +37,7 @@ export function AddTreatmentDialog({
     defaultValues: {
       type: "",
       description: "",
-      cost: 0,
+      cost: undefined,
       nextAppointment: "",
       notes: "",
       date: "",
@@ -115,14 +116,22 @@ export function AddTreatmentDialog({
               </div>
 
               <div className="space-y-2">
-                <Input
-                  id="amount-rtl"
-                  variant="currency"
-                  currencySymbol="₪"
+                <CurrencyInput
                   placeholder="עלות"
-                  {...register("cost", {
-                    required: "שדה חובה",
-                  })}
+                  currencySymbol="₪"
+                  value={watch("cost")}
+                  {...register("cost", { required: "שדה חובה" })}
+                  onChange={(e) => {
+                    setValue(
+                      "cost",
+                      e.target.value
+                        ? +parseCurrencyInput(e.target.value)
+                        : NaN
+                    );
+
+                    trigger("cost");
+                  }}
+                  error={!!errors.cost}
                   className={errors.cost ? "border-red-500 shadow-sm" : ""}
                 />
                 {errors.cost && (
@@ -149,6 +158,7 @@ export function AddTreatmentDialog({
             <div className="space-y-2">
               <DatePicker
                 placeholder="בחר תאריך לטיפול הבא"
+                fromYear={new Date().getFullYear()}
                 fromDate={new Date()}
                 date={watch("nextAppointment")}
                 onDateChange={(date) => {
