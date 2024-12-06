@@ -14,6 +14,7 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { api } from "../../convex/_generated/api";
 import { DatePicker } from "./ui/date-picker";
+import { parseCurrencyInput } from "@/lib/utils";
 
 export function AddTreatmentDialog({
   patientId,
@@ -35,7 +36,7 @@ export function AddTreatmentDialog({
     defaultValues: {
       type: "",
       description: "",
-      cost: NaN,
+      cost: 0,
       nextAppointment: "",
       notes: "",
       date: "",
@@ -46,7 +47,7 @@ export function AddTreatmentDialog({
   const onSubmit: SubmitHandler<Doc<"treatments">> = async (data) => {
     await addTreatment({
       patientId,
-      cost: +data.cost,
+      cost: +parseCurrencyInput(data.cost.toString()),
       date: data.date,
       description: data.description,
       type: data.type,
@@ -90,6 +91,46 @@ export function AddTreatmentDialog({
               )}
             </div>
 
+            <div className="flex gap-4">
+              <div className="space-y-2 flex-1">
+                <DatePicker
+                  fromYear={2000}
+                  toYear={new Date().getFullYear()}
+                  toDate={new Date()}
+                  placeholder="תאריך הטיפול"
+                  date={watch("date")}
+                  {...register("date", { required: "שדה חובה" })}
+                  onDateChange={(date) => {
+                    setValue("date", date ? new Date(date).toISOString() : "");
+                    trigger("date");
+                  }}
+                  locale={he}
+                  className={`w-full justify-start text-right h-10 p-2 ${
+                    errors.date ? "border-red-500 shadow-sm" : ""
+                  }`}
+                />
+                {errors.date && (
+                  <p className="text-sm text-red-600">{errors.date.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Input
+                  id="amount-rtl"
+                  variant="currency"
+                  currencySymbol="₪"
+                  placeholder="עלות"
+                  {...register("cost", {
+                    required: "שדה חובה",
+                  })}
+                  className={errors.cost ? "border-red-500 shadow-sm" : ""}
+                />
+                {errors.cost && (
+                  <p className="text-sm text-red-600">{errors.cost.message}</p>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Textarea
                 placeholder="תיאור"
@@ -100,43 +141,6 @@ export function AddTreatmentDialog({
                 <p className="text-sm text-red-600">
                   {errors.description?.message}
                 </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <DatePicker
-                fromYear={2000}
-                toYear={new Date().getFullYear()}
-                toDate={new Date()}
-                placeholder="תאריך הטיפול"
-                date={watch("date")}
-                {...register("date", { required: "שדה חובה" })}
-                onDateChange={(date) => {
-                  setValue("date", date ? new Date(date).toISOString() : "");
-                  trigger("date");
-                }}
-                locale={he}
-                className={`w-full justify-start text-right h-10 p-2 ${
-                  errors.date ? "border-red-500 shadow-sm" : ""
-                }`}
-              />
-              {errors.date && (
-                <p className="text-sm text-red-600">{errors.date.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Input
-                type="number"
-                placeholder="עלות"
-                {...register("cost", {
-                  required: "שדה חובה",
-                  validate: (value) => value > 0 || "עלות לא תקינה",
-                })}
-                className={errors.cost ? "border-red-500 shadow-sm" : ""}
-              />
-              {errors.cost && (
-                <p className="text-sm text-red-600">{errors.cost.message}</p>
               )}
             </div>
 

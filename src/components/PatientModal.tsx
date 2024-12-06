@@ -35,6 +35,7 @@ import {
 import { WhatsAppButton } from "./WhatsAppButton";
 import { useRef, useCallback } from "react";
 import { generateMedicalConditionReport } from "./NewPatient/generateMedicalInfo";
+import { formatCurrency } from '@/lib/utils';
 
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -268,7 +269,7 @@ export function PatientModal() {
                                   עלות
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
-                                  ₪{treatment.cost}
+                                  ₪{formatCurrency(treatment.cost)}
                                 </p>
                               </div>
 
