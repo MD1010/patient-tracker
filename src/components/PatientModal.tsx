@@ -35,7 +35,7 @@ import {
 import { WhatsAppButton } from "./WhatsAppButton";
 import { useRef, useCallback } from "react";
 import { generateMedicalConditionReport } from "./NewPatient/generateMedicalInfo";
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from "@/lib/utils";
 
 export function PatientModal() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -70,7 +70,7 @@ export function PatientModal() {
 
         // Calculate the target scroll position
         // Subtract some padding (e.g., 100px) to show some content above the item
-        const targetScroll = viewport.scrollTop + relativeTop;
+        const targetScroll = viewport.scrollTop + relativeTop - 150;
 
         // Scroll to the target position
         viewport.scrollTo({
@@ -215,7 +215,7 @@ export function PatientModal() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="space-y-6 min-h-[300px]"
           >
-            <div className="flex justify-between items-center sticky top-0 bg-background z-20 py-2">
+            <div className="flex justify-between items-center bg-background sticky -top-2 z-40 py-2">
               <AddTreatmentDialog patientId={selectedPatient._id} />
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
             </div>
@@ -249,9 +249,9 @@ export function PatientModal() {
                       >
                         <AccordionItem
                           value={treatment._id}
-                          className="border-b last:border-none"
+                        className="border-b last:border-none"
                         >
-                          <AccordionTrigger className="sticky top-0 bg-background z-10">
+                          <AccordionTrigger className="sticky top-10 bg-background z-20">
                             <div className="flex w-full gap-12 justify-end">
                               <span className="font-medium">
                                 {treatment.type}
