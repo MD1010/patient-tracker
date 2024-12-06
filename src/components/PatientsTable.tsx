@@ -113,8 +113,8 @@ export function PatientTable() {
       {/* Table */}
       <div className={cn("rounded-md border", isLoading && "opacity-50")}>
         <Table className="pr-4">
-          <TableHeader className='bg-secondary/30'>
-            <TableRow >
+          <TableHeader className="bg-secondary/30">
+            <TableRow>
               {[
                 { label: "שם", key: "name" },
                 { label: "ת.ז", key: "idNumber" },
@@ -178,7 +178,10 @@ export function PatientTable() {
                     {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={patient.isAdult ? "blue": "red"} className='px-2'>
+                    <Badge
+                      variant={patient.isAdult ? "blue" : "red"}
+                      className="px-2"
+                    >
                       {patient.isAdult ? "מבוגר" : "ילד"}
                     </Badge>
                   </TableCell>
@@ -197,6 +200,19 @@ export function PatientTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="default"
+                        className=''
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal("addOrEditPatient", {
+                            patientToEdit: patient,
+                          });
+                        }}
+                      >
+                        טיפול חדש
+                      </Button>
+
                       <Button
                         variant="outline"
                         size="icon"
