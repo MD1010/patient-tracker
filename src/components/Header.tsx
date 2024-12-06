@@ -20,11 +20,11 @@ export function Header() {
           </div>
           <div className="flex items-center space-x-4 space-x-reverse">
             <Button
-              variant="outline"
+              variant="default"
               onClick={() => openModal("addOrEditPatient")}
-              className="flex items-center"
+              className="flex items-center hover:shadow-sm "
             >
-              <span className="ml-1">הוספת מטופל</span>
+              <span className="font-bold -mx-1">הוספת מטופל</span>
               <PlusIcon className="w-4 h-4" />
             </Button>
             <ThemeToggle />

@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import { EditIcon, Loader2, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useModal } from "@/store/modal-store";
+import { Badge } from "./ui/badge";
 
 export function PatientTable() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -112,14 +113,14 @@ export function PatientTable() {
       {/* Table */}
       <div className={cn("rounded-md border", isLoading && "opacity-50")}>
         <Table className="pr-4">
-          <TableHeader>
-            <TableRow>
+          <TableHeader className='bg-secondary/30'>
+            <TableRow >
               {[
                 { label: "שם", key: "name" },
                 { label: "ת.ז", key: "idNumber" },
                 { label: "טלפון", key: "phone" },
                 { label: "תאריך לידה", key: "dateOfBirth" },
-                { label: "מבוגר/ילד", key: "isAdult" },
+                { label: "סוג מטופל", key: "isAdult" },
                 { label: "טיפול אחרון", key: "lastTreatmentDate" },
                 { label: "טיפול עתידי", key: "nextTreatment" },
                 { label: "", key: "" },
@@ -176,7 +177,11 @@ export function PatientTable() {
                   <TableCell>
                     {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
                   </TableCell>
-                  <TableCell>{patient.isAdult ? "מבוגר" : "ילד"}</TableCell>
+                  <TableCell>
+                    <Badge variant={patient.isAdult ? "blue": "red"} className='px-2'>
+                      {patient.isAdult ? "מבוגר" : "ילד"}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     {patient.lastTreatmentDate
                       ? format(
@@ -193,7 +198,7 @@ export function PatientTable() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="secondary"
+                        variant="outline"
                         size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -209,7 +214,7 @@ export function PatientTable() {
                           asChild
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <Button variant="secondary" size="icon">
+                          <Button variant="outline" size="icon">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
