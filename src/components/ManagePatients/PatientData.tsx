@@ -19,25 +19,17 @@ import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
 import { Download, Loader2, Trash2 } from "lucide-react";
-import { api } from "../../convex/_generated/api";
-import { AddTreatmentDialog } from "./AddTreatmentDialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { WhatsAppButton } from "./WhatsAppButton";
-import { useRef, useCallback } from "react";
-import { generateMedicalConditionReport } from "./NewPatient/generateMedicalInfo";
-import { formatCurrency } from "@/lib/utils";
 
-export function PatientModal() {
+import { formatCurrency } from "@/lib/utils";
+import { useCallback, useRef } from "react";
+import { api } from '../../../convex/_generated/api';
+import { WhatsAppButton } from '../WhatsAppButton';
+import { generateMedicalConditionReport } from '../NewPatient/generateMedicalInfo';
+import { AddTreatmentDialog } from '../AddTreatmentDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+
+
+export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
   const deleteTreatment = useMutation(api.treatments.deleteOne);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});

@@ -1,7 +1,7 @@
 
 import { motion } from 'framer-motion';
-import { PatientModal } from './PatientModal';
-import { PatientTable } from './PatientsTable';
+import { PatientTable } from './PatientsTable/PatientsTable';
+import { PatientData } from './PatientData';
 
 export function PatientDashboard() {
   return (
@@ -13,7 +13,7 @@ export function PatientDashboard() {
     >
        <h1 className="text-3xl font-bold mb-8 text-right">ניהול מטופלים</h1>
        <PatientTable />
-      <PatientModal />
+      <PatientData />
     </motion.div>
   );
 }

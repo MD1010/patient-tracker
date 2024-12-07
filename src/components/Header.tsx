@@ -1,8 +1,9 @@
 import { useModal } from "@/store/modal-store";
 import { motion } from "framer-motion";
-import { PlusIcon } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
+import { BookText, BookUser, PlusIcon } from 'lucide-react';
+import { IdCardIcon } from '@radix-ui/react-icons';
 
 export function Header() {
   const { openModal } = useModal();
@@ -25,7 +26,7 @@ export function Header() {
               className="flex items-center hover:shadow-sm "
             >
               <span className="font-bold -mx-1">הוספת מטופל</span>
-              <PlusIcon className="w-4 h-4" />
+              <PlusIcon strokeWidth={4}/>
             </Button>
             <ThemeToggle />
           </div>

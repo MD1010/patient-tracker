@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 import { Header } from "./components/Header";
-import { PatientDashboard } from "./components/PatientDashboard";
+import { PatientDashboard } from "./components/ManagePatients/PatientDashboard";
 import { ModalProvider } from './components/ModalProvider';
 
 function App() {
