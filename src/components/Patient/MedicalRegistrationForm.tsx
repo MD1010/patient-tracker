@@ -75,7 +75,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           />
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-            <ScrollArea className="h-[300px] rtl px-4">
+            <ScrollArea className="h-[42vh] rtl px-4">
                 {currentStep === 1 && <PersonalDetails form={form} />}
                 {currentStep === 2 && <MedicalBackground form={form} />}
                 {currentStep === 3 && <MedicalHistory form={form} />}

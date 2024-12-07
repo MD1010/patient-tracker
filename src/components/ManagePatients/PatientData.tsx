@@ -97,8 +97,8 @@ export function PatientData() {
       `${selectedPatient.firstName} ${selectedPatient.lastName}`,
     ]);
     worksheet.addRow(["ת.ז", selectedPatient.idNumber]);
-    worksheet.addRow(["טלפון", selectedPatient.phone]);
-    worksheet.addRow(["תאריך לידה", selectedPatient.dateOfBirth]);
+    worksheet.addRow(["טלפון", selectedPatient.phone || selectedPatient.parent?.phone]);
+    worksheet.addRow(["תאריך לידה", format(new Date(selectedPatient.dateOfBirth), "dd/MM/yyyy")]);
     worksheet.addRow([]);
 
     worksheet.addRow(["טיפולים"]);
@@ -109,7 +109,7 @@ export function PatientData() {
         treatment.type,
         treatment.description,
         treatment.cost,
-        treatment.nextAppointment || "",
+        treatment.nextAppointment ? format(new Date(treatment.nextAppointment), "dd/MM/yyyy") : "-"
       ]);
     });
 
@@ -140,10 +140,12 @@ export function PatientData() {
               {selectedPatient.lastName}
             </span>
             <div className="flex justify-end items-center gap-2">
-              <WhatsAppButton
-                phone={selectedPatient.phone}
-                patientId={selectedPatient._id}
-              />
+              {selectedPatient.phone || selectedPatient.parent?.phone ? (
+                <WhatsAppButton
+                  phone={(selectedPatient.phone || selectedPatient.parent?.phone)!}
+                  patientId={selectedPatient._id}
+                />
+              ) : null}
               <Button
                 variant="outline"
                 size="icon"
@@ -173,9 +175,9 @@ export function PatientData() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold">טלפון</h4>
+                  <h4 className="text-sm font-semibold">{selectedPatient.isAdult ? "טלפון" : "טלפון ההורה"}</h4>
                   <p className="text-sm text-muted-foreground">
-                    {selectedPatient.phone}
+                    {selectedPatient.phone || selectedPatient.parent?.phone}
                   </p>
                 </div>
                 <div>
@@ -275,7 +277,7 @@ export function PatientData() {
                                 onClick={() =>
                                   openModal("addOrEditTreatment", {
                                     treatmentToEdit: treatment,
-                                    patientId: treatment.patientId
+                                    patientId: treatment.patientId,
                                   })
                                 }
                               >

@@ -123,8 +123,7 @@ export function PatientTable() {
                     onClick={() => column.key && handleSort(column.key)}
                     className={cn(
                       "text-right py-3 px-4 whitespace-nowrap",
-                      column.key &&
-                        "cursor-pointer select-none"
+                      column.key && "cursor-pointer select-none"
                     )}
                     style={{
                       width: column.width,
@@ -149,7 +148,10 @@ export function PatientTable() {
                 </TableRow>
               ) : sortedPatients?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-right px-4">
+                  <TableCell
+                    colSpan={8}
+                    className="h-24  md:text-center font-semibold "
+                  >
                     לא נמצאו מטופלים
                   </TableCell>
                 </TableRow>

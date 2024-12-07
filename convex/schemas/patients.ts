@@ -3,7 +3,7 @@ import { v } from "convex/values";
 export const patientsSchema = {
   firstName: v.string(),
   lastName: v.string(),
-  phone: v.string(),
+  phone: v.union(v.string(), v.null()),
   dateOfBirth: v.string(),
   isAdult: v.boolean(),
   lastTreatmentDate: v.union(v.string(), v.null()),

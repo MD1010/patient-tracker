@@ -1,6 +1,7 @@
-import { api } from '../../convex/_generated/api';
+import { api } from "../../convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { Id } from "node_modules/convex/dist/esm-types/values/value";
+import { toast } from "sonner";
 
 export interface Patient {
   _id: Id<"patients">;
@@ -18,6 +19,7 @@ export function usePatientActions() {
   const deletePatient = async (patientId: Id<"patients">) => {
     try {
       await deletePatientMutation({ patientId });
+      toast.success("המטופל נמחק בהצלחה", { position: "bottom-right" });
     } catch (error) {
       console.error("Error deleting patient:", error);
     }

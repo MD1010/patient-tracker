@@ -20,10 +20,10 @@ import { Separator } from "@/components/ui/separator";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { MoreVertical, Pencil, PlusIcon, TrashIcon } from "lucide-react";
-import { Id } from "../../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../../convex/_generated/dataModel";
 
 interface PatientTableRowProps {
-  patient: any;
+  patient: Doc<"patients">;
   onEdit: (patient: any) => void;
   onDelete: (id: Id<"patients">) => void;
   onNewTreatment: (patient: any) => void;
@@ -53,7 +53,7 @@ export function PatientTableRow({
         {patient.idNumber}
       </TableCell>
       <TableCell className="py-3 px-4 text-right whitespace-nowrap">
-        {patient.phone}
+        {patient.phone || patient.parent?.phone}
       </TableCell>
       <TableCell className="py-3 px-4 text-right whitespace-nowrap">
         {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}

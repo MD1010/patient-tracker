@@ -1,4 +1,5 @@
-export function validateIsraeliPhone(phone: string): boolean {
+export function validateIsraeliPhone(phone: string | null): boolean {
+  if(!phone) return false;
   // Remove all non-digit characters
   const digits = phone.replace(/\D/g, "");
 

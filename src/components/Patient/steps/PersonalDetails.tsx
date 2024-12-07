@@ -5,6 +5,9 @@ import { he } from "date-fns/locale";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
 import { validateIsraeliPhone } from "@/lib/validators";
+import { differenceInYears, parseISO } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface PersonalDetailsProps {
   form: UseFormReturn<FormData>;
@@ -18,6 +21,10 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     trigger,
     formState: { errors },
   } = form;
+
+  const isAdult =
+    watch("dateOfBirth") &&
+    differenceInYears(new Date(), parseISO(watch("dateOfBirth"))) >= 18;
 
   return (
     <div className="space-y-6">
@@ -90,45 +97,75 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           )}
         </div>
 
-        {/* Phone */}
+        {/* Phone or Parent's Phone */}
         <div className="space-y-2">
-          <Label htmlFor="phone">טלפון</Label>
+          <Label htmlFor="phone">
+            {isAdult || !watch("dateOfBirth") ? "טלפון" : "טלפון ההורה"}
+          </Label>
           <Input
             autoComplete="off"
-            id="phone"
-            {...register("phone", {
+            id={isAdult ? "phone" : "parent.phone"}
+            {...register(isAdult ? "phone" : "parent.phone", {
               required: "שדה חובה",
               validate: (value) =>
-                validateIsraeliPhone(value) || "מספר טלפון לא תקין",
+                validateIsraeliPhone(value!) || "מספר טלפון לא תקין",
             })}
-            className={errors.phone ? "border-red-500 shadow-sm" : ""}
+            className={
+              errors.phone || errors.parent?.phone
+                ? "border-red-500 shadow-sm"
+                : ""
+            }
           />
-          {errors.phone && (
-            <p className="text-sm text-red-600">{errors.phone.message}</p>
+          {(errors.phone || errors.parent?.phone) && (
+            <p className="text-sm text-red-600">
+              {errors.phone?.message || errors.parent?.phone?.message}
+            </p>
           )}
         </div>
 
-        {/* Last Treatment Date */}
-        {/* <div className="space-y-2">
-          <Label>תאריך טיפול אחרון</Label>
-          <DatePicker
-            fromYear={2000}
-            toDate={new Date()}
-            date={watch("lastTreatmentDate")}
-            onDateChange={(date) => {
-              setValue("lastTreatmentDate", date!.toISOString());
-            }}
-            locale={he}
-            className={`w-full justify-start text-right ${
-              errors.lastTreatmentDate ? "border-red-500 shadow-sm" : ""
-            }`}
-          />
-          {errors.lastTreatmentDate && (
-            <p className="text-sm text-red-600">
-              {errors.lastTreatmentDate.message}
-            </p>
+        {/* Parent's Name (Animated) */}
+        <AnimatePresence>
+          {!isAdult && watch("dateOfBirth") && (
+            <motion.div
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -30, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="parent.name">שם ההורה</Label>
+              <Input
+                autoComplete="off"
+                id="parent.name"
+                {...register("parent.name", { required: "שדה חובה" })}
+                className={
+                  errors.parent?.name ? "border-red-500 shadow-sm" : ""
+                }
+              />
+              {errors.parent?.name && (
+                <p className="text-sm text-red-600">
+                  {errors.parent.name.message}
+                </p>
+              )}
+            </motion.div>
           )}
-        </div> */}
+        </AnimatePresence>
+
+        {/* Arrival Source */}
+        <div
+          className={cn(
+            "space-y-2 w-full",
+            !isAdult && watch("dateOfBirth") ? "col-span-2" : "col-span-1"
+          )}
+        >
+          <Label htmlFor="arrivalSource">מקור הגעה</Label>
+          <Input
+            autoComplete="off"
+            id="arrivalSource"
+            {...register("arrivalSource")}
+            className="w-full"
+          />
+        </div>
       </div>
     </div>
   );
