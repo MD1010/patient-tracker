@@ -2,8 +2,7 @@ import { useModal } from "@/store/modal-store";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
-import { BookText, BookUser, PlusIcon } from 'lucide-react';
-import { IdCardIcon } from '@radix-ui/react-icons';
+import { PlusIcon } from 'lucide-react';
 
 export function Header() {
   const { openModal } = useModal();
@@ -22,7 +21,7 @@ export function Header() {
           <div className="flex items-center space-x-4 space-x-reverse">
             <Button
               variant="default"
-              onClick={() => openModal("addOrEditPatient")}
+              onClick={() => openModal("addOrEditPatient", {})}
               className="flex items-center hover:shadow-sm "
             >
               <span className="font-bold -mx-1">הוספת מטופל</span>

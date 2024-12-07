@@ -6,8 +6,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,11 +16,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { MoreVertical, Pencil, PlusIcon, TrashIcon } from "lucide-react";
 import { Id } from "../../../../convex/_generated/dataModel";
-import { Separator } from "@/components/ui/separator";
 
 interface PatientTableRowProps {
   patient: any;

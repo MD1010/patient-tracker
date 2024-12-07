@@ -18,9 +18,10 @@ import { useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
-import { Download, EditIcon, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Download, Loader2, Pencil, Trash2 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
+import { useModal } from "@/store/modal-store";
 import { useCallback, useRef } from "react";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../Patient/generateMedicalInfo";
@@ -36,7 +37,6 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { WhatsAppButton } from "../WhatsAppButton";
-import { useModal } from "@/store/modal-store";
 
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
