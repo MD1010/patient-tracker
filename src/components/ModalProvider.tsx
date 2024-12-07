@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AddOrEditPatientModal } from "./modals/AddOrEditPatientModal";
+import { AddOrEditTreatmentModal } from './modals/AddOrEditTreatmentModal';
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -13,6 +14,7 @@ export const ModalProvider = () => {
   return (
     <>
       <AddOrEditPatientModal />
+      <AddOrEditTreatmentModal />
     </>
   );
 };

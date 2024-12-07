@@ -70,7 +70,11 @@ export const add = mutation({
 });
 
 export const edit = mutation({
-  args: v.object({ ...treatmentsSchema, _id: v.id("treatments") }),
+  args: v.object({
+    ...treatmentsSchema,
+    _id: v.id("treatments"),
+    _creationTime: v.optional(v.number()),
+  }),
   handler: async (ctx, args) => {
     // Update the treatment document
     await ctx.db.patch(args._id, {

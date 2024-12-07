@@ -1,15 +1,21 @@
-import { Doc } from "../../convex/_generated/dataModel";
+import { Doc, Id } from "../../convex/_generated/dataModel";
 import { create } from "zustand";
 
-export type ModalType = "addOrEditPatient";
-type AddOrEditData = { patientToEdit: Doc<"patients"> };
-export type ModalData = AddOrEditData;
+// Define a mapping of modal types to their respective data structures
+type ModalConfig = {
+  addOrEditPatient: { patientToEdit?: Doc<"patients"> };
+  addOrEditTreatment: { treatmentToEdit?: Doc<"treatments">, patientId: Id<"patients"> };
+};
+
+// Derive the modal types and data types from the configuration
+export type ModalType = keyof ModalConfig;
+export type ModalData<T extends ModalType> = ModalConfig[T];
 
 interface ModalStore {
   type: ModalType | null;
-  data?: ModalData | null;
+  data: ModalType extends ModalType ? ModalData<ModalType> | null : null;
   isOpen: boolean;
-  openModal: (type: ModalType, data?: ModalData) => void;
+  openModal: <T extends ModalType>(type: T, data: ModalData<T>) => void;
   closeModal: () => void;
 }
 
@@ -17,7 +23,12 @@ export const useModal = create<ModalStore>((set) => ({
   type: null,
   isOpen: false,
   data: null,
-  openModal: (type: ModalType, data?: ModalData) =>
-    set({ type, isOpen: true, data }),
-  closeModal: () => set({ type: null, isOpen: false }),
+  openModal: (type, data) => {
+    set({
+      type,
+      isOpen: true,
+      data,
+    });
+  },
+  closeModal: () => set({ type: null, isOpen: false, data: null }),
 }));

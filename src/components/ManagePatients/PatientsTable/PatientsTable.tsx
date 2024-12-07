@@ -14,6 +14,7 @@ import { usePatients } from "@/store/patients-store";
 import { Loader2, Search } from "lucide-react";
 import { useState } from "react";
 import { PatientTableRow } from "./PatientTableRow";
+import { Doc } from "../../../../convex/_generated/dataModel";
 
 export function PatientTable() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,12 +80,12 @@ export function PatientTable() {
     }
   };
 
-  const handleEdit = (patient: any) => {
+  const handleEdit = (patient: Doc<"patients">) => {
     openModal("addOrEditPatient", { patientToEdit: patient });
   };
 
-  const handleNewTreatment = (patient: any) => {
-    openModal("addOrEditPatient", { patientToEdit: patient });
+  const handleNewTreatment = (patient: Doc<"patients">) => {
+    openModal("addOrEditTreatment", { patientId: patient._id });
   };
 
   const columns = [

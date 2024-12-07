@@ -5,12 +5,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"; // Assumes you're using a modal component library
-import { useModal } from "@/store/modal-store";
-import { MedicalRegistrationForm } from "../NewPatient/MedicalRegistrationForm";
+import { ModalData, useModal } from "@/store/modal-store";
+import { MedicalRegistrationForm } from "../Patient/MedicalRegistrationForm";
 
 export const AddOrEditPatientModal = ({}) => {
   const { isOpen, closeModal, type, data } = useModal();
-  const { patientToEdit } = data || {};
+  const { patientToEdit } = data as ModalData<"addOrEditPatient"> || {};
   console.log("patient to edit ", patientToEdit);
   
 

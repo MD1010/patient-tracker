@@ -18,21 +18,31 @@ import { useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
-import { Download, Loader2, Trash2 } from "lucide-react";
+import { Download, EditIcon, Loader2, Pencil, Trash2 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
 import { useCallback, useRef } from "react";
-import { api } from '../../../convex/_generated/api';
-import { WhatsAppButton } from '../WhatsAppButton';
-import { generateMedicalConditionReport } from '../NewPatient/generateMedicalInfo';
-import { AddTreatmentDialog } from '../AddTreatmentDialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
-
+import { api } from "../../../convex/_generated/api";
+import { generateMedicalConditionReport } from "../Patient/generateMedicalInfo";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { WhatsAppButton } from "../WhatsAppButton";
+import { useModal } from "@/store/modal-store";
 
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
   const deleteTreatment = useMutation(api.treatments.deleteOne);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const { openModal } = useModal();
 
   const treatments = useQuery(
     api.treatments.get,
@@ -180,7 +190,10 @@ export function PatientData() {
                 <div>
                   <h1 className="text-sm font-semibold">מטופל מתאריך</h1>
                   <p className="text-sm text-muted-foreground">
-                    {format(new Date(selectedPatient._creationTime), "dd/MM/yyyy")}
+                    {format(
+                      new Date(selectedPatient._creationTime),
+                      "dd/MM/yyyy"
+                    )}
                   </p>
                 </div>
               </div>
@@ -207,8 +220,7 @@ export function PatientData() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="space-y-6 min-h-[300px]"
           >
-            <div className="flex justify-between items-center bg-background sticky -top-2 z-40 py-2">
-              <AddTreatmentDialog patientId={selectedPatient._id} />
+            <div className="bg-background sticky -top-2 z-40 py-2">
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
             </div>
 
@@ -241,7 +253,7 @@ export function PatientData() {
                       >
                         <AccordionItem
                           value={treatment._id}
-                        className="border-b last:border-none"
+                          className="border-b last:border-none"
                         >
                           <AccordionTrigger className="sticky top-10 bg-background z-20">
                             <div className="flex w-full gap-12 justify-end">
@@ -256,6 +268,20 @@ export function PatientData() {
 
                           <AccordionContent>
                             <Card className="p-4 flex flex-col gap-4 relative">
+                              <Button
+                                size="icon"
+                                className="absolute top-2 left-12"
+                                variant="outline"
+                                onClick={() =>
+                                  openModal("addOrEditTreatment", {
+                                    treatmentToEdit: treatment,
+                                    patientId: treatment.patientId
+                                  })
+                                }
+                              >
+                                <Pencil strokeWidth={3} />
+                              </Button>
+
                               <div className="col-span-1 break-words">
                                 <h4 className="text-sm font-semibold text-right">
                                   עלות
@@ -314,7 +340,7 @@ export function PatientData() {
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button
-                                    variant="secondary"
+                                    variant="outline"
                                     size="icon"
                                     className="absolute top-2 left-2"
                                   >
