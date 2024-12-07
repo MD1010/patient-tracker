@@ -126,7 +126,7 @@ export function PatientTable() {
                         "hover:text-primary cursor-pointer select-none"
                     )}
                     style={{
-                      width: column.width, 
+                      width: column.width,
                     }}
                   >
                     {column.label}
@@ -154,27 +154,13 @@ export function PatientTable() {
                 </TableRow>
               ) : (
                 sortedPatients?.map((patient) => (
-                  // <PatientTableRow
-                  //     patient={patient}
-                  //     onEdit={handleEdit}
-                  //     onDelete={deletePatient}
-                  //     onNewTreatment={handleNewTreatment}
-                  //     onRowClick={setSelectedPatient}
-                  //   />
-                  // <PatientContextMenu
-                  //   key={patient._id}
-                  //   onEdit={() => handleEdit(patient)}
-                  //   onNewTreatment={() => handleNewTreatment(patient)}
-                  //   onDelete={() => deletePatient(patient._id)}
-                  // >
-                    <PatientTableRow
-                      patient={patient}
-                      onEdit={handleEdit}
-                      onDelete={deletePatient}
-                      onNewTreatment={handleNewTreatment}
-                      onRowClick={setSelectedPatient}
-                    />
-                  // </PatientContextMenu>
+                  <PatientTableRow
+                    patient={patient}
+                    onEdit={handleEdit}
+                    onDelete={deletePatient}
+                    onNewTreatment={handleNewTreatment}
+                    onRowClick={setSelectedPatient}
+                  />
                 ))
               )}
             </TableBody>
