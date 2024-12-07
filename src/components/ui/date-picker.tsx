@@ -22,7 +22,7 @@ export function DatePicker({
   toYear,
   fromYear,
   fromDate,
-  placeholder
+  placeholder,
 }: {
   date: string | undefined;
   onDateChange: (date: Date | undefined) => void;
@@ -43,7 +43,7 @@ export function DatePicker({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild >
+      <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
@@ -53,11 +53,23 @@ export function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PP", { locale }) : placeholder ? <span>{placeholder}</span> : <span>בחר תאריך</span>}
+          {date ? (
+            format(date, "PP", { locale })
+          ) : placeholder ? (
+            <span>{placeholder}</span>
+          ) : (
+            <span>בחר תאריך</span>
+          )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" side="top" sideOffset={10}  align='center'>
+      <PopoverContent
+        className="w-auto p-0"
+        side="top"
+        sideOffset={10}
+        align="center"
+      >
         <Calendar
+          selected={date ? new Date(date) : undefined}
           mode="single"
           onSelect={handleDateSelect}
           locale={locale} // Pass locale to Calendar

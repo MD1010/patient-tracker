@@ -115,7 +115,7 @@ export function PatientTable() {
       <div className={cn("rounded-md border", isLoading && "opacity-50")}>
         <div className="w-full overflow-x-auto">
           <Table>
-            <TableHeader className="bg-secondary/30">
+            <TableHeader className="bg-muted-foreground/10 ">
               <TableRow>
                 {columns.map((column, index) => (
                   <TableHead
@@ -124,7 +124,7 @@ export function PatientTable() {
                     className={cn(
                       "text-right py-3 px-4 whitespace-nowrap",
                       column.key &&
-                        "hover:text-primary cursor-pointer select-none"
+                        "cursor-pointer select-none"
                     )}
                     style={{
                       width: column.width,

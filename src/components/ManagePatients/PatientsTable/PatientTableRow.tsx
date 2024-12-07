@@ -44,7 +44,7 @@ export function PatientTableRow({
 
   return (
     <TableRow
-      className="cursor-pointer hover:bg-secondary/30"
+      className="cursor-pointer hover:bg-secondary/20"
       onClick={() => onRowClick(patient)}
     >
       <TableCell className="py-3 px-4 text-right font-medium whitespace-nowrap">
