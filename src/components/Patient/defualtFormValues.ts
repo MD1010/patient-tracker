@@ -4,7 +4,6 @@ type RequiredFields =
   | "_id"
   | "firstName"
   | "lastName"
-  | "phone"
   | "_creationTime"
   | "dateOfBirth"
   | "idNumber"
@@ -44,5 +43,6 @@ export default {
     penicillinLatex: false,
   },
   lastTreatmentDate: null,
-  nextTreatment: null
+  nextTreatment: null,
+  phone: null
 } satisfies Omit<Doc<"patients">, RequiredFields>;

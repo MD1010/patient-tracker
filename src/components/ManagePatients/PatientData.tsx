@@ -220,7 +220,7 @@ export function PatientData() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="space-y-6 min-h-[300px]"
+            className="space-y-6 min-h-[250px]"
           >
             <div className="bg-background sticky -top-2 z-40 py-2">
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
