@@ -69,12 +69,18 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
   }
 
   // Add allergies if they exist and are not negative
-  if (otherAllergies && !negativePhrases.some((phrase) => otherAllergies.includes(phrase))) {
+  if (
+    otherAllergies &&
+    !negativePhrases.some((phrase) => otherAllergies.includes(phrase))
+  ) {
     report += `אלרגיות ידועות: ${otherAllergies}. `;
   }
 
   // Add surgeries if they exist and are not negative
-  if (surgeries && !negativePhrases.some((phrase) => surgeries.includes(phrase))) {
+  if (
+    surgeries &&
+    !negativePhrases.some((phrase) => surgeries.includes(phrase))
+  ) {
     report += `ניתוחים שבוצעו בעבר: ${surgeries}. `;
   }
 
@@ -90,11 +96,22 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
   // Add medication information if applicable and not negative
   const medicationInfo = [];
   if (medications?.coumadin) medicationInfo.push("קומדין");
+
   if (
     medications?.otherMedications &&
-    !negativePhrases.some((phrase) => medications.otherMedications.includes(phrase))
+    !negativePhrases.some((phrase) =>
+      medications?.otherMedications.includes(phrase)
+    )
   ) {
     medicationInfo.push(medications.otherMedications);
+  }
+
+  if (patient?.anesthesia) {
+    medicationInfo.push("חומרי הרדמה");
+  }
+
+  if (medications?.penicillinLatex) {
+    medicationInfo.push("פניציקלין/לטקס");
   }
 
   if (medicationInfo.length > 0) {
@@ -105,8 +122,10 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
   const hasRelevantInfo =
     existingConditions.length > 0 ||
     smoking ||
-    (otherAllergies && !negativePhrases.some((phrase) => otherAllergies.includes(phrase))) ||
-    (surgeries && !negativePhrases.some((phrase) => surgeries.includes(phrase))) ||
+    (otherAllergies &&
+      !negativePhrases.some((phrase) => otherAllergies.includes(phrase))) ||
+    (surgeries &&
+      !negativePhrases.some((phrase) => surgeries.includes(phrase))) ||
     medicationInfo.length > 0 ||
     pregnancy;
 
