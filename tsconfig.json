@@ -25,9 +25,9 @@
     }
   },
   "include": [
-    "src", 
-    "src/lib/utils.ts", 
-    "src/main.tsx", 
-    "vite.config.ts"
-  ],
+    "src",
+    "src/lib/utils.ts",
+    "src/main.tsx",
+    "vite.config.ts",
+  ]
 }

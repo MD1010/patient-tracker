@@ -24,7 +24,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { useCallback, useRef } from "react";
 import { api } from "../../../convex/_generated/api";
-import { generateMedicalConditionReport } from "../Patient/generateMedicalInfo";
+import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
   AlertDialog,
   AlertDialogAction,

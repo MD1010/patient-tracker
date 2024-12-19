@@ -3,6 +3,7 @@ import { action, internalQuery, mutation, query } from "./_generated/server";
 import { sendEmailWithPDF } from "./emails/sendEmail";
 import { patientsSchema } from "./schemas/patients";
 import { api, internal } from "./_generated/api";
+import { Doc } from './_generated/dataModel';
 
 export const get = query({
   args: {},
@@ -69,8 +70,12 @@ export const sendEmailWithAttachment = action({
     const patient = await ctx.runQuery(internal.patients.getPatient, {
       patientId: args.patientId,
     });
+
+    const treatments = await ctx.runQuery(api.treatments.get, {
+      patientId: args.patientId,
+    });
     if (patient) {
-      await sendEmailWithPDF({ patient });
+      await sendEmailWithPDF({ patient, treatments });
     }
   },
 });

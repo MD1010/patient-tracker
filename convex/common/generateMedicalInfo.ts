@@ -1,6 +1,13 @@
-import { Doc } from "../../../convex/_generated/dataModel";
+import { Doc } from "../_generated/dataModel";
 
-export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
+type MedicalReportOptions = {
+  withInfoDetails?: boolean;
+};
+
+export const generateMedicalConditionReport = (
+  patient: Doc<"patients">,
+  { withInfoDetails = true }: MedicalReportOptions = {}
+) => {
   const {
     firstName,
     lastName,
@@ -52,9 +59,11 @@ export const generateMedicalConditionReport = (patient: Doc<"patients">) => {
     .map(([key]) => (conditionDescriptions as any)[key]);
 
   // Start the report with the patient details
-  let report = `${firstName} ${lastName}, נולד ב-${new Date(
-    dateOfBirth
-  ).toLocaleDateString("he-IL")}. `;
+  let report = withInfoDetails
+    ? `${firstName} ${lastName}, נולד ב-${new Date(
+        dateOfBirth
+      ).toLocaleDateString("he-IL")}. `
+    : "";
 
   // Add medical conditions if they exist
   if (existingConditions.length > 0) {
