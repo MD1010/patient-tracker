@@ -1,10 +1,9 @@
 import { v } from "convex/values";
+import { api, internal } from "./_generated/api";
 import { action, internalQuery, mutation, query } from "./_generated/server";
+import { generatePatientInfoPdf } from "./reports/generatePdf";
 import { sendEmailWithPDF } from "./reports/sendEmail";
 import { patientsSchema } from "./schemas/patients";
-import { api, internal } from "./_generated/api";
-import { Doc } from "./_generated/dataModel";
-import { generatePatientInfoPdf } from "./reports/generatePdf";
 
 export const get = query({
   args: {},

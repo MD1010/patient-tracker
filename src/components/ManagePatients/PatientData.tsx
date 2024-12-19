@@ -16,7 +16,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePatients } from "@/store/patients-store";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
-import * as Excel from "exceljs";
 import { motion } from "framer-motion";
 import { Download, Loader2, Pencil, PlusIcon, Trash2 } from "lucide-react";
 
