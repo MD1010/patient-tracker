@@ -1,32 +1,50 @@
-import { Button } from '@/components/ui/button';
-import { Id } from 'convex/_generated/dataModel';
-import { MessageSquare } from 'lucide-react';
-import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Doc } from "convex/_generated/dataModel";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 interface WhatsAppButtonProps {
-  phone: string;
-  patientId: Id<'patients'>;
+  patient: Doc<"patients">;
 }
 
-export function WhatsAppButton({ phone }: WhatsAppButtonProps) {
-  const sendMessage = () => {
+export function WhatsAppButton({ patient }: WhatsAppButtonProps) {
+  const getWhatsappUrl = () => {
+    if (!patient || !patient.nextTreatment) return;
+
     try {
-      const formattedPhone = phone.replace(/\D/g, '');
-      const whatsappUrl = `https://wa.me/${formattedPhone}`;
-      window.open(whatsappUrl, '_blank');
+      // Format the phone number by removing non-digit characters
+      const formattedPhone = patient.isAdult
+        ? patient.phone?.replace(/\D/g, "").replace(/^0/, "+972")
+        : patient.parent?.phone?.replace(/\D/g, "").replace(/^0/, "+972");
+      // Encode a predefined message
+      const formattedDate = new Date(patient.nextTreatment).toLocaleDateString(
+        "he-IL"
+      );
+      const predefinedMessage = `היי ${patient.firstName}, רציתי להזכיר לך על התור הבא שלך לשיננית בתאריך ${formattedDate}.`;
+      const encodedMessage = encodeURIComponent(predefinedMessage);
+
+      // Construct the WhatsApp URL with the message
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
+
+      return whatsappUrl;
     } catch (error) {
-      toast.error('שגיאה בשליחת ההודעה');
+      // Show error toast if there's an issue
+      toast.error("שגיאה בשליחת ההודעה");
     }
   };
 
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={sendMessage}
-      className="h-8 w-8"
+    <Link
+      to={getWhatsappUrl() || ""}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "none" }}
     >
-      <MessageSquare className="h-4 w-4" />
-    </Button>
+      <Button variant="outline" size="icon" disabled={!patient.nextTreatment}>
+        <FontAwesomeIcon icon={faWhatsapp} size="2x" />
+      </Button>
+    </Link>
   );
 }

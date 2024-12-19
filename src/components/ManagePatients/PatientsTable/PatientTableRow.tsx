@@ -6,7 +6,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ export function PatientTableRow({
 
   return (
     <TableRow
+      key={patient._id}
       className="cursor-pointer hover:bg-secondary/20"
       onClick={() => onRowClick(patient)}
     >

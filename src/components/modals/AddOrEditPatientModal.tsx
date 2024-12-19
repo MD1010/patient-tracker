@@ -11,7 +11,6 @@ import { MedicalRegistrationForm } from "../Patient/MedicalRegistrationForm";
 export const AddOrEditPatientModal = ({}) => {
   const { isOpen, closeModal, type, data } = useModal();
   const { patientToEdit } = data as ModalData<"addOrEditPatient"> || {};
-  console.log("patient to edit ", patientToEdit);
   
 
   const isModalOpen = isOpen && type === "addOrEditPatient";

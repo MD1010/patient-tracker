@@ -158,6 +158,7 @@ export function PatientTable() {
               ) : (
                 sortedPatients?.map((patient) => (
                   <PatientTableRow
+                    key={patient._id}
                     patient={patient}
                     onEdit={handleEdit}
                     onDelete={deletePatient}

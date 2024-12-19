@@ -126,10 +126,7 @@ export function PatientData() {
             <div className="flex justify-end items-center gap-2">
               {selectedPatient.phone || selectedPatient.parent?.phone ? (
                 <WhatsAppButton
-                  phone={
-                    (selectedPatient.phone || selectedPatient.parent?.phone)!
-                  }
-                  patientId={selectedPatient._id}
+                  patient={selectedPatient}
                 />
               ) : null}
               <Button
