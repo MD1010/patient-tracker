@@ -53,9 +53,9 @@ const createAndEncodePDF = async (
   };
 
   const drawSectionHeader = (title: string) => {
-    yOffset -= 30; // Increased spacing before section header
+    yOffset -= 20; // Reduced spacing before section header
     drawRTLText(title, yOffset, 16, 550, true); // Bold and larger font size for the title
-    yOffset -= 30; // Extra space after the title
+    yOffset -= 10; // Space after the title
     page.drawLine({
       start: { x: 50, y: yOffset },
       end: { x: 550, y: yOffset },
@@ -65,51 +65,31 @@ const createAndEncodePDF = async (
     yOffset -= 20; // Increased space after the separator
   };
 
-  const drawPersonalInfoGrid = () => {
+  const drawPersonalInfo = () => {
     const infoFontSize = 12;
-    const lineHeight = 40; // Increased line height for better readability
+    const lineHeight = 30; // Adjusted line height for better readability
 
     const phoneLabel = patient.phone ? "טלפון" : "טלפון הורה";
     const phoneValue = patient.phone || patient.parent?.phone || "N/A";
 
     const personalInfo = [
-      {
-        label: "תאריך לידה",
-        value: new Date(patient.dateOfBirth).toLocaleDateString("he-IL"),
-      },
+      { label: "תאריך לידה", value: new Date(patient.dateOfBirth).toLocaleDateString("he-IL") },
       { label: "מטופל מתאריך", value: new Date().toLocaleDateString("he-IL") },
       { label: phoneLabel, value: phoneValue },
       { label: "תעודת זהות", value: patient.idNumber },
     ];
 
-    let currentYOffset = yOffset;
-    const columnWidth = 250;
+    personalInfo.forEach((info) => {
+      drawRTLText(info.label, yOffset, infoFontSize, 550, true); // Bold for labels
+      drawRTLText(info.value, yOffset, infoFontSize, 300); // Align values to the left
+      yOffset -= lineHeight; // Move to the next row
+    });
 
-    // Draw info in a 2x2 grid
-    for (let i = 0; i < personalInfo.length; i++) {
-      const columnX = i % 2 === 0 ? 550 - columnWidth : 300; // Alternate columns
-      if (i % 2 === 0 && i > 0) currentYOffset -= lineHeight; // Move to next row after two items
-
-      drawRTLText(
-        personalInfo[i].label,
-        currentYOffset,
-        infoFontSize,
-        columnX,
-        true
-      ); // Bold for labels
-      drawRTLText(
-        personalInfo[i].value,
-        currentYOffset - 20,
-        infoFontSize,
-        columnX
-      ); // Proper spacing for values
-    }
-
-    yOffset = currentYOffset - 50; // Adjust for padding after the grid
+    yOffset -= 20; // Extra padding after the section
   };
 
   const drawReportContent = (report: string) => {
-    const sections = report.split(". ").map((s) => `${s.trim()}.`);
+    const sections = report.split(". ").map((s) => `${s.trim()}`);
     const contentFontSize = 12;
 
     for (const section of sections) {
@@ -118,25 +98,27 @@ const createAndEncodePDF = async (
         yOffset = 700;
       }
       drawRTLText(section, yOffset, contentFontSize, 550);
-      yOffset -= 20; // Increased line spacing for better readability
+      yOffset -= 20; // Adjusted line spacing
     }
   };
 
   const drawTreatmentsTable = (treatments: Doc<"treatments">[]) => {
     if (treatments.length === 0) {
       drawRTLText("אין היסטוריית טיפולים", yOffset, 14, 550, true);
-      yOffset -= 40;
+      yOffset -= 30;
       return;
     }
 
-    const headers = ["תאריך", "סוג", "תיאור", "עלות", "הטיפול הבא"];
-    const rowHeight = 30; // Increased row height for better visibility
-    const fontSize = 12;
+    const headers = ["תאריך", "סוג", "עלות", "תיאור"];
+    const columnWidths = [70, 80, 80, 300]; // Adjusted column widths
+    const rowHeight = 25; // Adjusted row height for better spacing
+    const fontSize = 10; // Reduced font size for better fit
 
     // Draw table headers
     headers.forEach((header, index) => {
-      const headerX = 550 - index * 100; // Position headers right to left
-      drawRTLText(header, yOffset, fontSize, headerX, true);
+      const headerX =
+        550 - columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Position headers right to left
+      drawRTLText(header, yOffset, fontSize + 2, headerX, true);
     });
 
     yOffset -= rowHeight;
@@ -151,27 +133,33 @@ const createAndEncodePDF = async (
       const rowValues = [
         new Date(treatment.date).toLocaleDateString("he-IL"),
         treatment.type,
-        treatment.description,
         `${treatment.cost}₪`,
-        treatment.nextAppointment
-          ? new Date(treatment.nextAppointment).toLocaleDateString("he-IL")
-          : "-",
       ];
 
+      const description = treatment.description || "";
+      const descriptionLines = description.match(/.{1,50}/g) || [description]; // Split description into lines
+
       rowValues.forEach((value, index) => {
-        const valueX = 550 - index * 100; // Position cells right to left
+        const valueX =
+          550 - columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Position cells right to left
         drawRTLText(value, yOffset, fontSize, valueX);
       });
 
-      yOffset -= rowHeight;
+      const descriptionX = 550 - columnWidths.slice(0, 3).reduce((a, b) => a + b, 0); // Position description
+      descriptionLines.forEach((line) => {
+        drawRTLText(line, yOffset, fontSize, descriptionX);
+        yOffset -= 12; // Adjust for multi-line overflow
+      });
+
+      yOffset -= rowHeight; // Adjust for row height
     });
 
-    yOffset -= 30; // Space after the table
+    yOffset -= 20; // Space after the table
   };
 
-  // Draw "פרטים כלליים" section with header and personal info grid
+  // Draw "פרטים כלליים" section with header and personal info
   drawSectionHeader("פרטים כלליים");
-  drawPersonalInfoGrid();
+  drawPersonalInfo();
 
   // Draw "דו\"ח רפואי" section
   const report = generateMedicalConditionReport(patient, {
