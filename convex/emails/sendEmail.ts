@@ -2,7 +2,8 @@ import { PDFDocument, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { generateMedicalConditionReport } from "../common/generateMedicalInfo"; // Ensure correct path
 import { Doc } from "../_generated/dataModel";
-import { nutoSansFont } from "../../src/lib/fonts"; // Base64 font
+import { nutoSansFont } from "../../src/lib/fonts/regular"; // Base64 font
+import { nutoSansSemiBold } from "../../src/lib/fonts/semi-bold"; // Base64 font
 import axios from "axios";
 
 const base64ToUint8Array = (base64: string): Uint8Array => {
@@ -30,7 +31,10 @@ const createAndEncodePDF = async (
 ): Promise<string> => {
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
-  const hebrewFont = await pdfDoc.embedFont(base64ToUint8Array(nutoSansFont));
+  const regularFont = await pdfDoc.embedFont(base64ToUint8Array(nutoSansFont));
+  const semiBoldFont = await pdfDoc.embedFont(
+    base64ToUint8Array(nutoSansSemiBold)
+  );
 
   let page = pdfDoc.addPage([600, 750]);
   let yOffset = 700;
@@ -42,46 +46,54 @@ const createAndEncodePDF = async (
     x: number,
     bold = false
   ) => {
-    const textWidth = hebrewFont.widthOfTextAtSize(text, size);
+    const textWidth = regularFont.widthOfTextAtSize(text, size);
     page.drawText(text, {
       x: x - textWidth, // Align to the right edge of the provided x
       y,
       size,
-      font: hebrewFont,
+      font: bold ? semiBoldFont : regularFont,
       color: rgb(0, 0, 0),
     });
   };
 
-  const drawSectionHeader = (title: string) => {
-    yOffset -= 20; // Reduced spacing before section header
-    drawRTLText(title, yOffset, 16, 550, true); // Bold and larger font size for the title
-    yOffset -= 10; // Space after the title
+  const drawSeparator = () => {
+    yOffset += 10; // Increased margin below the separator
     page.drawLine({
-      start: { x: 50, y: yOffset },
-      end: { x: 550, y: yOffset },
-      thickness: 1,
+      start: { x: 0, y: yOffset },
+      end: { x: 1000, y: yOffset },
+      thickness: 0.7,
       color: rgb(0, 0, 0),
     });
-    yOffset -= 20; // Increased space after the separator
+    yOffset -= 40; // Increased margin below the separator
+  };
+
+  const drawSectionHeader = (title: string) => {
+    drawRTLText(title, yOffset, 20, 550, true); // Bolder and larger font size for the title
+    yOffset -= 40; // Space after the title
   };
 
   const drawPersonalInfo = () => {
     const infoFontSize = 12;
-    const lineHeight = 30; // Adjusted line height for better readability
+    const lineHeight = 25; // Adjusted line height for better readability
+    const labelValueGap = 10; // Reduced gap between labels and values
 
     const phoneLabel = patient.phone ? "טלפון" : "טלפון הורה";
     const phoneValue = patient.phone || patient.parent?.phone || "N/A";
 
     const personalInfo = [
-      { label: "תאריך לידה", value: new Date(patient.dateOfBirth).toLocaleDateString("he-IL") },
+      { label: "שם מלא", value: `${patient.firstName} ${patient.lastName}` },
+      { label: "תעודת זהות", value: patient.idNumber },
+      {
+        label: "תאריך לידה",
+        value: new Date(patient.dateOfBirth).toLocaleDateString("he-IL"),
+      },
       { label: "מטופל מתאריך", value: new Date().toLocaleDateString("he-IL") },
       { label: phoneLabel, value: phoneValue },
-      { label: "תעודת זהות", value: patient.idNumber },
     ];
 
     personalInfo.forEach((info) => {
       drawRTLText(info.label, yOffset, infoFontSize, 550, true); // Bold for labels
-      drawRTLText(info.value, yOffset, infoFontSize, 300); // Align values to the left
+      drawRTLText(info.value, yOffset, infoFontSize, 550 - 200 - labelValueGap); // Align values closer to labels
       yOffset -= lineHeight; // Move to the next row
     });
 
@@ -109,19 +121,24 @@ const createAndEncodePDF = async (
       return;
     }
 
-    const headers = ["תאריך", "סוג", "עלות", "תיאור"];
-    const columnWidths = [70, 80, 80, 300]; // Adjusted column widths
-    const rowHeight = 25; // Adjusted row height for better spacing
-    const fontSize = 10; // Reduced font size for better fit
+    const pageWidth = 600; // Total page width
+    const tablePadding = 50; // Equal padding for left and right sides
+    const totalTableWidth = pageWidth - 2 * tablePadding; // Total width of the table
+    const columnWidths = [80, 100, 100, totalTableWidth - 280]; // Dynamically calculate תיאור column width
+    const rowHeight = 20; // Row height
+    const fontSize = 10; // Font size for table content
+    const headers = ["תאריך", "סוג", "עלות", "תיאור"]; // Table headers
 
     // Draw table headers
     headers.forEach((header, index) => {
       const headerX =
-        550 - columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Position headers right to left
+        pageWidth -
+        tablePadding -
+        columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Align headers with padding
       drawRTLText(header, yOffset, fontSize + 2, headerX, true);
     });
 
-    yOffset -= rowHeight;
+    yOffset -= 30; // Space between headers and content
 
     // Draw table rows
     treatments.forEach((treatment) => {
@@ -136,22 +153,30 @@ const createAndEncodePDF = async (
         `${treatment.cost}₪`,
       ];
 
-      const description = treatment.description || "";
-      const descriptionLines = description.match(/.{1,50}/g) || [description]; // Split description into lines
-
+      // Draw columns other than תיאור
       rowValues.forEach((value, index) => {
         const valueX =
-          550 - columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Position cells right to left
+          pageWidth -
+          tablePadding -
+          columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Align cells with padding
         drawRTLText(value, yOffset, fontSize, valueX);
       });
 
-      const descriptionX = 550 - columnWidths.slice(0, 3).reduce((a, b) => a + b, 0); // Position description
+      // Handle תיאור column with multi-line overflow
+      const description = treatment.description || "";
+      const descriptionLines = description.match(/.{1,40}/g) || [description]; // Break description into lines
+      const descriptionX =
+        pageWidth -
+        tablePadding -
+        columnWidths.slice(0, 3).reduce((a, b) => a + b, 0); // Align description with padding
+
       descriptionLines.forEach((line) => {
         drawRTLText(line, yOffset, fontSize, descriptionX);
         yOffset -= 12; // Adjust for multi-line overflow
       });
 
-      yOffset -= rowHeight; // Adjust for row height
+      // Adjust row height based on the tallest column (e.g., תיאור)
+      yOffset -= Math.max(rowHeight, descriptionLines.length * 12);
     });
 
     yOffset -= 20; // Space after the table
@@ -160,6 +185,7 @@ const createAndEncodePDF = async (
   // Draw "פרטים כלליים" section with header and personal info
   drawSectionHeader("פרטים כלליים");
   drawPersonalInfo();
+  drawSeparator();
 
   // Draw "דו\"ח רפואי" section
   const report = generateMedicalConditionReport(patient, {
@@ -167,6 +193,7 @@ const createAndEncodePDF = async (
   });
   drawSectionHeader('דו"ח רפואי');
   drawReportContent(report);
+  drawSeparator();
 
   // Draw "היסטוריית טיפולים" section
   drawSectionHeader("היסטוריית טיפולים");
