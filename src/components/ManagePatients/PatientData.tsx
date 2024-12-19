@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePatients } from "@/store/patients-store";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
@@ -48,6 +48,8 @@ export function PatientData() {
     api.treatments.get,
     selectedPatient ? { patientId: selectedPatient._id } : "skip"
   );
+
+  const generatePdf = useAction(api.patients.generatePatientInfo);
 
   const handleAccordionOpen = useCallback((id: string | null) => {
     if (!id || !accordionRefs.current[id]) return;
@@ -84,45 +86,27 @@ export function PatientData() {
   }, []);
 
   const downloadReport = async () => {
-    if (!selectedPatient || !treatments) return;
+    if (!selectedPatient) return null;
 
-    const workbook = new Excel.Workbook();
-    const worksheet = workbook.addWorksheet(
-      `${selectedPatient.firstName} ${selectedPatient.lastName} - פרטי מטופל`
+    const pdfBase64 = await generatePdf({ patientId: selectedPatient?._id });
+    if (!pdfBase64) return;
+
+    const byteCharacters = atob(pdfBase64);
+    const byteNumbers = Array.from(byteCharacters, (char) =>
+      char.charCodeAt(0)
     );
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "application/pdf" });
 
-    worksheet.addRow(["נתוני לקוח"]);
-    worksheet.addRow([
-      "שם",
-      `${selectedPatient.firstName} ${selectedPatient.lastName}`,
-    ]);
-    worksheet.addRow(["ת.ז", selectedPatient.idNumber]);
-    worksheet.addRow(["טלפון", selectedPatient.phone || selectedPatient.parent?.phone]);
-    worksheet.addRow(["תאריך לידה", format(new Date(selectedPatient.dateOfBirth), "dd/MM/yyyy")]);
-    worksheet.addRow([]);
+    // Create a temporary link element
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${selectedPatient.idNumber}.pdf`;
 
-    worksheet.addRow(["טיפולים"]);
-    worksheet.addRow(["תאריך", "סוג", "תיאור", "עלות", "הטיפול הבא"]);
-    treatments.forEach((treatment) => {
-      worksheet.addRow([
-        treatment.date,
-        treatment.type,
-        treatment.description,
-        treatment.cost,
-        treatment.nextAppointment ? format(new Date(treatment.nextAppointment), "dd/MM/yyyy") : "-"
-      ]);
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `פרטי מטופל-${selectedPatient.firstName}_${selectedPatient.lastName}.xlsx`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    // Append the link to the document, trigger the download, and remove the link
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (!selectedPatient) return null;
@@ -142,7 +126,9 @@ export function PatientData() {
             <div className="flex justify-end items-center gap-2">
               {selectedPatient.phone || selectedPatient.parent?.phone ? (
                 <WhatsAppButton
-                  phone={(selectedPatient.phone || selectedPatient.parent?.phone)!}
+                  phone={
+                    (selectedPatient.phone || selectedPatient.parent?.phone)!
+                  }
                   patientId={selectedPatient._id}
                 />
               ) : null}
@@ -175,7 +161,9 @@ export function PatientData() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold">{selectedPatient.isAdult ? "טלפון" : "טלפון ההורה"}</h4>
+                  <h4 className="text-sm font-semibold">
+                    {selectedPatient.isAdult ? "טלפון" : "טלפון ההורה"}
+                  </h4>
                   <p className="text-sm text-muted-foreground">
                     {selectedPatient.phone || selectedPatient.parent?.phone}
                   </p>

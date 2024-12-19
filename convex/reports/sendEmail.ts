@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Doc } from "../_generated/dataModel";
-import { createAndEncodePDF } from "./generatePdf";
+import { generatePatientInfoPdf } from "./generatePdf";
 
 export const sendEmailWithPDF = async ({
   patient,
@@ -9,7 +9,7 @@ export const sendEmailWithPDF = async ({
   patient: Doc<"patients">;
   treatments: Doc<"treatments">[];
 }) => {
-  const pdfBase64 = await createAndEncodePDF(patient, treatments);
+  const pdfBase64 = await generatePatientInfoPdf(patient, treatments);
 
   const filename = `${patient.idNumber}.pdf`;
 

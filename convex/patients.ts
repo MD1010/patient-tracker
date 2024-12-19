@@ -4,6 +4,7 @@ import { sendEmailWithPDF } from "./reports/sendEmail";
 import { patientsSchema } from "./schemas/patients";
 import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
+import { generatePatientInfoPdf } from "./reports/generatePdf";
 
 export const get = query({
   args: {},
@@ -72,6 +73,23 @@ export const sendEmailWithAttachment = action({
     });
     if (patient) {
       await sendEmailWithPDF({ patient, treatments });
+    }
+  },
+});
+
+export const generatePatientInfo = action({
+  args: { patientId: v.id("patients") },
+  handler: async (ctx, args) => {
+    const patient = await ctx.runQuery(internal.patients.getPatient, {
+      patientId: args.patientId,
+    });
+
+    const treatments = await ctx.runQuery(api.treatments.get, {
+      patientId: args.patientId,
+    });
+    if (patient) {
+      const res = await generatePatientInfoPdf(patient, treatments);
+      return res;
     }
   },
 });

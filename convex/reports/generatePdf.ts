@@ -6,7 +6,7 @@ import { base64ToUint8Array, toBase64 } from "./utils";
 import { nutoSansSemiBold } from "../../src/lib/fonts/semi-bold";
 import { nutoSansFont } from "../../src/lib/fonts/regular";
 
-export const createAndEncodePDF = async (
+export const generatePatientInfoPdf = async (
   patient: Doc<"patients">,
   treatments: Doc<"treatments">[]
 ): Promise<string> => {
@@ -93,11 +93,13 @@ export const createAndEncodePDF = async (
       drawRTLText(section, yOffset, contentFontSize, 550);
       yOffset -= 20; // Adjusted line spacing
     }
+
+    yOffset -= 20; // Adjusted line spacing
   };
 
   const drawTreatmentsTable = (treatments: Doc<"treatments">[]) => {
     if (treatments.length === 0) {
-      drawRTLText("אין היסטוריית טיפולים", yOffset, 14, 550, true);
+      drawRTLText("אין היסטוריית טיפולים", yOffset, 14, 550, false);
       yOffset -= 30;
       return;
     }
