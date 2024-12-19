@@ -120,15 +120,15 @@ const createAndEncodePDF = async (
       yOffset -= 30;
       return;
     }
-
+  
     const pageWidth = 600; // Total page width
     const tablePadding = 50; // Equal padding for left and right sides
     const totalTableWidth = pageWidth - 2 * tablePadding; // Total width of the table
-    const columnWidths = [80, 100, 100, totalTableWidth - 280]; // Dynamically calculate תיאור column width
-    const rowHeight = 20; // Row height
+    const columnWidths = [80, 80, 150, totalTableWidth - 310]; // Adjusted column widths
+    const rowHeight = 25; // Row height
     const fontSize = 10; // Font size for table content
-    const headers = ["תאריך", "סוג", "עלות", "תיאור"]; // Table headers
-
+    const headers = ["תאריך", "עלות", "סוג", "תיאור"]; // Table headers
+  
     // Draw table headers
     headers.forEach((header, index) => {
       const headerX =
@@ -137,23 +137,22 @@ const createAndEncodePDF = async (
         columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Align headers with padding
       drawRTLText(header, yOffset, fontSize + 2, headerX, true);
     });
-
+  
     yOffset -= 30; // Space between headers and content
-
+  
     // Draw table rows
     treatments.forEach((treatment) => {
       if (yOffset < 50) {
         page = pdfDoc.addPage([600, 750]); // Add a new page to the PDF document
         yOffset = 700;
       }
-
+  
       const rowValues = [
         new Date(treatment.date).toLocaleDateString("he-IL"),
-        treatment.type,
         `${treatment.cost}₪`,
       ];
-
-      // Draw columns other than תיאור
+  
+      // Draw תאריך and עלות columns
       rowValues.forEach((value, index) => {
         const valueX =
           pageWidth -
@@ -161,24 +160,43 @@ const createAndEncodePDF = async (
           columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Align cells with padding
         drawRTLText(value, yOffset, fontSize, valueX);
       });
-
+  
+      // Handle סוג column with multi-line overflow
+      const type = treatment.type || "";
+      const typeLines = type.match(/.{1,15}/g) || [type]; // Break סוג into lines for multi-line overflow
+      const typeX =
+        pageWidth -
+        tablePadding -
+        columnWidths.slice(0, 2).reduce((a, b) => a + b, 0); // Align סוג with padding
+  
+      let currentYOffset = yOffset; // Starting point for סוג column
+      typeLines.forEach((line) => {
+        drawRTLText(line, currentYOffset, fontSize, typeX);
+        currentYOffset -= 12; // Adjust for multi-line overflow
+      });
+  
       // Handle תיאור column with multi-line overflow
       const description = treatment.description || "";
-      const descriptionLines = description.match(/.{1,40}/g) || [description]; // Break description into lines
+      const descriptionLines = description.match(/.{1,30}/g) || [description]; // Break description into lines
       const descriptionX =
         pageWidth -
         tablePadding -
         columnWidths.slice(0, 3).reduce((a, b) => a + b, 0); // Align description with padding
-
+  
+      let descriptionYOffset = yOffset; // Starting point for תיאור column
       descriptionLines.forEach((line) => {
-        drawRTLText(line, yOffset, fontSize, descriptionX);
-        yOffset -= 12; // Adjust for multi-line overflow
+        drawRTLText(line, descriptionYOffset, fontSize, descriptionX);
+        descriptionYOffset -= 12; // Adjust for multi-line overflow
       });
-
-      // Adjust row height based on the tallest column (e.g., תיאור)
-      yOffset -= Math.max(rowHeight, descriptionLines.length * 12);
+  
+      // Adjust row height based on the tallest column (e.g., תיאור or סוג)
+      yOffset -= Math.max(
+        rowHeight,
+        descriptionLines.length * 12,
+        typeLines.length * 12
+      );
     });
-
+  
     yOffset -= 20; // Space after the table
   };
 

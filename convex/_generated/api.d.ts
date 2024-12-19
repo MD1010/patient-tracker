@@ -14,8 +14,8 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as common_generateMedicalInfo from "../common/generateMedicalInfo.js";
-import type * as emails_sendEmail from "../emails/sendEmail.js";
 import type * as patients from "../patients.js";
+import type * as reports_sendEmail from "../reports/sendEmail.js";
 import type * as schemas_index from "../schemas/index.js";
 import type * as schemas_patients from "../schemas/patients.js";
 import type * as schemas_treatments from "../schemas/treatments.js";
@@ -31,8 +31,8 @@ import type * as treatments from "../treatments.js";
  */
 declare const fullApi: ApiFromModules<{
   "common/generateMedicalInfo": typeof common_generateMedicalInfo;
-  "emails/sendEmail": typeof emails_sendEmail;
   patients: typeof patients;
+  "reports/sendEmail": typeof reports_sendEmail;
   "schemas/index": typeof schemas_index;
   "schemas/patients": typeof schemas_patients;
   "schemas/treatments": typeof schemas_treatments;

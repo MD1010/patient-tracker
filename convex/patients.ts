@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { action, internalQuery, mutation, query } from "./_generated/server";
-import { sendEmailWithPDF } from "./emails/sendEmail";
+import { sendEmailWithPDF } from "./reports/sendEmail";
 import { patientsSchema } from "./schemas/patients";
 import { api, internal } from "./_generated/api";
 import { Doc } from './_generated/dataModel';
