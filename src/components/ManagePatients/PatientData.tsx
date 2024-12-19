@@ -18,7 +18,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import * as Excel from "exceljs";
 import { motion } from "framer-motion";
-import { Download, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Download, Loader2, Pencil, PlusIcon, Trash2 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
@@ -210,8 +210,19 @@ export function PatientData() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="space-y-6 min-h-[250px]"
           >
-            <div className="bg-background sticky -top-2 z-40 py-2">
+            <div className="bg-background sticky -top-2 z-40 py-2 flex justify-between rtl">
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  openModal("addOrEditTreatment", {
+                    patientId: selectedPatient._id,
+                  })
+                }
+              >
+                הוסף טיפול
+                <PlusIcon strokeWidth={2} />
+              </Button>
             </div>
 
             <Accordion
