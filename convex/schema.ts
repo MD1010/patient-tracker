@@ -3,5 +3,8 @@ import { patientsSchema, treatmentsSchema } from "./schemas";
 
 export default defineSchema({
   patients: defineTable(patientsSchema),
-  treatments: defineTable(treatmentsSchema).index("by_patient", ["patientId"]),
+  treatments: defineTable(treatmentsSchema).index("by_patientId_date", [
+    "patientId",
+    "date",
+  ]),
 });

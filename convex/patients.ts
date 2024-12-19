@@ -3,7 +3,7 @@ import { action, internalQuery, mutation, query } from "./_generated/server";
 import { sendEmailWithPDF } from "./reports/sendEmail";
 import { patientsSchema } from "./schemas/patients";
 import { api, internal } from "./_generated/api";
-import { Doc } from './_generated/dataModel';
+import { Doc } from "./_generated/dataModel";
 
 export const get = query({
   args: {},
@@ -24,10 +24,6 @@ export const add = mutation({
       isAdult: age >= 18,
       nextTreatment: null,
       lastTreatmentDate: null,
-    });
-
-    ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
-      patientId,
     });
 
     return patientId;
