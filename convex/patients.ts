@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { action, internalQuery, mutation, query } from "./_generated/server";
 import { sendEmailWithPDF } from "./emails/sendEmail";
 import { patientsSchema } from "./schemas/patients";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 
 export const get = query({
   args: {},
@@ -23,6 +23,10 @@ export const add = mutation({
       isAdult: age >= 18,
       nextTreatment: null,
       lastTreatmentDate: null,
+    });
+
+    ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
+      patientId,
     });
 
     return patientId;

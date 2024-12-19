@@ -1,8 +1,9 @@
 // import Mailjet from "node-mailjet";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 import { Doc } from "../_generated/dataModel";
 import axios from "axios";
-
+import { nutoSansFont } from "../../src/lib/fonts";
 // // Helper function to create Base64 from Uint8Array
 // const toBase64 = (uint8Array: Uint8Array): string => {
 //   let binary = "";
@@ -127,20 +128,35 @@ const toBase64 = (uint8Array: Uint8Array): string => {
   return btoa(binary);
 };
 
+const base64ToUint8Array = (base64: Base64URLString) => {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
+
 // Function to create and encode the PDF
-const createAndEncodePDF = async (patient: Doc<"patients">): Promise<string> => {
+const createAndEncodePDF = async (
+  patient: Doc<"patients">
+): Promise<string> => {
   // Create a new PDF document
   const pdfDoc = await PDFDocument.create();
+  // Register fontkit
+  pdfDoc.registerFontkit(fontkit);
+  const hebrewFont = await pdfDoc.embedFont(base64ToUint8Array(nutoSansFont));
   const page = pdfDoc.addPage([600, 750]);
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  // const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   // Draw "Hello World" on the PDF
-  page.drawText("Hello World", {
-    x: 50, // X-coordinate
-    y: 700, // Y-coordinate
-    size: 24, // Font size
-    font,
-    color: rgb(0, 0, 0), // Black color
+  page.drawText("שלום עולם", {
+    x: 50,
+    y: 700,
+    size: 24,
+    font: hebrewFont,
+    color: rgb(0, 0, 0),
   });
 
   // Serialize the PDF to Uint8Array
@@ -158,55 +174,55 @@ export const sendEmailWithPDF = async ({
   const pdfBase64 = await createAndEncodePDF(patient);
   // console.log(pdfBase64);
 
-    const filename = `${patient.idNumber}_medical_report.pdf`;
+  const filename = `${patient.idNumber}_medical_report.pdf`;
 
-    // const mailjetClient = new Mailjet({
-    //   apiKey: process.env.MAILJET_API_KEY,
-    //   apiSecret: process.env.MAILJET_API_SECRET,
-    // });
+  // const mailjetClient = new Mailjet({
+  //   apiKey: process.env.MAILJET_API_KEY,
+  //   apiSecret: process.env.MAILJET_API_SECRET,
+  // });
 
-    const emailData = {
-      Messages: [
-        {
-          From: {
-            Email: "my.patient.tracker@gmail.com",
-            Name: "ניהול מטופלים"
-          },
-          To: [
-            {
-              Email: "michaelkatom10@gmail.com",
-              Name: "Michael",
-            },
-          ],
-          Subject: ` פלוני אלמוני ת.ז ${patient.idNumber}`,
-          TextPart: " ",
-          Attachments: [
-            {
-              ContentType: "application/pdf",
-              Filename: filename,
-              Base64Content: pdfBase64,
-            },
-          ],
+  const emailData = {
+    Messages: [
+      {
+        From: {
+          Email: "my.patient.tracker@gmail.com",
+          Name: "ניהול מטופלים",
         },
-      ],
-    };
-    try {
-      console.log("Sending email...");
-      const response = await axios.post(
-        "https://api.mailjet.com/v3.1/send",
-        emailData,
-        {
-          auth: {
-            username: process.env.MAILJET_API_KEY!,
-            password: process.env.MAILJET_API_SECRET!,
+        To: [
+          {
+            Email: "michaelkatom10@gmail.com",
+            Name: "Michael",
           },
-          headers: {
-            "Content-Type": "application/json",
+        ],
+        Subject: ` פלוני אלמוני ת.ז ${patient.idNumber}`,
+        TextPart: " ",
+        Attachments: [
+          {
+            ContentType: "application/pdf",
+            Filename: filename,
+            Base64Content: pdfBase64,
           },
-        }
-      );
-      console.log("Email sent successfully:", response.data);
-    } catch (error) {
-      console.error("Failed to send email:", error);
-    }
+        ],
+      },
+    ],
+  };
+  try {
+    console.log("Sending email...");
+    const response = await axios.post(
+      "https://api.mailjet.com/v3.1/send",
+      emailData,
+      {
+        auth: {
+          username: process.env.MAILJET_API_KEY!,
+          password: process.env.MAILJET_API_SECRET!,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Email sent successfully:", response.data);
+  } catch (error) {
+    console.error("Failed to send email:", error);
+  }
 };
