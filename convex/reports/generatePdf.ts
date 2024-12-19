@@ -135,7 +135,7 @@ export const generatePatientInfoPdf = async (
     yOffset -= separatorMarginBottom; // Reduced space after the header separator
 
     // Draw table rows
-    treatments.forEach((treatment) => {
+    treatments.forEach((treatment, index) => {
       if (yOffset < 50) {
         page = pdfDoc.addPage([600, 750]);
         yOffset = 700;
@@ -189,15 +189,20 @@ export const generatePatientInfoPdf = async (
         typeLines.length * 12
       );
 
-      // Separator after each row
-      page.drawLine({
-        start: { x: tablePadding, y: yOffset - maxColumnHeight },
-        end: { x: pageWidth - tablePadding, y: yOffset - maxColumnHeight },
-        thickness: 1,
-        color: rgb(0.8, 0.8, 0.8),
-      });
+      if (index !== treatments.length - 1) {
+        // Separator after each row
+        page.drawLine({
+          start: { x: tablePadding, y: yOffset - maxColumnHeight + 2 },
+          end: {
+            x: pageWidth - tablePadding,
+            y: yOffset - maxColumnHeight + 2,
+          },
+          thickness: 1,
+          color: rgb(0.8, 0.8, 0.8),
+        });
+      }
 
-      yOffset -= maxColumnHeight + separatorMarginBottom + 5; // Adjusted for consistent spacing
+      yOffset -= maxColumnHeight + separatorMarginBottom + 10; // Adjusted for consistent spacing
     });
 
     yOffset -= 20; // Space after the table

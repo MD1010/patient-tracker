@@ -63,7 +63,7 @@ export function TreatmentForm({
     reset();
     let completedText = treatment
       ? "הטיפול עודכן בהצלחה"
-      : "הטיפול נוסף בהצלחה";
+      : "הטיפול נוסף בהצלחה, נשלח מייל חדש עם פרטי המטופל.";
     toast.success(completedText, { position: "bottom-right" });
   };
 

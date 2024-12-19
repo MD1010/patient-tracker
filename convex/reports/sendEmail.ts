@@ -13,6 +13,9 @@ export const sendEmailWithPDF = async ({
 
   const filename = `${patient.idNumber}.pdf`;
 
+  console.log(process.env.REPORTS_EMAIL);
+  
+
   const emailData = {
     Messages: [
       {
@@ -22,7 +25,7 @@ export const sendEmailWithPDF = async ({
         },
         To: [
           {
-            Email: "michaelkatom10@gmail.com",
+            Email: process.env.REPORTS_EMAIL,
             Name: "Michael",
           },
         ],

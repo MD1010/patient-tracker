@@ -16,15 +16,6 @@ function App() {
         <Header />
         <main className="container mx-auto px-4 py-8">
           <PatientDashboard />
-          <Button
-            onClick={() =>
-              sendEmail({
-                patientId: "j57a8603hdtm300f21m1mv7fyd761z5g" as any,
-              })
-            }
-          >
-            שלח
-          </Button>
           <ModalProvider />
         </main>
       </div>
