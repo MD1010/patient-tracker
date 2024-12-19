@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as emails_sendEmail from "../emails/sendEmail.js";
 import type * as patients from "../patients.js";
 import type * as schemas_index from "../schemas/index.js";
 import type * as schemas_patients from "../schemas/patients.js";
@@ -28,6 +29,7 @@ import type * as treatments from "../treatments.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "emails/sendEmail": typeof emails_sendEmail;
   patients: typeof patients;
   "schemas/index": typeof schemas_index;
   "schemas/patients": typeof schemas_patients;
