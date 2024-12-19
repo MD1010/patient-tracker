@@ -102,29 +102,40 @@ export const createAndEncodePDF = async (
       return;
     }
 
-    const pageWidth = 600; // Total page width
-    const tablePadding = 50; // Equal padding for left and right sides
-    const totalTableWidth = pageWidth - 2 * tablePadding; // Total width of the table
-    const columnWidths = [80, 80, 150, totalTableWidth - 310]; // Adjusted column widths
-    const rowHeight = 25; // Row height
-    const fontSize = 10; // Font size for table content
-    const headers = ["תאריך", "עלות", "סוג", "תיאור"]; // Table headers
+    const pageWidth = 600;
+    const tablePadding = 50;
+    const totalTableWidth = pageWidth - 2 * tablePadding;
+    const columnWidths = [80, 80, 150, totalTableWidth - 310];
+    const rowHeight = 25;
+    const fontSize = 10;
+    const headers = ["תאריך", "עלות", "סוג", "תיאור"];
+    const separatorMarginBottom = 10;
 
     // Draw table headers
     headers.forEach((header, index) => {
       const headerX =
         pageWidth -
         tablePadding -
-        columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Align headers with padding
+        columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
       drawRTLText(header, yOffset, fontSize + 2, headerX, true);
     });
 
     yOffset -= 30; // Space between headers and content
 
+    // Separator after the headers
+    page.drawLine({
+      start: { x: tablePadding, y: yOffset + 15 }, // Reduced margin above
+      end: { x: pageWidth - tablePadding, y: yOffset + 15 },
+      thickness: 1,
+      color: rgb(0.8, 0.8, 0.8),
+    });
+
+    yOffset -= separatorMarginBottom; // Reduced space after the header separator
+
     // Draw table rows
     treatments.forEach((treatment) => {
       if (yOffset < 50) {
-        page = pdfDoc.addPage([600, 750]); // Add a new page to the PDF document
+        page = pdfDoc.addPage([600, 750]);
         yOffset = 700;
       }
 
@@ -138,44 +149,53 @@ export const createAndEncodePDF = async (
         const valueX =
           pageWidth -
           tablePadding -
-          columnWidths.slice(0, index).reduce((a, b) => a + b, 0); // Align cells with padding
+          columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
         drawRTLText(value, yOffset, fontSize, valueX);
       });
 
       // Handle סוג column with multi-line overflow
       const type = treatment.type || "";
-      const typeLines = type.match(/.{1,15}/g) || [type]; // Break סוג into lines for multi-line overflow
+      const typeLines = type.match(/.{1,15}/g) || [type];
       const typeX =
         pageWidth -
         tablePadding -
-        columnWidths.slice(0, 2).reduce((a, b) => a + b, 0); // Align סוג with padding
+        columnWidths.slice(0, 2).reduce((a, b) => a + b, 0);
 
-      let currentYOffset = yOffset; // Starting point for סוג column
+      let currentYOffset = yOffset;
       typeLines.forEach((line) => {
         drawRTLText(line, currentYOffset, fontSize, typeX);
-        currentYOffset -= 12; // Adjust for multi-line overflow
+        currentYOffset -= 12;
       });
 
       // Handle תיאור column with multi-line overflow
       const description = treatment.description || "";
-      const descriptionLines = description.match(/.{1,30}/g) || [description]; // Break description into lines
+      const descriptionLines = description.match(/.{1,30}/g) || [description];
       const descriptionX =
         pageWidth -
         tablePadding -
-        columnWidths.slice(0, 3).reduce((a, b) => a + b, 0); // Align description with padding
+        columnWidths.slice(0, 3).reduce((a, b) => a + b, 0);
 
-      let descriptionYOffset = yOffset; // Starting point for תיאור column
+      let descriptionYOffset = yOffset;
       descriptionLines.forEach((line) => {
         drawRTLText(line, descriptionYOffset, fontSize, descriptionX);
-        descriptionYOffset -= 12; // Adjust for multi-line overflow
+        descriptionYOffset -= 12;
       });
 
-      // Adjust row height based on the tallest column (e.g., תיאור or סוג)
-      yOffset -= Math.max(
+      const maxColumnHeight = Math.max(
         rowHeight,
         descriptionLines.length * 12,
         typeLines.length * 12
       );
+
+      // Separator after each row
+      page.drawLine({
+        start: { x: tablePadding, y: yOffset - maxColumnHeight },
+        end: { x: pageWidth - tablePadding, y: yOffset - maxColumnHeight },
+        thickness: 1,
+        color: rgb(0.8, 0.8, 0.8),
+      });
+
+      yOffset -= maxColumnHeight + separatorMarginBottom + 5; // Adjusted for consistent spacing
     });
 
     yOffset -= 20; // Space after the table
