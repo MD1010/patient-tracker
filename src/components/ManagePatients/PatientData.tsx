@@ -274,11 +274,6 @@ export function PatientData() {
               )}
               {treatments && treatments.length > 0
                 ? treatments
-                    .sort(
-                      (a, b) =>
-                        new Date(b._creationTime).getTime() -
-                        new Date(a._creationTime).getTime()
-                    )
                     .map((treatment, i) => (
                       <motion.div
                         key={treatment._id}

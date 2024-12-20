@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { DataModel, Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { treatmentsSchema } from "./schemas";
+import { api } from './_generated/api';
 
 // Helper function to update patient fields: lastTreatmentDate and nextTreatment
 async function updatePatientFields(
@@ -89,10 +90,10 @@ export const add = mutation({
 
     // generate pdf and send it for documentation
 
-    // ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
-    //   patientId: args.patientId,
-    //   userTimeZone: args.userTimeZone,
-    // });
+    ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
+      patientId: args.patientId,
+      userTimeZone: args.userTimeZone,
+    });
 
     return treatmentId;
   },
