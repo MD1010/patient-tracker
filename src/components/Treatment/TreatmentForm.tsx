@@ -39,6 +39,9 @@ export function TreatmentForm({
   const addTreatment = useMutation(api.treatments.add);
   const editTreatment = useMutation(api.treatments.edit);
 
+  console.log("isLastTreatment", isLastTreatment);
+  
+
   const { closeModal } = useModal();
 
   const { setSelectedPatient, selectedPatient } = usePatients();
@@ -87,7 +90,7 @@ export function TreatmentForm({
         });
     closeModal();
 
-    if (selectedPatient && isLastTreatment) {
+    if (selectedPatient) {
       setSelectedPatient({
         ...selectedPatient,
         nextTreatmentRecallDate: data.recallDate?.toString() || null,
@@ -179,7 +182,7 @@ export function TreatmentForm({
           )}
         </div>
         <Textarea placeholder="הערות" {...register("notes")} />
-        {isLastTreatment && (
+        {(isLastTreatment || !treatment) && (
           <div className="space-y-2">
             <DatePicker
               placeholder="בחר תאריך לטיפול הבא"

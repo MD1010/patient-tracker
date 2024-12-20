@@ -199,9 +199,7 @@ export function PatientData() {
                     <p className="text-sm text-muted-foreground">
                       <div>
                         {format(
-                          new Date(
-                            selectedPatient.nextTreatment?.toString()
-                          ),
+                          new Date(selectedPatient.nextTreatment?.toString()),
                           "dd/MM/yyyy"
                         )}
                       </div>
@@ -276,10 +274,11 @@ export function PatientData() {
               )}
               {treatments && treatments.length > 0
                 ? treatments
-                    // .sort(
-                    //   (a, b) =>
-                    //     new Date(b.date).getTime() - new Date(a.date).getTime()
-                    // )
+                    .sort(
+                      (a, b) =>
+                        new Date(b._creationTime).getTime() -
+                        new Date(a._creationTime).getTime()
+                    )
                     .map((treatment, i) => (
                       <motion.div
                         key={treatment._id}

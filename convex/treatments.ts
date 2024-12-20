@@ -10,10 +10,14 @@ async function updatePatientFields(
   patientId: Id<"patients">
 ) {
   // Fetch all treatments for the patient
-  const treatments: Doc<"treatments">[] = await ctx.db
+  let treatments: Doc<"treatments">[] = await ctx.db
     .query("treatments")
     .withIndex("by_patientId_date", (q) => q.eq("patientId", patientId))
     .collect();
+
+  treatments = treatments.sort(
+    (a, b) => new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
+  );
 
   if (treatments.length === 0) {
     // If no treatments, reset patient fields
@@ -25,6 +29,7 @@ async function updatePatientFields(
     return;
   }
 
+  console.log("new one", treatments[0]);
 
   // Get the most recent treatment date
   const lastTreatmentDate = treatments[0].date;
@@ -47,10 +52,21 @@ async function updatePatientFields(
 export const get = query({
   args: { patientId: v.id("patients") },
   handler: async (ctx, { patientId }) => {
-    return await ctx.db
+    // return await ctx.db
+    //   .query("treatments")
+    //   .withIndex("by_patientId_date", (q) => q.eq("patientId", patientId))
+    //   .collect();
+
+    let treatments: Doc<"treatments">[] = await ctx.db
       .query("treatments")
       .withIndex("by_patientId_date", (q) => q.eq("patientId", patientId))
       .collect();
+
+    treatments = treatments.sort(
+      (a, b) => new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
+    );
+
+    return treatments;
   },
 });
 
@@ -62,6 +78,8 @@ export const add = mutation({
   handler: async (ctx, args) => {
     const { userTimeZone, ...treatmentSchema } = args;
     // Insert the new treatment
+    console.log("new treatment", treatmentSchema);
+
     const treatmentId = await ctx.db.insert("treatments", {
       ...treatmentSchema,
     });
