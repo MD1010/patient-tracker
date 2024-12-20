@@ -11,12 +11,15 @@ export const sendEmailWithPDF = async ({
   treatments: Doc<"treatments">[];
   userTimeZone: string;
 }) => {
-  const pdfBase64 = await generatePatientInfoPdf(patient, treatments, userTimeZone);
+  const pdfBase64 = await generatePatientInfoPdf(
+    patient,
+    treatments,
+    userTimeZone
+  );
 
   const filename = `${patient.idNumber}.pdf`;
 
   console.log(process.env.REPORTS_EMAIL);
-  
 
   const emailData = {
     Messages: [
@@ -31,7 +34,7 @@ export const sendEmailWithPDF = async ({
             Name: "Michael",
           },
         ],
-        Subject: ` פלוני אלמוני ת.ז ${patient.idNumber}`,
+        Subject: ` ${patient.firstName} ${patient.lastName} ת.ז ${patient.idNumber}`,
         TextPart: " ",
         Attachments: [
           {

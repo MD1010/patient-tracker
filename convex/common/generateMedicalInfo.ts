@@ -119,12 +119,12 @@ export const generateMedicalConditionReport = (
     medicationInfo.push("חומרי הרדמה");
   }
 
-  if (medications?.penicillinLatex) {
-    medicationInfo.push("פניציקלין/לטקס");
-  }
-
   if (medicationInfo.length > 0) {
     report += `המטופל נוטל את התרופות הבאות: ${medicationInfo.join(", ")}. `;
+  }
+
+  if (medications?.penicillinLatex) {
+    report += "ישנה רגישות לפניצילין/לטקס. ";
   }
 
   // Add general note if no relevant details exist
