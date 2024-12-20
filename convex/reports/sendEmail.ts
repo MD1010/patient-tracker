@@ -5,11 +5,13 @@ import { generatePatientInfoPdf } from "./generatePdf";
 export const sendEmailWithPDF = async ({
   patient,
   treatments,
+  userTimeZone,
 }: {
   patient: Doc<"patients">;
   treatments: Doc<"treatments">[];
+  userTimeZone: string;
 }) => {
-  const pdfBase64 = await generatePatientInfoPdf(patient, treatments);
+  const pdfBase64 = await generatePatientInfoPdf(patient, treatments, userTimeZone);
 
   const filename = `${patient.idNumber}.pdf`;
 

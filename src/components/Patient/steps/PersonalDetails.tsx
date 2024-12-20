@@ -66,7 +66,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             toDate={new Date()}
             date={watch("dateOfBirth")}
             onDateChange={(date) => {
-              setValue("dateOfBirth", date!.toISOString());
+              setValue("dateOfBirth", date!.toString());
               trigger("dateOfBirth");
             }}
             {...register("dateOfBirth", { required: "שדה חובה" })}

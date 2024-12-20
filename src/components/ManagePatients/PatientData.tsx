@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Download, Loader2, Pencil, PlusIcon, Trash2 } from "lucide-react";
 
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { useCallback, useRef } from "react";
 import { api } from "../../../convex/_generated/api";
@@ -87,7 +87,10 @@ export function PatientData() {
   const downloadReport = async () => {
     if (!selectedPatient) return null;
 
-    const pdfBase64 = await generatePdf({ patientId: selectedPatient?._id });
+    const pdfBase64 = await generatePdf({
+      patientId: selectedPatient?._id,
+      userTimeZone: getClientTimeZone(),
+    });
     if (!pdfBase64) return;
 
     const byteCharacters = atob(pdfBase64);
@@ -124,9 +127,7 @@ export function PatientData() {
             </span>
             <div className="flex justify-end items-center gap-2">
               {selectedPatient.phone || selectedPatient.parent?.phone ? (
-                <WhatsAppButton
-                  patient={selectedPatient}
-                />
+                <WhatsAppButton patient={selectedPatient} />
               ) : null}
               <Button
                 variant="outline"

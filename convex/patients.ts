@@ -61,7 +61,7 @@ export const getPatient = internalQuery({
 });
 
 export const sendEmailWithAttachment = action({
-  args: { patientId: v.id("patients") },
+  args: { patientId: v.id("patients"), userTimeZone: v.string() },
   handler: async (ctx, args) => {
     const patient = await ctx.runQuery(internal.patients.getPatient, {
       patientId: args.patientId,
@@ -71,13 +71,13 @@ export const sendEmailWithAttachment = action({
       patientId: args.patientId,
     });
     if (patient) {
-      await sendEmailWithPDF({ patient, treatments });
+      await sendEmailWithPDF({ patient, treatments, userTimeZone: args.userTimeZone });
     }
   },
 });
 
 export const generatePatientInfo = action({
-  args: { patientId: v.id("patients") },
+  args: { patientId: v.id("patients"), userTimeZone: v.string() },
   handler: async (ctx, args) => {
     const patient = await ctx.runQuery(internal.patients.getPatient, {
       patientId: args.patientId,
@@ -87,7 +87,7 @@ export const generatePatientInfo = action({
       patientId: args.patientId,
     });
     if (patient) {
-      const res = await generatePatientInfoPdf(patient, treatments);
+      const res = await generatePatientInfoPdf(patient, treatments, args.userTimeZone);
       return res;
     }
   },

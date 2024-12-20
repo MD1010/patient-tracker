@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { DataModel, Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { treatmentsSchema } from "./schemas";
-import { api } from './_generated/api';
+import { api } from "./_generated/api";
 
 // Helper function to update patient fields: lastTreatmentDate and nextTreatment
 async function updatePatientFields(
@@ -35,7 +35,7 @@ async function updatePatientFields(
       .filter((treatment) => treatment.nextAppointment)
       .map((treatment) => new Date(treatment.nextAppointment!))
       .sort((a, b) => a.getTime() - b.getTime())[0]
-      ?.toISOString() ?? null;
+      ?.toString() ?? null;
 
   // Update the patient with the calculated fields
   await ctx.db.patch(patientId, {
@@ -56,11 +56,12 @@ export const get = query({
 });
 
 export const add = mutation({
-  args: v.object(treatmentsSchema),
+  args: v.object({ ...treatmentsSchema, userTimeZone: v.string() }),
   handler: async (ctx, args) => {
+    const { userTimeZone, ...treatmentSchema } = args;
     // Insert the new treatment
     const treatmentId = await ctx.db.insert("treatments", {
-      ...args,
+      ...treatmentSchema,
     });
 
     // Update the patient's lastTreatmentDate and nextTreatment fields
@@ -70,6 +71,7 @@ export const add = mutation({
 
     ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
       patientId: args.patientId,
+      userTimeZone: args.userTimeZone,
     });
 
     return treatmentId;

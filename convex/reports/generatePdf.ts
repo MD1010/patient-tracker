@@ -1,14 +1,15 @@
 import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, rgb } from "pdf-lib";
+import { nutoSansFont } from "../../src/lib/fonts/regular";
+import { nutoSansSemiBold } from "../../src/lib/fonts/semi-bold";
 import { Doc } from "../_generated/dataModel";
 import { generateMedicalConditionReport } from "../common/generateMedicalInfo";
-import { base64ToUint8Array, toBase64 } from "./utils";
-import { nutoSansSemiBold } from "../../src/lib/fonts/semi-bold";
-import { nutoSansFont } from "../../src/lib/fonts/regular";
+import { base64ToUint8Array, getClientDate, toBase64 } from "./utils";
 
 export const generatePatientInfoPdf = async (
   patient: Doc<"patients">,
-  treatments: Doc<"treatments">[]
+  treatments: Doc<"treatments">[],
+  userTimeZone: string
 ): Promise<string> => {
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
@@ -66,9 +67,12 @@ export const generatePatientInfoPdf = async (
       { label: "תעודת זהות", value: patient.idNumber },
       {
         label: "תאריך לידה",
-        value: new Date(patient.dateOfBirth).toLocaleDateString("he-IL"),
+        value: getClientDate(patient.dateOfBirth, userTimeZone),
       },
-      { label: "מטופל מתאריך", value: new Date().toLocaleDateString("he-IL") },
+      {
+        label: "מטופל מתאריך",
+        value: getClientDate(patient._creationTime, userTimeZone),
+      },
       { label: phoneLabel, value: phoneValue },
     ];
 
@@ -141,10 +145,7 @@ export const generatePatientInfoPdf = async (
         yOffset = 700;
       }
 
-      const rowValues = [
-        new Date(treatment.date).toLocaleDateString("he-IL"),
-        `${treatment.cost}₪`,
-      ];
+      const rowValues = [getClientDate(treatment.date, userTimeZone), `${treatment.cost}₪`];
 
       // Draw תאריך and עלות columns
       rowValues.forEach((value, index) => {

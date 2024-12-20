@@ -3,7 +3,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { parseCurrencyInput } from "@/lib/utils";
+import { getClientTimeZone, parseCurrencyInput } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { useMutation } from "convex/react";
 import { he } from "date-fns/locale";
@@ -58,6 +58,7 @@ export function TreatmentForm({
           type: data.type,
           notes: data.notes,
           nextAppointment: data.nextAppointment || "",
+          userTimeZone: getClientTimeZone()
         });
     closeModal();
     reset();
@@ -94,7 +95,7 @@ export function TreatmentForm({
               date={watch("date")}
               {...register("date", { required: "שדה חובה" })}
               onDateChange={(date) => {
-                setValue("date", date ? new Date(date).toISOString() : "");
+                setValue("date", date ? new Date(date).toString() : "");
                 trigger("date");
               }}
               locale={he}
@@ -154,7 +155,7 @@ export function TreatmentForm({
             onDateChange={(date) => {
               setValue(
                 "nextAppointment",
-                date ? new Date(date).toISOString() : undefined
+                date ? new Date(date).toString() : undefined
               );
             }}
             locale={he}

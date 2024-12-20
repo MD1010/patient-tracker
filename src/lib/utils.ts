@@ -32,4 +32,6 @@ export function parseCurrencyInput(value: string): string {
   return parsed;
 }
 
-
+export function getClientTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
