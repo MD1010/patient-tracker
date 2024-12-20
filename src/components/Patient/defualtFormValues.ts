@@ -44,5 +44,6 @@ export default {
   },
   lastTreatmentDate: null,
   nextTreatment: null,
-  phone: null
+  phone: null,
+  nextTreatmentRecallDate: null,
 } satisfies Omit<Doc<"patients">, RequiredFields>;

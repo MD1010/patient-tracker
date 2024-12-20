@@ -10,7 +10,7 @@ import { TreatmentForm } from "../Treatment/TreatmentForm";
 
 export const AddOrEditTreatmentModal = ({}) => {
   const { isOpen, closeModal, type, data } = useModal();
-  const { treatmentToEdit, patientId } =
+  const { treatmentToEdit, patientId, isLastTreatment } =
     (data as ModalData<"addOrEditTreatment">) || {};
 
   const isModalOpen = isOpen && type === "addOrEditTreatment";
@@ -27,7 +27,7 @@ export const AddOrEditTreatmentModal = ({}) => {
               </DialogTitle>
               <DialogClose onClick={closeModal} />
             </DialogHeader>
-            <TreatmentForm treatment={treatmentToEdit} patientId={patientId} />
+            <TreatmentForm treatment={treatmentToEdit} patientId={patientId} isLastTreatment={isLastTreatment}/>
           </DialogContent>
         </Dialog>
       )}

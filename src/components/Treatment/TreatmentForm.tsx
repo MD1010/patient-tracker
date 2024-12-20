@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"; // Assuming you have a toggle group component
 import { getClientTimeZone, parseCurrencyInput } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
-import { usePatients } from '@/store/patients-store';
+import { usePatients } from "@/store/patients-store";
 import { useMutation } from "convex/react";
 import { addMonths, differenceInMonths } from "date-fns";
 import { he } from "date-fns/locale";
@@ -24,15 +24,17 @@ const recallDateToValue = (recallDate: string | undefined) => {
 
     return (monthsDifference + 1).toString();
   }
-  return "";
+  return undefined;
 };
 
 export function TreatmentForm({
   treatment,
   patientId,
+  isLastTreatment,
 }: {
   treatment?: Doc<"treatments">;
   patientId: Id<"patients">;
+  isLastTreatment?: boolean;
 }) {
   const addTreatment = useMutation(api.treatments.add);
   const editTreatment = useMutation(api.treatments.edit);
@@ -51,7 +53,7 @@ export function TreatmentForm({
     formState: { errors },
   } = useForm<Doc<"treatments">>({
     defaultValues: treatment
-      ? treatment 
+      ? { ...treatment, recallDate: recallDateToValue(treatment.recallDate) }
       : {
           type: "",
           description: "",
@@ -59,12 +61,14 @@ export function TreatmentForm({
           nextAppointment: "",
           notes: "",
           date: "",
-          recallDate: "",
+          recallDate: undefined,
         },
     mode: "onChange",
   });
 
   const onSubmit: SubmitHandler<Doc<"treatments">> = async (data) => {
+    console.log("sending to server", data);
+
     treatment
       ? await editTreatment({
           ...data,
@@ -77,16 +81,17 @@ export function TreatmentForm({
           description: data.description,
           type: data.type,
           notes: data.notes,
-          nextAppointment: data.nextAppointment || "",
-          recallDate: data.recallDate || "-",
+          nextAppointment: data.nextAppointment,
+          recallDate: data.recallDate,
           userTimeZone: getClientTimeZone(),
         });
     closeModal();
 
-    if (selectedPatient) {
+    if (selectedPatient && isLastTreatment) {
       setSelectedPatient({
         ...selectedPatient,
         nextTreatmentRecallDate: data.recallDate?.toString() || null,
+        nextTreatment: data.nextAppointment?.toString() || null,
       });
     }
 
@@ -96,6 +101,9 @@ export function TreatmentForm({
       : "הטיפול נוסף בהצלחה, נשלח מייל חדש עם פרטי המטופל.";
     toast.success(completedText, { position: "bottom-right" });
   };
+
+  const isRecallRendered =
+    !watch("nextAppointment") && (isLastTreatment || !treatment);
 
   return (
     <>
@@ -171,30 +179,33 @@ export function TreatmentForm({
           )}
         </div>
         <Textarea placeholder="הערות" {...register("notes")} />
-        <div className="space-y-2">
-          <DatePicker
-            placeholder="בחר תאריך לטיפול הבא"
-            fromYear={new Date().getFullYear()}
-            fromDate={new Date()}
-            date={watch("nextAppointment")}
-            onDateChange={(date) => {
-              setValue(
-                "nextAppointment",
-                date ? new Date(date).toString() : undefined
-              );
-            }}
-            locale={he}
-            className={`w-full justify-start text-right h-10 p-2 ${
-              errors.nextAppointment ? "border-red-500 shadow-sm" : ""
-            }`}
-          />
-          {errors.nextAppointment && (
-            <p className="text-sm text-red-600">
-              {errors.nextAppointment.message}
-            </p>
-          )}
-        </div>
-        {!watch("nextAppointment") && !treatment && (
+        {isLastTreatment && (
+          <div className="space-y-2">
+            <DatePicker
+              placeholder="בחר תאריך לטיפול הבא"
+              fromYear={new Date().getFullYear()}
+              fromDate={new Date()}
+              date={watch("nextAppointment")}
+              onDateChange={(date) => {
+                setValue(
+                  "nextAppointment",
+                  date ? new Date(date).toString() : undefined
+                );
+                setValue("recallDate", undefined);
+              }}
+              locale={he}
+              className={`w-full justify-start text-right h-10 p-2 ${
+                errors.nextAppointment ? "border-red-500 shadow-sm" : ""
+              }`}
+            />
+            {errors.nextAppointment && (
+              <p className="text-sm text-red-600">
+                {errors.nextAppointment.message}
+              </p>
+            )}
+          </div>
+        )}
+        {isRecallRendered && (
           <div className="space-y-2">
             <h4
               className={`text-sm font-semibold pb-2  ${errors.recallDate && !watch("nextAppointment") ? "text-red-500" : ""}`}
@@ -210,8 +221,11 @@ export function TreatmentForm({
                   new Date(),
                   parseInt(value)
                 )?.toString();
-                setValue("recallDate", recallDate || "");
+                setValue("recallDate", recallDate);
                 trigger("recallDate");
+
+                setValue("nextAppointment", undefined);
+                trigger("nextAppointment");
               }}
               className={`rtl w-full ${
                 errors.recallDate && !watch("nextAppointment")

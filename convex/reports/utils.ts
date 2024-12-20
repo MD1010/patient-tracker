@@ -19,7 +19,10 @@ const toBase64 = (uint8Array: Uint8Array): string => {
   return btoa(binary);
 };
 
-function getClientDate(dateInput: string | number, userTimeZone: string): string {
+function getClientDate(
+  dateInput: string | number,
+  userTimeZone: string
+): string {
   let date: Date;
   const isNumber = typeof dateInput === "number";
 
@@ -34,25 +37,6 @@ function getClientDate(dateInput: string | number, userTimeZone: string): string
   const zonedTime = formatInTimeZone(date, userTimeZone, "dd/MM/yyyy");
 
   return zonedTime;
-}
-
-// Helper function to convert month name to number
-function getMonthFromString(month: string): string {
-  const months: { [key: string]: string } = {
-    Jan: "01",
-    Feb: "02",
-    Mar: "03",
-    Apr: "04",
-    May: "05",
-    Jun: "06",
-    Jul: "07",
-    Aug: "08",
-    Sep: "09",
-    Oct: "10",
-    Nov: "11",
-    Dec: "12",
-  };
-  return months[month] || "00";
 }
 
 export { base64ToUint8Array, getClientDate, toBase64 };

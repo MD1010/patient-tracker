@@ -43,7 +43,7 @@ export function PatientData() {
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
   console.log("selectedPatient", selectedPatient);
-  
+
   const treatments = useQuery(
     api.treatments.get,
     selectedPatient ? { patientId: selectedPatient._id } : "skip"
@@ -192,21 +192,38 @@ export function PatientData() {
                     {selectedPatient.arrivalSource || "-"}
                   </p>
                 </div>
-                <div>
-                  <h1 className="text-sm font-semibold">
-                    תאריך תזכור לתור הבא
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedPatient.nextTreatmentRecallDate
-                      ? format(
+
+                {selectedPatient.nextTreatment && (
+                  <div>
+                    <h1 className="text-sm font-semibold">הטיפול הבא</h1>
+                    <p className="text-sm text-muted-foreground">
+                      <div>
+                        {format(
+                          new Date(
+                            selectedPatient.nextTreatment?.toString()
+                          ),
+                          "dd/MM/yyyy"
+                        )}
+                      </div>
+                    </p>
+                  </div>
+                )}
+
+                {selectedPatient.nextTreatmentRecallDate && (
+                  <div>
+                    <h1 className="text-sm font-semibold">התזכור הבא</h1>
+                    <p className="text-sm text-muted-foreground">
+                      <div>
+                        {format(
                           new Date(
                             selectedPatient.nextTreatmentRecallDate?.toString()
                           ),
                           "dd/MM/yyyy"
-                        )
-                      : "-"}
-                  </p>
-                </div>
+                        )}
+                      </div>
+                    </p>
+                  </div>
+                )}
               </div>
             </Card>
           </motion.div>
@@ -259,10 +276,10 @@ export function PatientData() {
               )}
               {treatments && treatments.length > 0
                 ? treatments
-                    .sort(
-                      (a, b) =>
-                        new Date(b.date).getTime() - new Date(a.date).getTime()
-                    )
+                    // .sort(
+                    //   (a, b) =>
+                    //     new Date(b.date).getTime() - new Date(a.date).getTime()
+                    // )
                     .map((treatment, i) => (
                       <motion.div
                         key={treatment._id}
@@ -297,6 +314,7 @@ export function PatientData() {
                                 onClick={() =>
                                   openModal("addOrEditTreatment", {
                                     treatmentToEdit: treatment,
+                                    isLastTreatment: i === 0,
                                     patientId: treatment.patientId,
                                   })
                                 }
