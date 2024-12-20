@@ -92,3 +92,15 @@ export const generatePatientInfo = action({
     }
   },
 });
+
+export const backfillNextTreatmentRecallDate = mutation(async ({ db }) => {
+  const patients = await db.query("patients").collect();
+
+  for (const patient of patients) {
+    if (!patient.nextTreatmentRecallDate) {
+      await db.patch(patient._id, {
+        nextTreatmentRecallDate: null, // Default value, or provide a meaningful default
+      });
+    }
+  }
+});

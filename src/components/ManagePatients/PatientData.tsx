@@ -42,7 +42,8 @@ export function PatientData() {
   const deleteTreatment = useMutation(api.treatments.deleteOne);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
-
+  console.log("selectedPatient", selectedPatient);
+  
   const treatments = useQuery(
     api.treatments.get,
     selectedPatient ? { patientId: selectedPatient._id } : "skip"
@@ -146,11 +147,11 @@ export function PatientData() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-6"
+            className="space-y-6 rtl"
           >
             <h1 className="text-xl font-bold">פרטים כלליים</h1>
             <Card className="p-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4 rtl">
                 <div>
                   <h4 className="text-sm font-semibold">תעודת זהות</h4>
                   <p className="text-sm text-muted-foreground">
@@ -174,6 +175,7 @@ export function PatientData() {
                     )}
                   </p>
                 </div>
+
                 <div>
                   <h1 className="text-sm font-semibold">מטופל מתאריך</h1>
                   <p className="text-sm text-muted-foreground">
@@ -181,6 +183,28 @@ export function PatientData() {
                       new Date(selectedPatient._creationTime),
                       "dd/MM/yyyy"
                     )}
+                  </p>
+                </div>
+
+                <div>
+                  <h1 className="text-sm font-semibold">מקור הגעה</h1>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedPatient.arrivalSource || "-"}
+                  </p>
+                </div>
+                <div>
+                  <h1 className="text-sm font-semibold">
+                    תאריך תזכור לתור הבא
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedPatient.nextTreatmentRecallDate
+                      ? format(
+                          new Date(
+                            selectedPatient.nextTreatmentRecallDate?.toString()
+                          ),
+                          "dd/MM/yyyy"
+                        )
+                      : "-"}
                   </p>
                 </div>
               </div>

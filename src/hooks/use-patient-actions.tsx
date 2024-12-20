@@ -14,6 +14,7 @@ export interface Patient {
 
 export function usePatientActions() {
   const fetchedPatients = useQuery(api.patients.get);
+  
   const deletePatientMutation = useMutation(api.patients.deleteOne);
 
   const deletePatient = async (patientId: Id<"patients">) => {

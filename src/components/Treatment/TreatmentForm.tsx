@@ -3,14 +3,29 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"; // Assuming you have a toggle group component
 import { getClientTimeZone, parseCurrencyInput } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
+import { usePatients } from '@/store/patients-store';
 import { useMutation } from "convex/react";
+import { addMonths, differenceInMonths } from "date-fns";
 import { he } from "date-fns/locale";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Doc, Id } from "../../../convex/_generated/dataModel";
-import { toast } from "sonner";
+
+const recallDateToValue = (recallDate: string | undefined) => {
+  if (recallDate) {
+    if (+recallDate) return recallDate;
+
+    const monthsDifference = differenceInMonths(recallDate, new Date());
+    console.log("hi", monthsDifference + 1);
+
+    return (monthsDifference + 1).toString();
+  }
+  return "";
+};
 
 export function TreatmentForm({
   treatment,
@@ -24,6 +39,8 @@ export function TreatmentForm({
 
   const { closeModal } = useModal();
 
+  const { setSelectedPatient, selectedPatient } = usePatients();
+
   const {
     register,
     handleSubmit,
@@ -33,14 +50,17 @@ export function TreatmentForm({
     trigger,
     formState: { errors },
   } = useForm<Doc<"treatments">>({
-    defaultValues: treatment || {
-      type: "",
-      description: "",
-      cost: undefined,
-      nextAppointment: "",
-      notes: "",
-      date: "",
-    },
+    defaultValues: treatment
+      ? treatment 
+      : {
+          type: "",
+          description: "",
+          cost: undefined,
+          nextAppointment: "",
+          notes: "",
+          date: "",
+          recallDate: "",
+        },
     mode: "onChange",
   });
 
@@ -58,9 +78,18 @@ export function TreatmentForm({
           type: data.type,
           notes: data.notes,
           nextAppointment: data.nextAppointment || "",
-          userTimeZone: getClientTimeZone()
+          recallDate: data.recallDate || "-",
+          userTimeZone: getClientTimeZone(),
         });
     closeModal();
+
+    if (selectedPatient) {
+      setSelectedPatient({
+        ...selectedPatient,
+        nextTreatmentRecallDate: data.recallDate?.toString() || null,
+      });
+    }
+
     reset();
     let completedText = treatment
       ? "הטיפול עודכן בהצלחה"
@@ -84,7 +113,6 @@ export function TreatmentForm({
             <p className="text-sm text-red-600">{errors.type.message}</p>
           )}
         </div>
-
         <div className="flex gap-4">
           <div className="space-y-2 flex-1">
             <DatePicker
@@ -130,7 +158,6 @@ export function TreatmentForm({
             )}
           </div>
         </div>
-
         <div className="space-y-2">
           <Textarea
             placeholder="תיאור"
@@ -143,9 +170,7 @@ export function TreatmentForm({
             </p>
           )}
         </div>
-
         <Textarea placeholder="הערות" {...register("notes")} />
-
         <div className="space-y-2">
           <DatePicker
             placeholder="בחר תאריך לטיפול הבא"
@@ -169,6 +194,47 @@ export function TreatmentForm({
             </p>
           )}
         </div>
+        {!watch("nextAppointment") && !treatment && (
+          <div className="space-y-2">
+            <h4
+              className={`text-sm font-semibold pb-2  ${errors.recallDate && !watch("nextAppointment") ? "text-red-500" : ""}`}
+            >
+              בחר תאריך תזכור לתור הבא
+            </h4>
+            <ToggleGroup
+              variant="outline"
+              type="single"
+              value={recallDateToValue(watch("recallDate"))}
+              onValueChange={(value) => {
+                const recallDate = addMonths(
+                  new Date(),
+                  parseInt(value)
+                )?.toString();
+                setValue("recallDate", recallDate || "");
+                trigger("recallDate");
+              }}
+              className={`rtl w-full ${
+                errors.recallDate && !watch("nextAppointment")
+                  ? "border-red-500 shadow-sm"
+                  : ""
+              }`}
+              {...register("recallDate", {
+                validate: (value) =>
+                  !!value || !!watch("nextAppointment") || "שדה חובה",
+              })}
+            >
+              <ToggleGroupItem value="3">3 חודשים</ToggleGroupItem>
+              <ToggleGroupItem value="4">4 חודשים</ToggleGroupItem>
+              <ToggleGroupItem value="6">6 חודשים</ToggleGroupItem>
+              <ToggleGroupItem value="12">12 חודשים</ToggleGroupItem>
+            </ToggleGroup>
+            {errors.recallDate && !watch("nextAppointment") && (
+              <p className="text-sm text-red-600">
+                {errors.recallDate.message}
+              </p>
+            )}
+          </div>
+        )}
 
         <Button type="submit" className="w-full">
           שמור

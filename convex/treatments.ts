@@ -22,6 +22,7 @@ async function updatePatientFields(
     await ctx.db.patch(patientId, {
       lastTreatmentDate: null,
       nextTreatment: null,
+      nextTreatmentRecallDate: null,
     });
     return;
   }
@@ -41,6 +42,7 @@ async function updatePatientFields(
   await ctx.db.patch(patientId, {
     lastTreatmentDate,
     nextTreatment: nextAppointment,
+    nextTreatmentRecallDate: treatments[0].recallDate,
   });
 }
 
@@ -56,7 +58,10 @@ export const get = query({
 });
 
 export const add = mutation({
-  args: v.object({ ...treatmentsSchema, userTimeZone: v.string() }),
+  args: v.object({
+    ...treatmentsSchema,
+    userTimeZone: v.string(),
+  }),
   handler: async (ctx, args) => {
     const { userTimeZone, ...treatmentSchema } = args;
     // Insert the new treatment
@@ -92,6 +97,7 @@ export const edit = mutation({
       cost: args.cost,
       date: args.date,
       nextAppointment: args.nextAppointment,
+      recallDate: args.recallDate,
       notes: args.notes,
     });
 

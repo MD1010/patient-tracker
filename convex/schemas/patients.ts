@@ -8,6 +8,7 @@ export const patientsSchema = {
   isAdult: v.boolean(),
   lastTreatmentDate: v.union(v.string(), v.null()),
   nextTreatment: v.union(v.string(), v.null()),
+  nextTreatmentRecallDate: v.union(v.string(), v.null()),
   parent: v.optional(
     v.object({
       name: v.optional(v.string()),

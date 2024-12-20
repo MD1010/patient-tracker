@@ -7,5 +7,6 @@ export const treatmentsSchema =  {
   date: v.string(),
   cost: v.number(),
   nextAppointment: v.optional(v.string()),
+  recallDate: v.optional(v.string()),
   notes: v.optional(v.string()),
 };
