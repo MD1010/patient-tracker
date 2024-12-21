@@ -24,14 +24,23 @@ export function PatientTable() {
   const { setSelectedPatient } = usePatients();
   const { openModal } = useModal();
 
-  // Search functionality
-  const filteredPatients = patients?.filter((patient) =>
-    Object.values(patient).some((value) =>
+  const filteredPatients = patients?.filter((patient) => {
+    const searchLower = searchQuery.toLowerCase();
+
+    // Check top-level properties
+    const topLevelMatch = Object.values(patient).some((value) =>
       String(value ?? "")
         .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-    )
-  );
+        .includes(searchLower)
+    );
+
+    // Check nested parent.phone property if it exists
+    const parentPhoneMatch = patient.parent?.phone
+      ? patient.parent.phone.toLowerCase().includes(searchLower)
+      : false;
+
+    return topLevelMatch || parentPhoneMatch;
+  });
 
   const sortedPatients = filteredPatients?.slice().sort((a, b) => {
     if (!sortColumn) return 0;
