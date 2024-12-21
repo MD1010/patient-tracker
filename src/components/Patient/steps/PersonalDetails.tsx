@@ -24,7 +24,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
 
   const isAdult =
     watch("dateOfBirth") &&
-    differenceInYears(new Date(), parseISO(watch("dateOfBirth"))) >= 18;
+    differenceInYears(new Date(), watch("dateOfBirth")) >= 18;
 
   return (
     <div className="space-y-6">
