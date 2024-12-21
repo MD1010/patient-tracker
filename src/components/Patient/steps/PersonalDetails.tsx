@@ -1,13 +1,13 @@
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { validateIsraeliPhone } from "@/lib/validators";
+import { differenceInYears } from "date-fns";
 import { he } from "date-fns/locale";
+import { AnimatePresence, motion } from "framer-motion";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
-import { validateIsraeliPhone } from "@/lib/validators";
-import { differenceInYears, parseISO } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 
 interface PersonalDetailsProps {
   form: UseFormReturn<FormData>;
