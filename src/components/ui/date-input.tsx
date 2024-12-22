@@ -8,6 +8,7 @@ interface DateInputProps {
   id?: string;
   value?: Date;
   onChange?: (date: Date | undefined) => void;
+  onBlur?: () => void;
   disabled?: boolean;
   dir?: "ltr" | "rtl";
   className?: string;
@@ -16,6 +17,7 @@ interface DateInputProps {
 export function DateInput({
   id,
   onChange,
+  onBlur,
   disabled,
   dir = "ltr",
   className,
@@ -31,12 +33,15 @@ export function DateInput({
       if (newValue.length === 10) {
         const [day, month, year] = newValue.split("/").map(Number);
         const date = new Date(year, month - 1, day);
-        if (!isNaN(date.getTime())) {
-          onChange?.(date);
-        }
-      } else if (newValue.length === 0) {
-        onChange?.(undefined);
+        // if (!isNaN(date.getTime())) {
+        onChange?.(date);
+      } else {
+        // set invalid date
+        onChange?.(new Date(""));
       }
+      // } else if (newValue.length === 0) {
+      //   onChange?.(undefined);
+      // }
     },
     [onChange]
   );
@@ -46,26 +51,55 @@ export function DateInput({
       const input = e.currentTarget;
 
       if (e.key === "Backspace" || e.key === "Delete") {
+        e.preventDefault();
+
+        // Handle select-all deletion
         if (
           input.selectionStart === 0 &&
           input.selectionEnd === inputValue.length
         ) {
-          e.preventDefault();
           setInputValue("");
           onChange?.(undefined);
           return;
         }
 
-        e.preventDefault();
+        // Handle single segment deletion
         const newValue = deleteSegment(inputValue, input.selectionStart || 0);
         setInputValue(newValue);
+
+        // Fire onChange with the new value or undefined if input is empty
         if (newValue.length === 0) {
           onChange?.(undefined);
+        } else {
+          const [day, month, year] = newValue.split("/").map(Number);
+          const date = new Date(year, month - 1, day);
+          if (!isNaN(date.getTime())) {
+            onChange?.(date);
+          } else {
+            onChange?.(undefined);
+          }
         }
       }
     },
     [inputValue, onChange]
   );
+
+  const handleBlur = useCallback(() => {
+    const [day, month, year] = inputValue.split("/").map((seg) => seg || "");
+
+    if (year && year.length > 0 && year.length < 4) {
+      const paddedYear = year.padStart(4, "0");
+      const paddedValue = `${day}/${month}/${paddedYear}`;
+      setInputValue(paddedValue);
+    }
+    if (+year < 1901) {
+      onChange?.(new Date(""));
+    }
+
+    if (onBlur) {
+      onBlur();
+    }
+  }, [inputValue, onChange, onBlur]);
 
   return (
     <div className="relative">
@@ -74,6 +108,7 @@ export function DateInput({
         type="text"
         inputMode="numeric"
         onChange={handleChange}
+        onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder="הקלד תאריך"
         maxLength={10}

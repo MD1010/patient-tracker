@@ -20,11 +20,12 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     trigger,
     formState: { errors },
   } = form;
-  console.log(watch("dateOfBirth"));
 
+  const isDateNotSetYet = watch("dateOfBirth") === "Invalid Date";
   const isAdult =
-    watch("dateOfBirth") &&
-    differenceInYears(new Date(), watch("dateOfBirth")) >= 18;
+    isDateNotSetYet ||
+    (watch("dateOfBirth") &&
+      differenceInYears(new Date(), watch("dateOfBirth")) >= 18);
 
   return (
     <div className="space-y-6">
@@ -61,20 +62,6 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         {/* Date of Birth */}
         <div className="space-y-2">
           <Label>תאריך לידה</Label>
-          {/* <DatePicker
-            fromYear={1901}
-            toDate={new Date()}
-            date={watch("dateOfBirth")}
-            onDateChange={(date) => {
-              setValue("dateOfBirth", date!.toString());
-              trigger("dateOfBirth");
-            }}
-            {...register("dateOfBirth", { required: "שדה חובה" })}
-            locale={he}
-            className={`w-full justify-start text-right ${
-              errors.dateOfBirth ? "border-red-500 shadow-sm" : ""
-            }`}
-          /> */}
 
           <DateInput
             dir="rtl"
@@ -83,19 +70,15 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             className={errors.dateOfBirth ? "border-red-500 shadow-sm" : ""}
             {...register("dateOfBirth", {
               required: "שדה חובה",
-              // validate: () => {
-              //   try {
-              //     new Date(watch("dateOfBirth"));
-              //   } catch (e) {
-              //     return "תאריך לידה לא תקין";
-              //   }
-              // },
+              validate: (value) => {
+                return value !== "Invalid Date" || "תאריך לידה לא תקין";
+              },
             })}
             onChange={(date) => {
-              if (date) {
-                setValue("dateOfBirth", date.toString());
-                trigger("dateOfBirth");
-              }
+              setValue("dateOfBirth", date?.toString() || "");
+            }}
+            onBlur={() => {
+              trigger("dateOfBirth");
             }}
           />
           {errors.dateOfBirth && (

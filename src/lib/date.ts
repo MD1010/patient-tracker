@@ -78,18 +78,6 @@ export function formatDateInput(input: string): string {
   return formatted;
 }
 
-// Cursor position utilities
-export function getNewCursorPosition(value: string, currentPosition: number): number {
-  const segments = value.split('/');
-  const positions = [0, 3, 6]; // Start positions of day, month, year
-
-  // Find which segment we're in
-  let segmentIndex = positions.findIndex(pos => currentPosition <= (pos + 2));
-  if (segmentIndex === -1) segmentIndex = 2; // Year segment
-
-  // Return the start of the current segment
-  return positions[segmentIndex];
-}
 
 // Segment manipulation
 export function deleteSegment(value: string, cursorPosition: number): string {
