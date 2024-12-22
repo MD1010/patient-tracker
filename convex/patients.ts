@@ -14,8 +14,9 @@ export const get = query({
 });
 
 export const getOne = query({
-  args: { patientId: v.id("patients") },
+  args: { patientId: v.optional(v.id("patients")) },
   handler: async (ctx, args) => {
+    if(!args.patientId) return null;
     const patient = await ctx.db.get(args.patientId);
     return patient;
   },

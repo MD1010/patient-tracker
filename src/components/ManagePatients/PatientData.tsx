@@ -50,8 +50,9 @@ export function PatientData() {
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
   console.log("selectedPatient", selectedPatient);
+
   const fetchedPatient = useQuery(api.patients.getOne, {
-    patientId: selectedPatient?._id!,
+    patientId: selectedPatient?._id,
   });
 
   useEffect(() => {
