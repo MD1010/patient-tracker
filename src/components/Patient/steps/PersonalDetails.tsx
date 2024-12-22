@@ -105,7 +105,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         </div>
 
         {/* Phone or Parent's Phone */}
-        <div className={cn("space-y-2", !isAdult && watch("dateOfBirth") ? "col-span-1" : "col-span-2")}>
+        <div className="space-y-2">
           <Label htmlFor="phone">
             {isAdult || !watch("dateOfBirth") ? "טלפון" : "טלפון ההורה"}
           </Label>
@@ -133,11 +133,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         {/* Parent's Name (Animated) */}
         <AnimatePresence>
           {!isAdult && watch("dateOfBirth") && (
-            <motion.div
-              initial={{ x: -30, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -30, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+            <div
               className="space-y-2"
             >
               <Label htmlFor="parent.name">שם ההורה</Label>
@@ -154,7 +150,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
                   {errors.parent.name.message}
                 </p>
               )}
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
@@ -162,7 +158,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         <div
           className={cn(
             "space-y-2 w-full",
-             "col-span-2" 
+            !isAdult && watch("dateOfBirth") ? "col-span-2" : "col-span-1"
           )}
         >
           <Label htmlFor="arrivalSource">מקור הגעה</Label>
