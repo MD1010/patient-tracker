@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
-import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"; // Assuming you have a toggle group component
@@ -9,11 +8,11 @@ import { useModal } from "@/store/modal-store";
 import { usePatients } from "@/store/patients-store";
 import { useMutation } from "convex/react";
 import { addMonths, differenceInMonths } from "date-fns";
-import { he } from "date-fns/locale";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Doc, Id } from "../../../convex/_generated/dataModel";
+import { DateInput } from "../ui/date-input";
 
 const recallDateToValue = (recallDate: string | undefined) => {
   if (recallDate) {
@@ -40,7 +39,6 @@ export function TreatmentForm({
   const editTreatment = useMutation(api.treatments.edit);
 
   console.log("isLastTreatment", isLastTreatment);
-  
 
   const { closeModal } = useModal();
 
@@ -126,21 +124,25 @@ export function TreatmentForm({
         </div>
         <div className="flex gap-4">
           <div className="space-y-2 flex-1">
-            <DatePicker
-              fromYear={2000}
-              toYear={new Date().getFullYear()}
-              toDate={new Date()}
+            <DateInput
               placeholder="תאריך הטיפול"
-              date={watch("date")}
-              {...register("date", { required: "שדה חובה" })}
-              onDateChange={(date) => {
-                setValue("date", date ? new Date(date).toString() : "");
+              dir="rtl"
+              id="date"
+              initialValue={watch("date")}
+              value={watch("date")}
+              className={errors.date ? "border-red-500 shadow-sm" : ""}
+              {...register("date", {
+                required: "שדה חובה",
+                validate: (value: string | undefined) => {
+                  return value !== "Invalid Date" || "תאריך לידה לא תקין";
+                },
+              })}
+              onChange={(date) => {
+                setValue("date", date?.toString() || "");
+              }}
+              onBlur={() => {
                 trigger("date");
               }}
-              locale={he}
-              className={`w-full justify-start text-right h-10 p-2 ${
-                errors.date ? "border-red-500 shadow-sm" : ""
-              }`}
             />
             {errors.date && (
               <p className="text-sm text-red-600">{errors.date.message}</p>
@@ -184,23 +186,35 @@ export function TreatmentForm({
         <Textarea placeholder="הערות" {...register("notes")} />
         {(isLastTreatment || !treatment) && (
           <div className="space-y-2">
-            <DatePicker
+            <DateInput
+              dir="rtl"
+              id="date"
               placeholder="בחר תאריך לטיפול הבא"
-              fromYear={new Date().getFullYear()}
-              fromDate={new Date()}
-              date={watch("nextAppointment")}
-              onDateChange={(date) => {
-                setValue(
-                  "nextAppointment",
-                  date ? new Date(date).toString() : undefined
-                );
-                setValue("recallDate", undefined);
-              }}
-              locale={he}
-              className={`w-full justify-start text-right h-10 p-2 ${
+              initialValue={watch("nextAppointment")}
+              value={watch("nextAppointment")}
+              className={
                 errors.nextAppointment ? "border-red-500 shadow-sm" : ""
-              }`}
+              }
+              {...register("nextAppointment", {
+                required: "שדה חובה",
+                validate: (value) => {
+                    if (value === "Invalid Date" || !value) {
+                    return "תאריך לא תקין";
+                    }
+                    if (new Date(value).getTime() <= new Date().getTime()) {
+                    return "יש לבחור תאריך עתידי";
+                    }
+                    return true;
+                },
+              })}
+              onChange={(date) => {
+                setValue("nextAppointment", date?.toString() || "");
+              }}
+              onBlur={() => {
+                trigger("nextAppointment");
+              }}
             />
+
             {errors.nextAppointment && (
               <p className="text-sm text-red-600">
                 {errors.nextAppointment.message}

@@ -14,6 +14,7 @@ interface DateInputProps {
   disabled?: boolean;
   dir?: "ltr" | "rtl";
   className?: string;
+  placeholder?: string;
 }
 
 export function DateInput({
@@ -24,6 +25,7 @@ export function DateInput({
   disabled,
   dir = "ltr",
   className,
+  placeholder,
   ...props
 }: DateInputProps) {
   const [inputValue, setInputValue] = useState(() =>
@@ -122,7 +124,7 @@ export function DateInput({
         onChange={handleChange}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        placeholder="הקלד תאריך"
+        placeholder={placeholder ? placeholder : "הקלד תאריך"}
         maxLength={10}
         disabled={disabled}
         dir="ltr"
