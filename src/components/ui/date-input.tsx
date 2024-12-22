@@ -7,7 +7,8 @@ import { useCallback, useState } from "react";
 
 interface DateInputProps {
   id?: string;
-  value?: Date;
+  value?: string;
+  initialValue?: string | undefined;
   onChange?: (date: Date | undefined) => void;
   onBlur?: () => void;
   disabled?: boolean;
@@ -17,7 +18,7 @@ interface DateInputProps {
 
 export function DateInput({
   id,
-  value,
+  initialValue,
   onChange,
   onBlur,
   disabled,
@@ -25,8 +26,8 @@ export function DateInput({
   className,
   ...props
 }: DateInputProps) {
-  const [inputValue, setInputValue] = useState(
-    value ? format(value, "dd/MM/yyyy") : ""
+  const [inputValue, setInputValue] = useState(() =>
+    initialValue ? format(initialValue, "dd/MM/yyyy") : ""
   );
 
   const handleChange = useCallback(

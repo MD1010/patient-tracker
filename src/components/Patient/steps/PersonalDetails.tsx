@@ -66,7 +66,8 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
           <DateInput
             dir="rtl"
             id="date"
-            value={new Date(watch("dateOfBirth"))}
+            initialValue={watch("dateOfBirth")}
+            value={watch("dateOfBirth")}
             className={errors.dateOfBirth ? "border-red-500 shadow-sm" : ""}
             {...register("dateOfBirth", {
               required: "שדה חובה",
