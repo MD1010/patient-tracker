@@ -19,6 +19,7 @@ export function DateInput({
   disabled,
   dir = "ltr",
   className,
+  ...props
 }: DateInputProps) {
   const [inputValue, setInputValue] = useState("");
 
@@ -49,7 +50,6 @@ export function DateInput({
           input.selectionStart === 0 &&
           input.selectionEnd === inputValue.length
         ) {
-          // If the user selects all and deletes, clear the entire input
           e.preventDefault();
           setInputValue("");
           onChange?.(undefined);
@@ -73,14 +73,18 @@ export function DateInput({
         id={id}
         type="text"
         inputMode="numeric"
-        value={inputValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="תאריך לידה"
+        placeholder="הקלד תאריך"
         maxLength={10}
         disabled={disabled}
-        dir={dir}
-        className={cn(dir === "rtl" && "px-10", className)}
+        dir="ltr"
+        className={cn(
+          dir === "rtl" ? "px-10 text-right placeholder:text-right" : "px-10",
+          className
+        )}
+        {...props}
+        value={inputValue}
       />
       <CalendarIcon
         className={cn(

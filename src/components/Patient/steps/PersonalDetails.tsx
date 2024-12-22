@@ -20,6 +20,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     trigger,
     formState: { errors },
   } = form;
+  console.log(watch("dateOfBirth"));
 
   const isAdult =
     watch("dateOfBirth") &&
@@ -74,12 +75,22 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
               errors.dateOfBirth ? "border-red-500 shadow-sm" : ""
             }`}
           /> */}
+
           <DateInput
             dir="rtl"
             id="date"
-            value={
-              watch("dateOfBirth") ? new Date(watch("dateOfBirth")) : undefined
-            }
+            value={new Date(watch("dateOfBirth"))}
+            className={errors.dateOfBirth ? "border-red-500 shadow-sm" : ""}
+            {...register("dateOfBirth", {
+              required: "שדה חובה",
+              // validate: () => {
+              //   try {
+              //     new Date(watch("dateOfBirth"));
+              //   } catch (e) {
+              //     return "תאריך לידה לא תקין";
+              //   }
+              // },
+            })}
             onChange={(date) => {
               if (date) {
                 setValue("dateOfBirth", date.toString());
