@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { useModal } from "@/store/modal-store";
+import { useMutation } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeftIcon } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { api } from "../../../convex/_generated/api";
+import { Doc } from "../../../convex/_generated/dataModel";
+import { ScrollArea } from "../ui/scroll-area";
+import DEFAULT_FORM_VALUES from "./defualtFormValues";
 import { FormSteps } from "./FormSteps";
 import { MedicalBackground } from "./steps/MedicalBackground";
 import { MedicalHistory } from "./steps/MedicalHistory";
 import { PersonalDetails } from "./steps/PersonalDetails";
-import { Doc } from "../../../convex/_generated/dataModel";
-import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import DEFAULT_FORM_VALUES from "./defualtFormValues";
-import { useModal } from "@/store/modal-store";
-import { ScrollArea } from "../ui/scroll-area";
 
 export type FormData = Doc<"patients">;
 const formVariants = {
@@ -29,6 +29,7 @@ type Props = {
 export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const { closeModal } = useModal();
+
   const form = useForm<FormData>({
     defaultValues: patient || DEFAULT_FORM_VALUES,
     mode: "onChange",
@@ -76,9 +77,9 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
             <ScrollArea className="h-[42vh] rtl px-4">
-                {currentStep === 1 && <PersonalDetails form={form} />}
-                {currentStep === 2 && <MedicalBackground form={form} />}
-                {currentStep === 3 && <MedicalHistory form={form} />}
+              {currentStep === 1 && <PersonalDetails form={form} />}
+              {currentStep === 2 && <MedicalBackground form={form} />}
+              {currentStep === 3 && <MedicalHistory form={form} />}
             </ScrollArea>
 
             <div className="mt-12 flex justify-between gap-4">

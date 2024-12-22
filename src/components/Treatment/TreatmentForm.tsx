@@ -68,8 +68,6 @@ export function TreatmentForm({
   });
 
   const onSubmit: SubmitHandler<Doc<"treatments">> = async (data) => {
-    console.log("sending to server", data);
-
     treatment
       ? await editTreatment({
           ...data,
@@ -196,15 +194,17 @@ export function TreatmentForm({
                 errors.nextAppointment ? "border-red-500 shadow-sm" : ""
               }
               {...register("nextAppointment", {
-                required: "שדה חובה",
                 validate: (value) => {
-                    if (value === "Invalid Date" || !value) {
-                    return "תאריך לא תקין";
-                    }
-                    if (new Date(value).getTime() <= new Date().getTime()) {
-                    return "יש לבחור תאריך עתידי";
-                    }
+                  if (!value) {
                     return true;
+                  }
+                  if (value === "Invalid Date") {
+                    return "תאריך לא תקין";
+                  }
+                  if (new Date(value).getTime() <= new Date().getTime()) {
+                    return "יש לבחור תאריך עתידי";
+                  }
+                  return true;
                 },
               })}
               onChange={(date) => {

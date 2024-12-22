@@ -13,6 +13,14 @@ export const get = query({
   },
 });
 
+export const getOne = query({
+  args: { patientId: v.id("patients") },
+  handler: async (ctx, args) => {
+    const patient = await ctx.db.get(args.patientId);
+    return patient;
+  },
+});
+
 export const add = mutation({
   args: v.object({ ...patientsSchema, isAdult: v.optional(v.boolean()) }),
   handler: async (ctx, args) => {
@@ -71,7 +79,11 @@ export const sendEmailWithAttachment = action({
       patientId: args.patientId,
     });
     if (patient) {
-      await sendEmailWithPDF({ patient, treatments, userTimeZone: args.userTimeZone });
+      await sendEmailWithPDF({
+        patient,
+        treatments,
+        userTimeZone: args.userTimeZone,
+      });
     }
   },
 });
@@ -87,7 +99,11 @@ export const generatePatientInfo = action({
       patientId: args.patientId,
     });
     if (patient) {
-      const res = await generatePatientInfoPdf(patient, treatments, args.userTimeZone);
+      const res = await generatePatientInfoPdf(
+        patient,
+        treatments,
+        args.userTimeZone
+      );
       return res;
     }
   },

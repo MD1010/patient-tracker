@@ -17,11 +17,18 @@ import { usePatients } from "@/store/patients-store";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { Download, Loader2, Pencil, PlusIcon, Trash2 } from "lucide-react";
+import {
+  Download,
+  EditIcon,
+  Loader2,
+  Pencil,
+  PlusIcon,
+  Trash2,
+} from "lucide-react";
 
 import { formatCurrency, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
@@ -43,6 +50,15 @@ export function PatientData() {
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
   console.log("selectedPatient", selectedPatient);
+  const fetchedPatient = useQuery(api.patients.getOne, {
+    patientId: selectedPatient?._id!,
+  });
+
+  useEffect(() => {
+    if (fetchedPatient) {
+      setSelectedPatient(fetchedPatient);
+    }
+  }, [fetchedPatient]);
 
   const treatments = useQuery(
     api.treatments.get,
@@ -127,6 +143,17 @@ export function PatientData() {
               {selectedPatient.lastName}
             </span>
             <div className="flex justify-end items-center gap-2">
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() =>
+                  openModal("addOrEditPatient", {
+                    patientToEdit: selectedPatient,
+                  })
+                }
+              >
+                <EditIcon className="h-4 w-4" />
+              </Button>
               {selectedPatient.phone || selectedPatient.parent?.phone ? (
                 <WhatsAppButton patient={selectedPatient} />
               ) : null}
@@ -273,144 +300,143 @@ export function PatientData() {
                 </div>
               )}
               {treatments && treatments.length > 0
-                ? treatments
-                    .map((treatment, i) => (
-                      <motion.div
-                        key={treatment._id}
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + i * 0.05 }}
-                        ref={(el) => {
-                          accordionRefs.current[treatment._id] = el;
-                        }}
+                ? treatments.map((treatment, i) => (
+                    <motion.div
+                      key={treatment._id}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + i * 0.05 }}
+                      ref={(el) => {
+                        accordionRefs.current[treatment._id] = el;
+                      }}
+                    >
+                      <AccordionItem
+                        value={treatment._id}
+                        className="border-b last:border-none"
                       >
-                        <AccordionItem
-                          value={treatment._id}
-                          className="border-b last:border-none"
-                        >
-                          <AccordionTrigger className="sticky top-10 bg-background z-20">
-                            <div className="flex w-full gap-12 justify-end">
-                              <span className="font-medium">
-                                {treatment.type}
-                              </span>
-                              <span className="text-sm text-muted-foreground text-right">
-                                {format(new Date(treatment.date), "dd/MM/yyyy")}
-                              </span>
+                        <AccordionTrigger className="sticky top-10 bg-background z-20">
+                          <div className="flex w-full gap-12 justify-end">
+                            <span className="font-medium">
+                              {treatment.type}
+                            </span>
+                            <span className="text-sm text-muted-foreground text-right">
+                              {format(new Date(treatment.date), "dd/MM/yyyy")}
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+
+                        <AccordionContent>
+                          <Card className="p-4 flex flex-col gap-4 relative">
+                            <Button
+                              size="icon"
+                              className="absolute top-2 left-12"
+                              variant="outline"
+                              onClick={() =>
+                                openModal("addOrEditTreatment", {
+                                  treatmentToEdit: treatment,
+                                  isLastTreatment: i === 0,
+                                  patientId: treatment.patientId,
+                                })
+                              }
+                            >
+                              <Pencil strokeWidth={3} />
+                            </Button>
+
+                            <div className="col-span-1 break-words">
+                              <h4 className="text-sm font-semibold text-right">
+                                עלות
+                              </h4>
+                              <p className="text-sm text-muted-foreground break-words">
+                                ₪{formatCurrency(treatment.cost)}
+                              </p>
                             </div>
-                          </AccordionTrigger>
 
-                          <AccordionContent>
-                            <Card className="p-4 flex flex-col gap-4 relative">
-                              <Button
-                                size="icon"
-                                className="absolute top-2 left-12"
-                                variant="outline"
-                                onClick={() =>
-                                  openModal("addOrEditTreatment", {
-                                    treatmentToEdit: treatment,
-                                    isLastTreatment: i === 0,
-                                    patientId: treatment.patientId,
-                                  })
-                                }
-                              >
-                                <Pencil strokeWidth={3} />
-                              </Button>
+                            <div className="col-span-1 break-words">
+                              <h4 className="text-sm font-semibold text-right">
+                                תאריך הטיפול
+                              </h4>
+                              <p className="text-sm text-muted-foreground break-words">
+                                {format(
+                                  new Date(treatment?.date),
+                                  "dd/MM/yyyy"
+                                )}
+                              </p>
+                            </div>
 
-                              <div className="col-span-1 break-words">
+                            <div className="col-span-1 break-words">
+                              <h4 className="text-sm font-semibold text-right">
+                                תיאור
+                              </h4>
+                              <p className="text-sm text-muted-foreground break-words">
+                                {treatment.description || "-"}
+                              </p>
+                            </div>
+
+                            {treatment?.nextAppointment && (
+                              <div className="col-span-2 break-words">
                                 <h4 className="text-sm font-semibold text-right">
-                                  עלות
-                                </h4>
-                                <p className="text-sm text-muted-foreground break-words">
-                                  ₪{formatCurrency(treatment.cost)}
-                                </p>
-                              </div>
-
-                              <div className="col-span-1 break-words">
-                                <h4 className="text-sm font-semibold text-right">
-                                  תאריך הטיפול
+                                  תור הבא
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
                                   {format(
-                                    new Date(treatment?.date),
+                                    new Date(treatment?.nextAppointment),
                                     "dd/MM/yyyy"
                                   )}
                                 </p>
                               </div>
+                            )}
 
-                              <div className="col-span-1 break-words">
+                            {treatment.notes && (
+                              <div className="col-span-2 break-words">
                                 <h4 className="text-sm font-semibold text-right">
-                                  תיאור
+                                  הערות
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
-                                  {treatment.description || "-"}
+                                  {treatment.notes}
                                 </p>
                               </div>
+                            )}
 
-                              {treatment?.nextAppointment && (
-                                <div className="col-span-2 break-words">
-                                  <h4 className="text-sm font-semibold text-right">
-                                    תור הבא
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground break-words">
-                                    {format(
-                                      new Date(treatment?.nextAppointment),
-                                      "dd/MM/yyyy"
-                                    )}
-                                  </p>
-                                </div>
-                              )}
-
-                              {treatment.notes && (
-                                <div className="col-span-2 break-words">
-                                  <h4 className="text-sm font-semibold text-right">
-                                    הערות
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground break-words">
-                                    {treatment.notes}
-                                  </p>
-                                </div>
-                              )}
-
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="absolute top-2 left-2"
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="absolute top-2 left-2"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-right">
+                                    מחיקת טיפול
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription className="ml-auto text-right">
+                                    האם אתה בטוח שברצונך למחוק את הטיפול? פעולה
+                                    זו לא ניתנת לביטול.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="flex gap-3 mt-4">
+                                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() =>
+                                      deleteTreatment({
+                                        treatmentId: treatment._id,
+                                      })
+                                    }
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                   >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-right">
-                                      מחיקת טיפול
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription className="ml-auto text-right">
-                                      האם אתה בטוח שברצונך למחוק את הטיפול?
-                                      פעולה זו לא ניתנת לביטול.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter className="flex gap-3 mt-4">
-                                    <AlertDialogCancel>ביטול</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() =>
-                                        deleteTreatment({
-                                          treatmentId: treatment._id,
-                                        })
-                                      }
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    >
-                                      מחק
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </Card>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </motion.div>
-                    ))
+                                    מחק
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </Card>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </motion.div>
+                  ))
                 : treatments !== undefined && (
                     <div className="text-center text-muted-foreground py-4 h-[200px] grid items-center">
                       <p>אין היסטוריית טיפולים</p>
