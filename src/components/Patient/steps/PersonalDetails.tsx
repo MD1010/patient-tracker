@@ -105,7 +105,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         </div>
 
         {/* Phone or Parent's Phone */}
-        <div className="space-y-2">
+        <div className={cn("space-y-2", !isAdult && watch("dateOfBirth") ? "col-span-1" : "col-span-2")}>
           <Label htmlFor="phone">
             {isAdult || !watch("dateOfBirth") ? "טלפון" : "טלפון ההורה"}
           </Label>
@@ -162,7 +162,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         <div
           className={cn(
             "space-y-2 w-full",
-            !isAdult && watch("dateOfBirth") ? "col-span-2" : "col-span-1"
+             "col-span-2" 
           )}
         >
           <Label htmlFor="arrivalSource">מקור הגעה</Label>

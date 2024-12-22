@@ -40,10 +40,10 @@ export function WhatsAppButton({ patient }: WhatsAppButtonProps) {
       to={getWhatsappUrl() || ""}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ textDecoration: "none" }}
+      className={`text-decoration-none ${!patient.nextTreatment ? "cursor-not-allowed pointer-events-none" : "cursor-pointer"}`}
     >
       <Button variant="outline" size="icon" disabled={!patient.nextTreatment}>
-        <FontAwesomeIcon icon={faWhatsapp} size="2x" />
+      <FontAwesomeIcon icon={faWhatsapp} size="2x" />
       </Button>
     </Link>
   );
