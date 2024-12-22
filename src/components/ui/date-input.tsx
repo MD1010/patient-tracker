@@ -1,8 +1,8 @@
+import { Input } from "@/components/ui/input";
 import { deleteSegment, formatDateInput } from "@/lib/date";
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { CalendarIcon } from "lucide-react";
+import { useCallback, useState } from "react";
 
 interface DateInputProps {
   id?: string;
@@ -33,15 +33,11 @@ export function DateInput({
       if (newValue.length === 10) {
         const [day, month, year] = newValue.split("/").map(Number);
         const date = new Date(year, month - 1, day);
-        // if (!isNaN(date.getTime())) {
         onChange?.(date);
       } else {
         // set invalid date
         onChange?.(new Date(""));
       }
-      // } else if (newValue.length === 0) {
-      //   onChange?.(undefined);
-      // }
     },
     [onChange]
   );
@@ -49,25 +45,36 @@ export function DateInput({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       const input = e.currentTarget;
-
-      if (e.key === "Backspace" || e.key === "Delete") {
+  
+      if (e.key === "Backspace") {
         e.preventDefault();
-
+  
+        const selectionStart = input.selectionStart || 0;
+        const selectionEnd = input.selectionEnd || 0;
+  
         // Handle select-all deletion
-        if (
-          input.selectionStart === 0 &&
-          input.selectionEnd === inputValue.length
-        ) {
+        if (selectionStart === 0 && selectionEnd === inputValue.length) {
           setInputValue("");
           onChange?.(undefined);
           return;
         }
-
-        // Handle single segment deletion
-        const newValue = deleteSegment(inputValue, input.selectionStart || 0);
+  
+        let newValue = inputValue;
+  
+        if (selectionStart !== selectionEnd) {
+          // Delete the selected range
+          newValue =
+            inputValue.slice(0, selectionStart) +
+            inputValue.slice(selectionEnd);
+        } else if (selectionStart > 0) {
+          // Handle single character deletion
+          newValue = deleteSegment(inputValue, selectionStart);
+        }
+  
+        // Update the input value
         setInputValue(newValue);
-
-        // Fire onChange with the new value or undefined if input is empty
+  
+        // Fire onChange with the updated value
         if (newValue.length === 0) {
           onChange?.(undefined);
         } else {

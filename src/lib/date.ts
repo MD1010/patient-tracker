@@ -81,21 +81,26 @@ export function formatDateInput(input: string): string {
 
 // Segment manipulation
 export function deleteSegment(value: string, cursorPosition: number): string {
-  const segments = value.split('/');
-  
-  // If cursor is at the end of a segment (on slash), delete the entire segment
-  if (cursorPosition === 3) { // After day
-    return segments.slice(1).join('/');
-  } else if (cursorPosition === 6) { // After month
-    return segments[0] + '/' + segments[2];
+  const chars = value.split(''); // Convert the string into an array of characters
+
+  if (cursorPosition > 0) {
+    if (chars[cursorPosition - 1] === '/') {
+      // If the cursor is on a `/`, delete the slash and move to the previous character
+      chars.splice(cursorPosition - 1, 1);
+    } else {
+      // Otherwise, delete the character before the cursor
+      chars.splice(cursorPosition - 1, 1);
+    }
   }
 
-  // Find which segment we're in
-  if (cursorPosition <= 2) { // Day segment
-    return segments.slice(1).join('/');
-  } else if (cursorPosition <= 5) { // Month segment
-    return segments[0] + '/' + (segments[2] || '');
-  } else { // Year segment
-    return segments.slice(0, 2).join('/') + '/';
+  // Reconstruct the string and ensure slashes are in the correct positions
+  let formattedValue = chars.join('');
+  if (formattedValue.length > 2 && formattedValue[2] !== '/') {
+    formattedValue = formattedValue.slice(0, 2) + '/' + formattedValue.slice(2);
   }
+  if (formattedValue.length > 5 && formattedValue[5] !== '/') {
+    formattedValue = formattedValue.slice(0, 5) + '/' + formattedValue.slice(5);
+  }
+
+  return formattedValue;
 }
