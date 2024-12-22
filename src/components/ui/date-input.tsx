@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { deleteSegment, formatDateInput } from "@/lib/date";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -16,6 +17,7 @@ interface DateInputProps {
 
 export function DateInput({
   id,
+  value,
   onChange,
   onBlur,
   disabled,
@@ -23,7 +25,9 @@ export function DateInput({
   className,
   ...props
 }: DateInputProps) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(
+    value ? format(value, "dd/MM/yyyy") : ""
+  );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,22 +49,22 @@ export function DateInput({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       const input = e.currentTarget;
-  
+
       if (e.key === "Backspace") {
         e.preventDefault();
-  
+
         const selectionStart = input.selectionStart || 0;
         const selectionEnd = input.selectionEnd || 0;
-  
+
         // Handle select-all deletion
         if (selectionStart === 0 && selectionEnd === inputValue.length) {
           setInputValue("");
           onChange?.(undefined);
           return;
         }
-  
+
         let newValue = inputValue;
-  
+
         if (selectionStart !== selectionEnd) {
           // Delete the selected range
           newValue =
@@ -70,10 +74,10 @@ export function DateInput({
           // Handle single character deletion
           newValue = deleteSegment(inputValue, selectionStart);
         }
-  
+
         // Update the input value
         setInputValue(newValue);
-  
+
         // Fire onChange with the updated value
         if (newValue.length === 0) {
           onChange?.(undefined);
