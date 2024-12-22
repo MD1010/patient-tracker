@@ -1,10 +1,9 @@
-import { DatePicker } from "@/components/ui/date-picker";
+import { DateInput } from "@/components/ui/date-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { validateIsraeliPhone } from "@/lib/validators";
 import { differenceInYears } from "date-fns";
-import { he } from "date-fns/locale";
 import { AnimatePresence, motion } from "framer-motion";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
@@ -61,7 +60,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         {/* Date of Birth */}
         <div className="space-y-2">
           <Label>תאריך לידה</Label>
-          <DatePicker
+          {/* <DatePicker
             fromYear={1901}
             toDate={new Date()}
             date={watch("dateOfBirth")}
@@ -74,6 +73,19 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             className={`w-full justify-start text-right ${
               errors.dateOfBirth ? "border-red-500 shadow-sm" : ""
             }`}
+          /> */}
+          <DateInput
+            dir="rtl"
+            id="date"
+            value={
+              watch("dateOfBirth") ? new Date(watch("dateOfBirth")) : undefined
+            }
+            onChange={(date) => {
+              if (date) {
+                setValue("dateOfBirth", date.toString());
+                trigger("dateOfBirth");
+              }
+            }}
           />
           {errors.dateOfBirth && (
             <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
