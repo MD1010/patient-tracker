@@ -1,11 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
-import { UseFormReturn } from "react-hook-form";
 import { useCallback } from "react";
+import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
 
 interface MedicalBackgroundProps {
@@ -13,7 +10,13 @@ interface MedicalBackgroundProps {
 }
 
 export function MedicalBackground({ form }: MedicalBackgroundProps) {
-  const { register, watch, setValue } = form;
+  const {
+    register,
+    watch,
+    setValue,
+    // formState: { errors },
+    // trigger,
+  } = form;
 
   const conditions = [
     { id: "diabetes", label: "סכרת" },
@@ -34,6 +37,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     { id: "neurologicalProblems", label: "בעיות נוירולוגיות" },
     { id: "psychiatricProblems", label: "בעיות פסיכיאטריות" },
     { id: "chemotherapy", label: "כימותרפיה/הקרנות" },
+    { id: "cancer", label: "סרטן" },
   ];
 
   const toggleCondition = useCallback(
@@ -44,97 +48,115 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
   );
 
   return (
-    <div className="space-y-6">
-      <>
-        <div className="flex flex-wrap w-full gap-4 gap-x-6">
-          {conditions.map((condition) => {
-            const isChecked = !!watch(
-              `conditions.${condition.id}` as keyof FormData
-            );
+    <div className="space-y-6 ">
+      <div className="flex flex-wrap  w-full gap-4 gap-x-6">
+        {conditions.map((condition) => {
+          const isChecked = !!watch(
+            `conditions.${condition.id}` as keyof FormData
+          );
 
-            return (
-              <Badge
-                key={condition.id}
-                className={` rounded-xl h-10 px-4 text-sm cursor-pointer ${
-                  isChecked
-                    ? "bg-primary"
-                    : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
-                }`}
-                style={{}}
-                onClick={() => toggleCondition(condition.id, isChecked)}
-              >
-                {condition.label}
-              </Badge>
-            );
-          })}
-        </div>
-      </>
-      <div className="flex items-center space-x-4 h-8">
+          return (
+            <Badge
+              key={condition.id}
+              className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${
+                isChecked
+                  ? "bg-primary"
+                  : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+              }`}
+              onClick={() => toggleCondition(condition.id, isChecked)}
+            >
+              {condition.label}
+            </Badge>
+          );
+        })}
+
+        {/* Smoking Badge */}
         <Badge
-          className={`flex items-center space-x-2 p-2 rounded-full transition-all duration-200 hover:cursor-pointer ${
-            watch("conditions.cancer")
+          className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${
+            watch("smoking")
               ? "bg-primary"
               : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
           }`}
+          onClick={() => setValue("smoking", !watch("smoking"))}
         >
-          <Checkbox
-            className="ml-2 rounded-full"
-            id="cancer"
-            checked={watch("conditions.cancer")}
-            onCheckedChange={(checked) =>
-              setValue("conditions.cancer", checked as boolean)
-            }
-          />
-          <Label htmlFor="cancer">סרטן</Label>
+          מעשן/ת
         </Badge>
-        {watch("conditions.cancer") && (
-          <div className="flex items-center gap-x-2">
-            <Label htmlFor="cancerDetails" className="mr-4">
-              פירוט
-            </Label>
-            <Input
-              id="cancerDetails"
-              {...register("cancerDetails")}
-              className="w-full"
-            />
-          </div>
-        )}
+
+        {/* Pregnancy Badge */}
+        <Badge
+          className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
+            watch("pregnancy")
+              ? "bg-primary"
+              : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+          }`}
+          onClick={() => setValue("pregnancy", !watch("pregnancy"))}
+        >
+          בהריון
+        </Badge>
       </div>
 
-      <div className="flex items-center space-x-4 h-4">
-        <Label htmlFor="pregnancy" className="ml-3">
-          הריון
-        </Label>
-
-        <Switch
-          id="pregnancy"
-          checked={watch("pregnancy")}
-          onCheckedChange={(checked) => setValue("pregnancy", checked)}
-        />
-        {watch("pregnancy") && (
-          <div className="flex items-center">
-            <Label htmlFor="pregnancyWeek">שבוע</Label>
+      <div className="flex gap-4">
+        {/* Conditional Inputs */}
+        {watch("conditions.cancer") && (
+          <div className="flex-1 w-full">
+            <Label htmlFor="cancerDetails" className="block mb-2 font-semibold">
+              פרט על הסרטן
+            </Label>
             <Input
-              autoComplete="new-password"
-              min={1}
-              type="number"
-              id="pregnancyWeek"
-              className="w-20 mr-2"
-              {...register("pregnancyWeek")}
+              autoFocus
+              id="cancerDetails"
+              {...register("cancerDetails")}
+              className="w-full mt-4"
+              placeholder="פרט על הסרטן"
             />
           </div>
         )}
-        <div className="flex items-center space-x-4 h-4">
-          <Label htmlFor="smoking" className="ml-3">
-            עישון
-          </Label>
-          <Switch
-            className="mr-4"
-            id="smoking"
-            checked={watch("smoking")}
-            onCheckedChange={(checked) => setValue("smoking", checked)}
-          />
-        </div>
+        {watch("pregnancy") && (
+          <div className="flex-1 w-full">
+            <Label htmlFor="pregnancyWeek" className="block mb-2 font-semibold">
+              באיזה שבוע ההריון?
+            </Label>
+            <Input
+              autoFocus
+              type="number"
+              id="pregnancyWeek"
+              {...register("pregnancyWeek")}
+              className="w-full mt-4 appearance-none!"
+              placeholder="הריון בשבוע.."
+            />
+          </div>
+        )}
+
+        {/* {watch("conditions.chemotherapy") && (
+          <div className="flex-1 w-full">
+            <Label htmlFor="date" className="block mb-2 font-semibold">
+              תאריך כימותרפיה אחרון
+            </Label>
+            <DateInput
+              autoFocus
+              placeholder="הקלד תאריך"
+              dir="rtl"
+              id="date"
+              initialValue={watch("dateOfBirth")}
+              value={watch("dateOfBirth")}
+              className={cn(
+                // errors.dateOfBirth ? "border-red-500 shadow-sm" : "",
+                "mt-4"
+              )}
+              {...register("dateOfBirth", {
+                validate: (value: string | undefined) => {
+                  return value !== "Invalid Date" || "תאריך לא תקין";
+                },
+              })}
+              onChange={(date) => {
+                setValue("dateOfBirth", date?.toString() || "");
+              }}
+              onBlur={() => {
+                trigger("dateOfBirth");
+              }}
+            />
+          </div>
+        )} */}
       </div>
     </div>
   );

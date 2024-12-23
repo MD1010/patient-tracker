@@ -76,13 +76,13 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           />
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-            <ScrollArea className="h-[44vh] rtl px-4">
+            <ScrollArea className="h-[45vh] rtl px-4">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
               {currentStep === 3 && <MedicalHistory form={form} />}
             </ScrollArea>
 
-            <div className="mt-12 flex justify-between gap-4">
+            <div className="mt-8 flex justify-between gap-4">
               {patient ? (
                 // Render only the submit button if patient exists
                 <Button type="submit" className="flex-1">

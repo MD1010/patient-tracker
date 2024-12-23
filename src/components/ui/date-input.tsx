@@ -15,6 +15,7 @@ interface DateInputProps {
   dir?: "ltr" | "rtl";
   className?: string;
   placeholder?: string;
+  autoFocus?:boolean;
 }
 
 export function DateInput({
@@ -26,6 +27,7 @@ export function DateInput({
   dir = "ltr",
   className,
   placeholder,
+  autoFocus,
   ...props
 }: DateInputProps) {
   const [inputValue, setInputValue] = useState(() =>
@@ -118,6 +120,7 @@ export function DateInput({
   return (
     <div className="relative">
       <Input
+        autoFocus={autoFocus}
         id={id}
         type="text"
         inputMode="numeric"

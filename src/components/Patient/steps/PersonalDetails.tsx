@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { validateIsraeliPhone } from "@/lib/validators";
 import { differenceInYears } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
 
