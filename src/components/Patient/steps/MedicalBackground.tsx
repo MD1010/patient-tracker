@@ -1,9 +1,12 @@
-import { UseFormReturn } from "react-hook-form";
-import { FormData } from "../MedicalRegistrationForm";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
+import { UseFormReturn } from "react-hook-form";
+import { useCallback } from "react";
+import { FormData } from "../MedicalRegistrationForm";
 
 interface MedicalBackgroundProps {
   form: UseFormReturn<FormData>;
@@ -33,28 +36,49 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     { id: "chemotherapy", label: "כימותרפיה/הקרנות" },
   ];
 
+  const toggleCondition = useCallback(
+    (id: string, isChecked: boolean) => {
+      setValue(`conditions.${id}` as keyof FormData, !isChecked);
+    },
+    [setValue]
+  );
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 w-full gap-4 gap-x-6">
-        {conditions.map((condition) => (
-          <div key={condition.id} className="flex items-center space-x-2 ">
-            <Checkbox
-              className="ml-2"
-              id={condition.id}
-              checked={watch(`conditions.${condition.id}` as keyof FormData) as boolean}
-              onCheckedChange={(checked) =>
-                setValue(`conditions.${condition.id}` as keyof FormData, checked as boolean)
-              }
-            />
-            <Label htmlFor={condition.id}>{condition.label}</Label>
-          </div>
-        ))}
-      </div>
+      <>
+        <div className="flex flex-wrap w-full gap-4 gap-x-6">
+          {conditions.map((condition) => {
+            const isChecked = !!watch(
+              `conditions.${condition.id}` as keyof FormData
+            );
 
+            return (
+              <Badge
+                key={condition.id}
+                className={` rounded-xl h-10 px-4 text-sm cursor-pointer ${
+                  isChecked
+                    ? "bg-primary"
+                    : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+                }`}
+                style={{}}
+                onClick={() => toggleCondition(condition.id, isChecked)}
+              >
+                {condition.label}
+              </Badge>
+            );
+          })}
+        </div>
+      </>
       <div className="flex items-center space-x-4 h-8">
-        <div className="flex items-center space-x-2 ">
+        <Badge
+          className={`flex items-center space-x-2 p-2 rounded-full transition-all duration-200 hover:cursor-pointer ${
+            watch("conditions.cancer")
+              ? "bg-primary"
+              : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+          }`}
+        >
           <Checkbox
-            className="ml-2"
+            className="ml-2 rounded-full"
             id="cancer"
             checked={watch("conditions.cancer")}
             onCheckedChange={(checked) =>
@@ -62,7 +86,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
             }
           />
           <Label htmlFor="cancer">סרטן</Label>
-        </div>
+        </Badge>
         {watch("conditions.cancer") && (
           <div className="flex items-center gap-x-2">
             <Label htmlFor="cancerDetails" className="mr-4">
@@ -91,7 +115,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
           <div className="flex items-center">
             <Label htmlFor="pregnancyWeek">שבוע</Label>
             <Input
-              autoComplete='new-password'
+              autoComplete="new-password"
               min={1}
               type="number"
               id="pregnancyWeek"
@@ -100,18 +124,17 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
             />
           </div>
         )}
-      </div>
-
-      <div className="flex items-center space-x-4 h-4">
-        <Label htmlFor="smoking" className="ml-3">
-          עישון
-        </Label>
-        <Switch
-          className="mr-4"
-          id="smoking"
-          checked={watch("smoking")}
-          onCheckedChange={(checked) => setValue("smoking", checked)}
-        />
+        <div className="flex items-center space-x-4 h-4">
+          <Label htmlFor="smoking" className="ml-3">
+            עישון
+          </Label>
+          <Switch
+            className="mr-4"
+            id="smoking"
+            checked={watch("smoking")}
+            onCheckedChange={(checked) => setValue("smoking", checked)}
+          />
+        </div>
       </div>
     </div>
   );

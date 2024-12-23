@@ -72,7 +72,10 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             {...register("dateOfBirth", {
               required: "שדה חובה",
               validate: (value) => {
-                return value !== "Invalid Date" || "תאריך לידה לא תקין";
+              if (value === "Invalid Date" || new Date(value) >= new Date()) {
+                return "תאריך לא תקין";
+              }
+              return true;
               },
             })}
             onChange={(date) => {
