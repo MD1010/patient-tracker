@@ -44,7 +44,7 @@ export function PatientTableRow({
   return (
     <TableRow
       key={patient._id}
-      className="cursor-pointer hover:bg-secondary/20"
+      className="cursor-pointer hover:bg-secondary/20 h-[3.5rem]"
       onClick={() => onRowClick(patient)}
     >
       <TableCell className="py-3 px-4 text-right font-medium whitespace-nowrap">
@@ -56,25 +56,25 @@ export function PatientTableRow({
       <TableCell className="py-3 px-4 text-right whitespace-nowrap">
         {patient.phone || patient.parent?.phone}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
         {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
         <Badge variant={patient.isAdult ? "blue" : "red"} className="px-2">
           {patient.isAdult ? "מבוגר" : "ילד"}
         </Badge>
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
         {patient.lastTreatmentDate
           ? format(new Date(patient.lastTreatmentDate), "dd/MM/yyyy")
           : "-"}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
         {patient.nextTreatment
           ? format(new Date(patient.nextTreatment), "dd/MM/yyyy")
           : "-"}
       </TableCell>
-      <TableCell className="py-3 px-4 whitespace-nowrap">
+      <TableCell className="py-3 px-4 whitespace-nowrap hidden lg:table-cell">
         <div className="flex justify-end">
           <DropdownMenu dir="rtl">
             <DropdownMenuTrigger

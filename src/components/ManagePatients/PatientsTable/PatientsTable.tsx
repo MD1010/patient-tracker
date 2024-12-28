@@ -122,7 +122,7 @@ export function PatientTable() {
       </div>
 
       <div className={cn("rounded-md border", isLoading && "opacity-50")}>
-        <div className="w-full overflow-x-auto min-h-96">
+        <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted-foreground/10 ">
               <TableRow>
@@ -132,7 +132,8 @@ export function PatientTable() {
                     onClick={() => column.key && handleSort(column.key)}
                     className={cn(
                       "text-right py-3 px-4 whitespace-nowrap",
-                      column.key && "cursor-pointer select-none"
+                      column.key && "cursor-pointer select-none",
+                      index > 2 && "hidden lg:table-cell"
                     )}
                     style={{
                       width: column.width,

@@ -151,8 +151,8 @@ export function PatientData() {
 
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
-            <span className="">
-              פרטי מטופל - {selectedPatient.firstName}{" "}
+            <span className="max-w-[70%] text-right">
+              פרטי מטופל - {selectedPatient.firstName}
               {selectedPatient.lastName}
             </span>
             <div className="flex justify-end items-center gap-2">
