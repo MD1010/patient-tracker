@@ -49,7 +49,6 @@ export function PatientData() {
   const deleteTreatment = useMutation(api.treatments.deleteOne);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
-  console.log("selectedPatient", selectedPatient);
 
   const fetchedPatient = useQuery(api.patients.getOne, {
     patientId: selectedPatient?._id,

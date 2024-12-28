@@ -29,6 +29,7 @@ type Props = {
 export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const { closeModal } = useModal();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormData>({
     defaultValues: patient || DEFAULT_FORM_VALUES,
@@ -38,10 +39,12 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const editPatientMutation = useMutation(api.patients.edit);
 
   const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
     patient ? await editPatientMutation(data) : await addPatientMutation(data);
     let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";
     toast.success(completedText, { position: "bottom-right" });
     closeModal();
+    setIsLoading(false)
   };
 
   const onStepClick = (stepNumber: number) => {
@@ -85,7 +88,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             <div className="mt-8 flex justify-between gap-4">
               {patient ? (
                 // Render only the submit button if patient exists
-                <Button type="submit" className="flex-1">
+                <Button type="submit" className="flex-1" isLoading={isLoading}>
                   עדכן
                 </Button>
               ) : (

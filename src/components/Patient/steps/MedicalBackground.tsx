@@ -36,7 +36,6 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     { id: "kidneyDisease", label: "מחלות כליות" },
     { id: "neurologicalProblems", label: "בעיות נוירולוגיות" },
     { id: "psychiatricProblems", label: "בעיות פסיכיאטריות" },
-    { id: "chemotherapy", label: "כימותרפיה/הקרנות" },
     { id: "cancer", label: "סרטן" },
   ];
 
@@ -44,22 +43,26 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     (id: string, isChecked: boolean) => {
       setValue(`conditions.${id}` as keyof FormData, !isChecked);
 
-      // Focus logic for specific conditions
       if (id === "cancer" && !isChecked) {
         setTimeout(() => cancerDetailsRef.current?.focus(), 0);
-      }
-      if (id === "chemotherapy" && !isChecked) {
-        setTimeout(() => chemotherapyDateRef.current?.focus(), 0);
       }
     },
     [setValue]
   );
 
+  const toggleChemotherapy = useCallback(() => {
+    const hasUndergoneTreatment = watch("conditions.chemotherapy.hasUndergoneTreatment");
+    setValue("conditions.chemotherapy.hasUndergoneTreatment", !hasUndergoneTreatment);
+
+    if (!hasUndergoneTreatment) {
+      setTimeout(() => chemotherapyDateRef.current?.focus(), 0);
+    }
+  }, [setValue, watch]);
+
   const togglePregnancy = useCallback(() => {
     const isPregnant = watch("pregnancy");
     setValue("pregnancy", !isPregnant);
 
-    // Focus the pregnancy input field if selected
     if (!isPregnant) {
       setTimeout(() => pregnancyInputRef.current?.focus(), 0);
     }
@@ -69,9 +72,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap w-full gap-4 gap-x-6">
         {conditions.map((condition) => {
-          const isChecked = !!watch(
-            `conditions.${condition.id}` as keyof FormData
-          );
+          const isChecked = !!watch(`conditions.${condition.id}` as keyof FormData);
 
           return (
             <Badge
@@ -111,26 +112,38 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
         >
           בהריון
         </Badge>
+
+        {/* Chemotherapy Badge */}
+        <Badge
+          className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${
+            watch("conditions.chemotherapy.hasUndergoneTreatment")
+              ? "bg-primary"
+              : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+          }`}
+          onClick={toggleChemotherapy}
+        >
+          כימותרפיה/הקרנות
+        </Badge>
       </div>
 
       <div className="flex gap-4">
         {/* Conditional Inputs */}
         {watch("conditions.cancer") && (
-          <div className="flex-1 w-full">
+          <div className="flex-2 w-full">
             <Label htmlFor="cancerDetails" className="block mb-2 font-semibold">
               פרט על הסרטן
             </Label>
             <Input
               id="cancerDetails"
               {...register("cancerDetails")}
-              ref={cancerDetailsRef} // Attach the ref to auto-focus
+              ref={cancerDetailsRef}
               className="w-full mt-4"
               placeholder="פרט על הסרטן"
             />
           </div>
         )}
         {watch("pregnancy") && (
-          <div className="flex-1 w-full">
+          <div className="flex-1 min-w-32">
             <Label htmlFor="pregnancyWeek" className="block mb-2 font-semibold">
               באיזה שבוע ההריון?
             </Label>
@@ -138,14 +151,14 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               type="number"
               id="pregnancyWeek"
               {...register("pregnancyWeek")}
-              ref={pregnancyInputRef} // Attach the ref to auto-focus
+              ref={pregnancyInputRef}
               className="w-full mt-4"
               placeholder="הריון בשבוע.."
             />
           </div>
         )}
-        {watch("conditions.chemotherapy") && (
-          <div className="flex-1 w-full">
+        {watch("conditions.chemotherapy.hasUndergoneTreatment") && (
+          <div className="flex-2 w-full">
             <Label
               htmlFor="chemotherapyDate"
               className="block mb-2 font-semibold"
@@ -153,27 +166,20 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               תאריך כימותרפיה אחרון
             </Label>
             <DateInput
+              dateInputRef={chemotherapyDateRef}
               placeholder="הקלד תאריך"
               dir="rtl"
-              id="date"
-              initialValue={watch("dateOfBirth")}
-              value={watch("dateOfBirth")}
-              className={cn(
-                // errors.dateOfBirth ? "border-red-500 shadow-sm" : "",
-                "mt-4"
-              )}
-              {...register("dateOfBirth", {
-                validate: (value: string | undefined) => {
-                  return value !== "Invalid Date" || "תאריך לא תקין";
-                },
-              })}
+              id="lastTreatmentDate"
+              initialValue={watch("conditions.chemotherapy.lastTreatmentDate")}
+              value={watch("conditions.chemotherapy.lastTreatmentDate")}
+              className={cn("mt-4")}
+              {...register("conditions.chemotherapy.lastTreatmentDate")}
               onChange={(date) => {
-                setValue("dateOfBirth", date?.toString() || "");
+                setValue("conditions.chemotherapy.lastTreatmentDate", date?.toISOString() || "");
               }}
               onBlur={() => {
-                trigger("dateOfBirth");
+                trigger("conditions.chemotherapy.lastTreatmentDate");
               }}
-              ref={chemotherapyDateRef}
             />
           </div>
         )}

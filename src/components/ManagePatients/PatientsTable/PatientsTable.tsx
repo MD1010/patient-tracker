@@ -122,7 +122,7 @@ export function PatientTable() {
       </div>
 
       <div className={cn("rounded-md border", isLoading && "opacity-50")}>
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-x-auto min-h-96">
           <Table>
             <TableHeader className="bg-muted-foreground/10 ">
               <TableRow>
@@ -150,9 +150,14 @@ export function PatientTable() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                <TableRow className="hover:bg-transparent">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-80 text-center "
+                  >
+                    <div className="grid place-items-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : sortedPatients?.length === 0 ? (

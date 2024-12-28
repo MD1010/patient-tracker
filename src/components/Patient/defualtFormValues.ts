@@ -7,7 +7,7 @@ type RequiredFields =
   | "_creationTime"
   | "dateOfBirth"
   | "idNumber"
-  | "isAdult"
+  | "isAdult";
 
 export default {
   anesthesia: false,
@@ -32,7 +32,9 @@ export default {
     kidneyDisease: false,
     neurologicalProblems: false,
     psychiatricProblems: false,
-    chemotherapy: false,
+    chemotherapy: {
+      hasUndergoneTreatment: false
+    },
     cancer: false,
   },
   otherAllergies: "",

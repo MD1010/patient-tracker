@@ -19,8 +19,6 @@ export const sendEmailWithPDF = async ({
 
   const filename = `${patient.idNumber}.pdf`;
 
-  console.log(process.env.REPORTS_EMAIL);
-
   const emailData = {
     Messages: [
       {

@@ -35,7 +35,10 @@ export const patientsSchema = {
     kidneyDisease: v.boolean(),
     neurologicalProblems: v.boolean(),
     psychiatricProblems: v.boolean(),
-    chemotherapy: v.boolean(),
+    chemotherapy: v.object({
+      hasUndergoneTreatment: v.boolean(), 
+      lastTreatmentDate: v.optional(v.string()),
+    }),
     cancer: v.boolean(),
   }),
   medications: v.object({

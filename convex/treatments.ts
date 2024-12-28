@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { DataModel, Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { treatmentsSchema } from "./schemas";
-import { api } from './_generated/api';
+import { api } from "./_generated/api";
 
 // Helper function to update patient fields: lastTreatmentDate and nextTreatment
 async function updatePatientFields(
@@ -17,7 +17,8 @@ async function updatePatientFields(
     .collect();
 
   treatments = treatments.sort(
-    (a, b) => new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
+    (a, b) =>
+      new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
   );
 
   if (treatments.length === 0) {
@@ -30,18 +31,10 @@ async function updatePatientFields(
     return;
   }
 
-  console.log("new one", treatments[0]);
-
   // Get the most recent treatment date
   const lastTreatmentDate = treatments[0].date;
   const nextAppointment = treatments[0].nextAppointment;
   const nextRecallDate = treatments[0].recallDate;
-
-  console.log("Updating patient fields", {
-    rc: nextRecallDate,
-    na: nextAppointment,
-    patientId,
-  });
 
   await ctx.db.patch(patientId, {
     lastTreatmentDate,
@@ -64,7 +57,9 @@ export const get = query({
       .collect();
 
     treatments = treatments.sort(
-      (a, b) => new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
+      (a, b) =>
+        new Date(b._creationTime).getTime() -
+        new Date(a._creationTime).getTime()
     );
 
     return treatments;
@@ -79,8 +74,6 @@ export const add = mutation({
   handler: async (ctx, args) => {
     const { userTimeZone, ...treatmentSchema } = args;
     // Insert the new treatment
-    console.log("new treatment", treatmentSchema);
-
     const treatmentId = await ctx.db.insert("treatments", {
       ...treatmentSchema,
     });
@@ -106,11 +99,6 @@ export const edit = mutation({
     _creationTime: v.optional(v.number()),
   }),
   handler: async (ctx, args) => {
-    console.log("in edit", {
-      nextAppointment: args.nextAppointment,
-      nextRecall: args.recallDate,
-    });
-
     // Update the treatment document
     await ctx.db.patch(args._id, {
       type: args.type,

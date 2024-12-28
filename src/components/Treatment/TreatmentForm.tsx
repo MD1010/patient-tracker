@@ -13,13 +13,13 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Doc, Id } from "../../../convex/_generated/dataModel";
 import { DateInput } from "../ui/date-input";
+import { useState } from "react";
 
 const recallDateToValue = (recallDate: string | undefined) => {
   if (recallDate) {
     if (+recallDate) return recallDate;
 
     const monthsDifference = differenceInMonths(recallDate, new Date());
-    console.log("hi", monthsDifference + 1);
 
     return (monthsDifference + 1).toString();
   }
@@ -38,7 +38,7 @@ export function TreatmentForm({
   const addTreatment = useMutation(api.treatments.add);
   const editTreatment = useMutation(api.treatments.edit);
 
-  console.log("isLastTreatment", isLastTreatment);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { closeModal } = useModal();
 
@@ -68,6 +68,7 @@ export function TreatmentForm({
   });
 
   const onSubmit: SubmitHandler<Doc<"treatments">> = async (data) => {
+    setIsLoading(true);
     treatment
       ? await editTreatment({
           ...data,
@@ -99,6 +100,7 @@ export function TreatmentForm({
       ? "הטיפול עודכן בהצלחה"
       : "הטיפול נוסף בהצלחה, נשלח מייל חדש עם פרטי המטופל.";
     toast.success(completedText, { position: "bottom-right" });
+    setIsLoading(false);
   };
 
   const isRecallRendered =
@@ -267,7 +269,7 @@ export function TreatmentForm({
           </div>
         )}
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" isLoading={isLoading}>
           שמור
         </Button>
       </form>
