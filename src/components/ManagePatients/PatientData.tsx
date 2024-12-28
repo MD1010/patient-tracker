@@ -28,7 +28,7 @@ import {
 
 import { formatCurrency, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
@@ -49,6 +49,7 @@ export function PatientData() {
   const deleteTreatment = useMutation(api.treatments.deleteOne);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
 
   const fetchedPatient = useQuery(api.patients.getOne, {
     patientId: selectedPatient?._id,
@@ -102,30 +103,34 @@ export function PatientData() {
   }, []);
 
   const downloadReport = async () => {
-    if (!selectedPatient) return null;
+    if (!selectedPatient) return;
 
-    const pdfBase64 = await generatePdf({
-      patientId: selectedPatient?._id,
-      userTimeZone: getClientTimeZone(),
-    });
-    if (!pdfBase64) return;
+    setIsDownloadingReport(true); // Start loading
+    try {
+      const pdfBase64 = await generatePdf({
+        patientId: selectedPatient._id,
+        userTimeZone: getClientTimeZone(),
+      });
+      if (!pdfBase64) return;
 
-    const byteCharacters = atob(pdfBase64);
-    const byteNumbers = Array.from(byteCharacters, (char) =>
-      char.charCodeAt(0)
-    );
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: "application/pdf" });
+      const byteCharacters = atob(pdfBase64);
+      const byteNumbers = Array.from(byteCharacters, (char) =>
+        char.charCodeAt(0)
+      );
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
 
-    // Create a temporary link element
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${selectedPatient.idNumber}.pdf`;
-
-    // Append the link to the document, trigger the download, and remove the link
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${selectedPatient.idNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error generating report:", error);
+    } finally {
+      setIsDownloadingReport(false); // Stop loading
+    }
   };
 
   if (!selectedPatient) return null;
@@ -135,7 +140,15 @@ export function PatientData() {
       open={!!selectedPatient}
       onOpenChange={(open) => !open && setSelectedPatient(null)}
     >
-      <DialogContent className="p-4 max-w-3xl h-[85%]">
+      <DialogContent className={`p-4 max-w-3xl h-[85%]`}>
+
+        {isDownloadingReport && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <Loader2 className="h-12 w-12 animate-spin" />
+          </div>
+        )}
+
+
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
             <span className="">
@@ -162,8 +175,13 @@ export function PatientData() {
                 size="icon"
                 onClick={downloadReport}
                 title="הורדת דוח"
+                disabled={isDownloadingReport} // Disable while loading
               >
-                <Download className="h-4 w-4" />
+                {isDownloadingReport ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </DialogTitle>
