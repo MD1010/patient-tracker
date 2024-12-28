@@ -9,7 +9,7 @@ function App() {
     <ThemeProvider enableSystem defaultTheme="dark" attribute="class">
       <div className="min-h-screen bg-background" dir="rtl">
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto p-8">
           <PatientDashboard />
           <ModalProvider />
         </main>

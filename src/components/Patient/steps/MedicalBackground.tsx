@@ -1,22 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
+import { DateInput } from "@/components/ui/date-input";
+import { cn } from "@/lib/utils";
 
 interface MedicalBackgroundProps {
   form: UseFormReturn<FormData>;
 }
 
 export function MedicalBackground({ form }: MedicalBackgroundProps) {
-  const {
-    register,
-    watch,
-    setValue,
-    // formState: { errors },
-    // trigger,
-  } = form;
+  const { register, watch, setValue, trigger } = form;
+
+  const pregnancyInputRef = useRef<HTMLInputElement | null>(null);
+  const cancerDetailsRef = useRef<HTMLInputElement | null>(null);
+  const chemotherapyDateRef = useRef<HTMLInputElement | null>(null);
 
   const conditions = [
     { id: "diabetes", label: "סכרת" },
@@ -43,13 +43,31 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
   const toggleCondition = useCallback(
     (id: string, isChecked: boolean) => {
       setValue(`conditions.${id}` as keyof FormData, !isChecked);
+
+      // Focus logic for specific conditions
+      if (id === "cancer" && !isChecked) {
+        setTimeout(() => cancerDetailsRef.current?.focus(), 0);
+      }
+      if (id === "chemotherapy" && !isChecked) {
+        setTimeout(() => chemotherapyDateRef.current?.focus(), 0);
+      }
     },
     [setValue]
   );
 
+  const togglePregnancy = useCallback(() => {
+    const isPregnant = watch("pregnancy");
+    setValue("pregnancy", !isPregnant);
+
+    // Focus the pregnancy input field if selected
+    if (!isPregnant) {
+      setTimeout(() => pregnancyInputRef.current?.focus(), 0);
+    }
+  }, [setValue, watch]);
+
   return (
-    <div className="space-y-6 ">
-      <div className="flex flex-wrap  w-full gap-4 gap-x-6">
+    <div className="space-y-6">
+      <div className="flex flex-wrap w-full gap-4 gap-x-6">
         {conditions.map((condition) => {
           const isChecked = !!watch(
             `conditions.${condition.id}` as keyof FormData
@@ -89,7 +107,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               ? "bg-primary"
               : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
           }`}
-          onClick={() => setValue("pregnancy", !watch("pregnancy"))}
+          onClick={togglePregnancy}
         >
           בהריון
         </Badge>
@@ -103,9 +121,9 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               פרט על הסרטן
             </Label>
             <Input
-              autoFocus
               id="cancerDetails"
               {...register("cancerDetails")}
+              ref={cancerDetailsRef} // Attach the ref to auto-focus
               className="w-full mt-4"
               placeholder="פרט על הסרטן"
             />
@@ -117,23 +135,24 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               באיזה שבוע ההריון?
             </Label>
             <Input
-              autoFocus
               type="number"
               id="pregnancyWeek"
               {...register("pregnancyWeek")}
-              className="w-full mt-4 appearance-none!"
+              ref={pregnancyInputRef} // Attach the ref to auto-focus
+              className="w-full mt-4"
               placeholder="הריון בשבוע.."
             />
           </div>
         )}
-
-        {/* {watch("conditions.chemotherapy") && (
+        {watch("conditions.chemotherapy") && (
           <div className="flex-1 w-full">
-            <Label htmlFor="date" className="block mb-2 font-semibold">
+            <Label
+              htmlFor="chemotherapyDate"
+              className="block mb-2 font-semibold"
+            >
               תאריך כימותרפיה אחרון
             </Label>
             <DateInput
-              autoFocus
               placeholder="הקלד תאריך"
               dir="rtl"
               id="date"
@@ -154,9 +173,10 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               onBlur={() => {
                 trigger("dateOfBirth");
               }}
+              ref={chemotherapyDateRef}
             />
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );
