@@ -18,8 +18,17 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
+  AppleIcon,
+  BrushIcon,
+  ClipboardCheck,
+  ClipboardCopy,
+  ClipboardIcon,
   Download,
+  DownloadCloudIcon,
   EditIcon,
+  Folder,
+  HospitalIcon,
+  ListIcon,
   Loader2,
   Pencil,
   PlusIcon,
@@ -141,13 +150,11 @@ export function PatientData() {
       onOpenChange={(open) => !open && setSelectedPatient(null)}
     >
       <DialogContent className={`p-4 max-w-3xl h-[85%]`}>
-
         {isDownloadingReport && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <Loader2 className="h-12 w-12 animate-spin" />
           </div>
         )}
-
 
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
@@ -156,6 +163,19 @@ export function PatientData() {
               {selectedPatient.lastName}
             </span>
             <div className="flex justify-end items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  openModal("addOrEditNextTreatment", {
+                    selectedPatient,
+                  })
+                }
+                title="תור חדש"
+                disabled={isDownloadingReport} // Disable while loading
+              >
+                <ClipboardIcon className="h-4 w-4" />
+                תור חדש
+              </Button>
               <Button
                 size="icon"
                 variant="outline"
@@ -352,7 +372,6 @@ export function PatientData() {
                               onClick={() =>
                                 openModal("addOrEditTreatment", {
                                   treatmentToEdit: treatment,
-                                  isLastTreatment: i === 0,
                                   patientId: treatment.patientId,
                                 })
                               }
@@ -390,14 +409,14 @@ export function PatientData() {
                               </p>
                             </div>
 
-                            {treatment?.nextAppointment && (
+                            {selectedPatient?.nextTreatment && (
                               <div className="col-span-2 break-words">
                                 <h4 className="text-sm font-semibold text-right">
                                   תור הבא
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
                                   {format(
-                                    new Date(treatment?.nextAppointment),
+                                    new Date(selectedPatient.nextTreatment),
                                     "dd/MM/yyyy"
                                   )}
                                 </p>

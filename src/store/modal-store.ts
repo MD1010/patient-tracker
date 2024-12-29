@@ -4,7 +4,8 @@ import { create } from "zustand";
 // Define a mapping of modal types to their respective data structures
 type ModalConfig = {
   addOrEditPatient: { patientToEdit?: Doc<"patients"> };
-  addOrEditTreatment: { treatmentToEdit?: Doc<"treatments">, patientId: Id<"patients">, isLastTreatment?: boolean };
+  addOrEditTreatment: { treatmentToEdit?: Doc<"treatments">, patientId: Id<"patients"> };
+  addOrEditNextTreatment: { selectedPatient: Doc<"patients"> };
 };
 
 // Derive the modal types and data types from the configuration
