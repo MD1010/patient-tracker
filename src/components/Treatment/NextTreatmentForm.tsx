@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { addMonths } from "date-fns";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
 import { recallDateToValue } from "./recallDateToValue";
-import { cn } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 
 type NewTreatmentFormData = {
   nextTreatment: string; // Date as string
@@ -25,7 +26,7 @@ type Props = {
 
 export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const updatePatient = useMutation(api.patients.edit);
-  const [showRecallDate, setShowRecallDate] = useState(false);
+  const [activeTab, setActiveTab] = useState("nextTreatment");
 
   const {
     register,
@@ -50,7 +51,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
       setValue("nextTreatment", date.toString());
-      setShowRecallDate(false); // Hide recall date when a valid date is selected
       setValue("nextTreatmentRecallDate", ""); // Clear recall date
     } else {
       setValue("nextTreatment", "");
@@ -69,13 +69,21 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
     return slots;
   };
 
-  const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75); // Example: 0.75 for 45-minute gaps
+  const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75);
 
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
-    if (!nextTreatmentRecallDate && (!nextTreatment || !selectedTime)) {
-      toast.error("יש לבחור תאריך ושעה או תאריך תזכור", {
-        position: "bottom-right",
-      });
+    if (
+      (activeTab === "nextTreatment" && (!nextTreatment || !selectedTime)) ||
+      (activeTab === "nextRecall" && !nextTreatmentRecallDate)
+    ) {
+      toast.error(
+        activeTab === "nextTreatment"
+          ? "יש לבחור תאריך ושעה לטיפול הבא"
+          : "יש לבחור תאריך תזכור לתור הבא",
+        {
+          position: "bottom-right",
+        }
+      );
       return;
     }
 
@@ -92,53 +100,26 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       className="space-y-6 flex flex-col gap-3"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Label className="text-sm font-semibold">בחר תאריך לטיפול הבא</Label>
-      <div className="flex gap-4 items-center">
-        {!showRecallDate && <div className="flex-1 space-y-3">
-          <DateInput
-            dir="rtl"
-            placeholder="הכנס תאריך"
-            value={nextTreatment}
-            className={cn(
-              errors.nextTreatment ? "border-red-500 shadow-sm" : ""
-            )}
-            {...register("nextTreatment", {
-              validate: (value) => {
-                if (!value) return true;
-                if (value === "Invalid Date") return "תאריך לא תקין";
-                if (new Date(value).getTime() <= new Date().getTime())
-                  return "יש לבחור תאריך עתידי";
-                return true;
-              },
-            })}
-            onChange={handleDateChange}
-            onBlur={() => trigger("nextTreatment")}
-          />
-          {errors.nextTreatment && (
-            <p className="text-sm text-red-600">
-              {errors.nextTreatment.message}
-            </p>
-          )}
-        </div>}
-        <Button
-          type="button"
-          onClick={() => setShowRecallDate(!showRecallDate)}
-          className="h-10 mx-auto w-[70%]"
-        >
-          {showRecallDate ? "בחר תאריך לטיפול הבא" : "בחר תאריך לתזכור"}
-        </Button>
-      </div>
+      <Tabs
+        defaultValue={activeTab}
+        className="w-full"
+        onValueChange={setActiveTab}
+      >
+        {/* Tabs Header */}
+        <TabsList className="flex justify-center gap-4 rtl">
+          <TabsTrigger value="nextTreatment" className="w-1/2 text-center">
+            טיפול הבא
+          </TabsTrigger>
+          <TabsTrigger value="nextRecall" className="w-1/2 text-center">
+            תזכור הבא
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Second Input: Recall Date */}
-      {showRecallDate && (
-        <div className="space-y-2">
-          <h4
-            className={`text-sm font-semibold pb-2 ${
-              errors.nextTreatmentRecallDate ? "text-red-500" : ""
-            }`}
-          >
+        {/* Next Recall Tab */}
+        <TabsContent value="nextRecall" className="rtl  pt-8 space-y-4">
+          <Label className="text-sm font-semibold text-right ">
             בחר תאריך תזכור לתור הבא
-          </h4>
+          </Label>
           <ToggleGroup
             variant="outline"
             type="single"
@@ -149,6 +130,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                 parseInt(value)
               )?.toString();
               setValue("nextTreatmentRecallDate", recallDate);
+              setValue("nextTreatment", ""); // Clear next treatment
               trigger("nextTreatmentRecallDate");
             }}
             className={`rtl w-full ${
@@ -168,33 +150,66 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               {errors.nextTreatmentRecallDate.message}
             </p>
           )}
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Available Times */}
-      {!errors.nextTreatment && !showRecallDate && (
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">בחר שעה</Label>
-          <div className="flex flex-wrap gap-4">
-            {AVAILABLE_TIMES.map((time) => (
-              <Badge
-                key={time}
-                className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
-                  selectedTime === time
-                    ? "bg-primary"
-                    : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
-                }`}
-                onClick={() => setValue("selectedTime", time)}
-              >
-                {time}
-              </Badge>
-            ))}
+        {/* Next Treatment Tab */}
+        <TabsContent value="nextTreatment" className="rtl pt-4 space-y-4">
+          <Label className="text-sm font-semibold mb-2 text-right">
+            בחר תאריך לטיפול הבא
+          </Label>
+          <div className="space-y-3">
+            <DateInput
+              dir="rtl"
+              placeholder="הכנס תאריך"
+              value={nextTreatment}
+              className={cn(
+                errors.nextTreatment ? "border-red-500 shadow-sm" : ""
+              )}
+              {...register("nextTreatment", {
+                validate: (value) => {
+                  if (!value) return true;
+                  if (value === "Invalid Date") return "תאריך לא תקין";
+                  if (new Date(value).getTime() <= new Date().getTime())
+                    return "יש לבחור תאריך עתידי";
+                  return true;
+                },
+              })}
+              onChange={handleDateChange}
+              onBlur={() => trigger("nextTreatment")}
+            />
+            {errors.nextTreatment && (
+              <p className="text-sm text-red-600">
+                {errors.nextTreatment.message}
+              </p>
+            )}
           </div>
-        </div>
-      )}
+
+          {/* Available Times */}
+          <div className="space-y-2 mt-4">
+            <Label className="text-sm font-semibold text-right">
+              בחר שעה
+            </Label>
+            <div className="flex flex-wrap gap-4">
+              {AVAILABLE_TIMES.map((time) => (
+                <Badge
+                  key={time}
+                  className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
+                    selectedTime === time
+                      ? "bg-primary"
+                      : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+                  }`}
+                  onClick={() => setValue("selectedTime", time)}
+                >
+                  {time}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Button type="submit" className="w-full" disabled={!isValid}>
-        שמור
+        {activeTab === "nextTreatment" ? "שמור תאריך לטיפול הבא" : "שמור תזכור"}
       </Button>
     </form>
   );

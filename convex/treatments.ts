@@ -105,8 +105,8 @@ export const edit = mutation({
       description: args.description,
       cost: args.cost,
       date: args.date,
-      nextAppointment: args.nextAppointment,
-      recallDate: args.recallDate,
+      // nextAppointment: args.nextAppointment,
+      // recallDate: args.recallDate,
       notes: args.notes,
     });
 
