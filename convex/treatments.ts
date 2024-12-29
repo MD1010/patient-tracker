@@ -1,13 +1,12 @@
-import { GenericMutationCtx } from "convex/server";
+import { GenericMutationCtx, GenericQueryCtx } from "convex/server";
 import { v } from "convex/values";
 import { DataModel, Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { treatmentsSchema } from "./schemas";
 import { api } from "./_generated/api";
 
-// Helper function to update patient fields: lastTreatmentDate and nextTreatment
-async function updatePatientFields(
-  ctx: GenericMutationCtx<DataModel>,
+export async function getLastTreatmentDate(
+  ctx: GenericQueryCtx<DataModel>,
   patientId: Id<"patients">
 ) {
   // Fetch all treatments for the patient
@@ -21,26 +20,7 @@ async function updatePatientFields(
       new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
   );
 
-  if (treatments.length === 0) {
-    // If no treatments, reset patient fields
-    await ctx.db.patch(patientId, {
-      lastTreatmentDate: null,
-      nextTreatment: null,
-      nextTreatmentRecallDate: null,
-    });
-    return;
-  }
-
-  // Get the most recent treatment date
-  const lastTreatmentDate = treatments[0].date;
-  const nextAppointment = treatments[0].nextAppointment;
-  const nextRecallDate = treatments[0].recallDate;
-
-  await ctx.db.patch(patientId, {
-    lastTreatmentDate,
-    nextTreatment: nextAppointment || null,
-    nextTreatmentRecallDate: nextRecallDate || null,
-  });
+  return treatments[0].date;
 }
 
 export const get = query({
@@ -78,9 +58,6 @@ export const add = mutation({
       ...treatmentSchema,
     });
 
-    // Update the patient's lastTreatmentDate and nextTreatment fields
-    await updatePatientFields(ctx, args.patientId);
-
     // generate pdf and send it for documentation
 
     ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
@@ -105,13 +82,8 @@ export const edit = mutation({
       description: args.description,
       cost: args.cost,
       date: args.date,
-      // nextAppointment: args.nextAppointment,
-      // recallDate: args.recallDate,
       notes: args.notes,
     });
-
-    // Update the patient's lastTreatmentDate and nextTreatment fields
-    await updatePatientFields(ctx, args.patientId);
   },
 });
 
@@ -125,10 +97,5 @@ export const deleteOne = mutation({
 
     // Delete the treatment
     await ctx.db.delete(args.treatmentId);
-
-    // If the treatment is associated with a patient, update the patient's fields
-    if (treatment?.patientId) {
-      await updatePatientFields(ctx, treatment.patientId);
-    }
   },
 });

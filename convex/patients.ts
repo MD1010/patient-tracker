@@ -4,19 +4,28 @@ import { action, internalQuery, mutation, query } from "./_generated/server";
 import { generatePatientInfoPdf } from "./reports/generatePdf";
 import { sendEmailWithPDF } from "./reports/sendEmail";
 import { patientsSchema } from "./schemas/patients";
+import { getLastTreatmentDate } from "./treatments";
 
 export const get = query({
   args: {},
   handler: async (ctx) => {
     const patients = await ctx.db.query("patients").collect();
-    return patients;
+    
+    const patientsWithLastTreatmentDate = await Promise.all(
+      patients.map(async (p) => ({
+        ...p,
+        lastTreatmentDate: await getLastTreatmentDate(ctx, p._id),
+      }))
+    );
+
+    return patientsWithLastTreatmentDate;
   },
 });
 
 export const getOne = query({
   args: { patientId: v.optional(v.id("patients")) },
   handler: async (ctx, args) => {
-    if(!args.patientId) return null;
+    if (!args.patientId) return null;
     const patient = await ctx.db.get(args.patientId);
     return patient;
   },
@@ -32,7 +41,6 @@ export const add = mutation({
       ...args,
       isAdult: age >= 18,
       nextTreatment: null,
-      lastTreatmentDate: null,
     });
 
     return patientId;
@@ -65,7 +73,9 @@ export const getPatient = internalQuery({
   args: { patientId: v.id("patients") },
   handler: async (ctx, args) => {
     const patient = await ctx.db.get(args.patientId);
-    return patient;
+    if (!patient) return null;
+    const lastTreatmentDate = await getLastTreatmentDate(ctx, patient?._id);
+    return { ...patient, lastTreatmentDate };
   },
 });
 

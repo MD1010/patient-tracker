@@ -31,6 +31,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
   const { closeModal } = useModal();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const {
     register,
     handleSubmit,
@@ -85,6 +87,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75);
 
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
+    setIsLoading(true)
     await updatePatient({
       ...patient,
       nextTreatment: data.nextTreatment,
@@ -97,6 +100,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         ? "תאריך הטיפול הבא נקבע בהצלחה"
         : "התזכור נוסף בהצלחה";
     toast.success(completedText, { position: "bottom-right" });
+    setIsLoading(false)
   };
 
   return (
@@ -212,7 +216,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsContent>
       </Tabs>
 
-      <Button type="submit" className="w-full" disabled={!isFormValid}>
+      <Button type="submit" className="w-full" disabled={!isFormValid} isLoading={isLoading}>
         {activeTab === "nextTreatment" ? "שמור תאריך לטיפול הבא" : "שמור תזכור"}
       </Button>
     </form>
