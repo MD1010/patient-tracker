@@ -97,6 +97,10 @@ export function PatientTable() {
     openModal("addOrEditTreatment", { patientId: patient._id });
   };
 
+  const onNextTretmentDate = (patient: Doc<"patients">) => {
+    openModal("addOrEditNextTreatment", { selectedPatient: patient });
+  };
+
   const columns = [
     { label: "שם", key: "name", width: "14%" },
     { label: "ת.ז", key: "idNumber", width: "14%" },
@@ -177,6 +181,7 @@ export function PatientTable() {
                     patient={patient}
                     onEdit={handleEdit}
                     onDelete={deletePatient}
+                    onNextTretmentDate={onNextTretmentDate}
                     onNewTreatment={handleNewTreatment}
                     onRowClick={setSelectedPatient}
                   />

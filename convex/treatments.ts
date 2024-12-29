@@ -1,9 +1,9 @@
-import { GenericMutationCtx, GenericQueryCtx } from "convex/server";
+import { GenericQueryCtx } from "convex/server";
 import { v } from "convex/values";
+import { api } from "./_generated/api";
 import { DataModel, Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { treatmentsSchema } from "./schemas";
-import { api } from "./_generated/api";
 
 export async function getLastTreatmentDate(
   ctx: GenericQueryCtx<DataModel>,
@@ -20,7 +20,7 @@ export async function getLastTreatmentDate(
       new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime()
   );
 
-  return treatments[0].date;
+  return treatments?.[0]?.date;
 }
 
 export const get = query({
@@ -92,9 +92,6 @@ export const deleteOne = mutation({
     treatmentId: v.string(),
   },
   handler: async (ctx, args: { treatmentId: Id<"treatments"> }) => {
-    // Find the treatment being deleted to get its patientId
-    const treatment = await ctx.db.get(args.treatmentId);
-
     // Delete the treatment
     await ctx.db.delete(args.treatmentId);
   },

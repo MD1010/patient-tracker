@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getClientTimeZone, parseCurrencyInput } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
-import { usePatients } from "@/store/patients-store";
 import { useMutation } from "convex/react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";

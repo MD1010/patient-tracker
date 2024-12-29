@@ -44,7 +44,6 @@ export default {
     otherMedications: "",
     penicillinLatex: false,
   },
-  lastTreatmentDate: null,
   nextTreatment: null,
   phone: null,
   nextTreatmentRecallDate: null,

@@ -18,21 +18,12 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
-  AppleIcon,
-  BrushIcon,
-  ClipboardCheck,
-  ClipboardCopy,
-  ClipboardIcon,
+  ClipboardCheckIcon,
   Download,
-  DownloadCloudIcon,
-  EditIcon,
-  Folder,
-  HospitalIcon,
-  ListIcon,
   Loader2,
   Pencil,
   PlusIcon,
-  Trash2,
+  Trash2
 } from "lucide-react";
 
 import { formatCurrency, getClientTimeZone } from "@/lib/utils";
@@ -158,7 +149,7 @@ export function PatientData() {
 
         <DialogHeader className="pb-0 pt-8 pr-4">
           <DialogTitle className="flex justify-between w-full text-2xl">
-            <span className="max-w-[70%] text-right">
+            <span className="max-w-[50%] text-right">
               פרטי מטופל - {selectedPatient.firstName}
               {selectedPatient.lastName}
             </span>
@@ -170,11 +161,13 @@ export function PatientData() {
                     selectedPatient,
                   })
                 }
-                title="תור חדש"
+                title={selectedPatient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
                 disabled={isDownloadingReport} // Disable while loading
               >
-                <ClipboardIcon className="h-4 w-4" />
-                {selectedPatient.nextTreatment  ? "עריכת התור הבא" : "תור חדש"}
+                <ClipboardCheckIcon className="h-4 w-4" />
+                <span className="hidden md:block">
+                  {selectedPatient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
+                </span>
               </Button>
               <Button
                 size="icon"
@@ -185,7 +178,8 @@ export function PatientData() {
                   })
                 }
               >
-                <EditIcon className="h-4 w-4" />
+                {/* <EditIcon className="h-4 w-4" /> */}
+                <Pencil className='h-4 w-4' />
               </Button>
               {selectedPatient.phone || selectedPatient.parent?.phone ? (
                 <WhatsAppButton patient={selectedPatient} />
@@ -197,11 +191,7 @@ export function PatientData() {
                 title="הורדת דוח"
                 disabled={isDownloadingReport} // Disable while loading
               >
-                {isDownloadingReport ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
+               <Download className="h-4 w-4" />
               </Button>
             </div>
           </DialogTitle>

@@ -19,14 +19,21 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { MoreVertical, Pencil, PlusIcon, TrashIcon } from "lucide-react";
+import {
+  ClipboardCheckIcon,
+  MoreVertical,
+  Pencil,
+  PlusIcon,
+  TrashIcon,
+} from "lucide-react";
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 
 interface PatientTableRowProps {
-  patient: Doc<"patients">;
+  patient: Doc<"patients"> & { lastTreatmentDate: string };
   onEdit: (patient: any) => void;
   onDelete: (id: Id<"patients">) => void;
   onNewTreatment: (patient: any) => void;
+  onNextTretmentDate: (patient: any) => void;
   onRowClick: (patient: any) => void;
 }
 
@@ -37,6 +44,7 @@ export function PatientTableRow({
   onEdit,
   onDelete,
   onNewTreatment,
+  onNextTretmentDate,
   onRowClick,
 }: PatientTableRowProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control the dialog
@@ -89,6 +97,21 @@ export function PatientTableRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem
+                className="py-2 px-2 pl-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNextTretmentDate(patient);
+                }}
+              >
+                <ClipboardCheckIcon
+                  strokeWidth={3}
+                  height={14}
+                  width={16}
+                  className="ml-2"
+                />
+                {patient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 className="py-2 text-right px-2"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -118,6 +141,7 @@ export function PatientTableRow({
                 />
                 ערוך מטופל
               </DropdownMenuItem>
+
               <Separator className="my-1" />
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive py-2 px-2"
