@@ -174,7 +174,7 @@ export function PatientData() {
                 disabled={isDownloadingReport} // Disable while loading
               >
                 <ClipboardIcon className="h-4 w-4" />
-                תור חדש
+                {selectedPatient.nextTreatment  ? "עריכת התור הבא" : "תור חדש"}
               </Button>
               <Button
                 size="icon"

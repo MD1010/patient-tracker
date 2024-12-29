@@ -14,7 +14,7 @@ export const AddOrEditNextTreatment = ({}) => {
     (data as ModalData<"addOrEditNextTreatment">) || {};
 
   const isModalOpen = isOpen && type === "addOrEditNextTreatment";
-  const formTitle = "קביעת מועד הטיפול הבא";
+  const formTitle = selectedPatient?.nextTreatment ? "עריכת מועד הטיפול הבא" : "קביעת מועד הטיפול הבא";
 
   return (
     <div className="flex flex-col items-center space-y-4">

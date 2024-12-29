@@ -8,11 +8,12 @@ import { useMutation } from "convex/react";
 import { addMonths } from "date-fns";
 import { FC, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
 import { recallDateToValue } from "./recallDateToValue";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { useModal } from "@/store/modal-store";
+import { toast } from "sonner";
 
 type NewTreatmentFormData = {
   nextTreatment: string; // Date as string
@@ -28,13 +29,15 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const updatePatient = useMutation(api.patients.edit);
   const [activeTab, setActiveTab] = useState("nextTreatment");
 
+  const { closeModal } = useModal();
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     trigger,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<NewTreatmentFormData>({
     defaultValues: {
       nextTreatment: patient.nextTreatment || "",
@@ -47,6 +50,16 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const nextTreatment = watch("nextTreatment");
   const nextTreatmentRecallDate = watch("nextTreatmentRecallDate");
   const selectedTime = watch("selectedTime");
+
+  const isFormValid =
+    (activeTab === "nextTreatment" &&
+      nextTreatment &&
+      selectedTime &&
+      !errors.nextTreatment &&
+      !errors.selectedTime) ||
+    (activeTab === "nextRecall" &&
+      nextTreatmentRecallDate &&
+      !errors.nextTreatmentRecallDate);
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
@@ -72,27 +85,18 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75);
 
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
-    if (
-      (activeTab === "nextTreatment" && (!nextTreatment || !selectedTime)) ||
-      (activeTab === "nextRecall" && !nextTreatmentRecallDate)
-    ) {
-      toast.error(
-        activeTab === "nextTreatment"
-          ? "יש לבחור תאריך ושעה לטיפול הבא"
-          : "יש לבחור תאריך תזכור לתור הבא",
-        {
-          position: "bottom-right",
-        }
-      );
-      return;
-    }
-
     await updatePatient({
       ...patient,
       nextTreatment: data.nextTreatment,
       nextTreatmentRecallDate: data.nextTreatmentRecallDate,
     });
-    toast.success("פרטי המטופל עודכנו בהצלחה", { position: "bottom-right" });
+
+    closeModal();
+    const completedText =
+      activeTab === "nextTreatment"
+        ? "תאריך הטיפול הבא נקבע בהצלחה"
+        : "התזכור נוסף בהצלחה";
+    toast.success(completedText, { position: "bottom-right" });
   };
 
   return (
@@ -116,8 +120,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsList>
 
         {/* Next Recall Tab */}
-        <TabsContent value="nextRecall" className="rtl  pt-8 space-y-4">
-          <Label className="text-sm font-semibold text-right ">
+        <TabsContent value="nextRecall" className="rtl pt-8 space-y-4">
+          <Label className="text-sm font-semibold text-right">
             בחר תאריך תזכור לתור הבא
           </Label>
           <ToggleGroup
@@ -137,7 +141,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               errors.nextTreatmentRecallDate ? "border-red-500 shadow-sm" : ""
             }`}
             {...register("nextTreatmentRecallDate", {
-              validate: (value) => !!value || "שדה חובה",
+              required: activeTab === "nextRecall" && "שדה חובה",
             })}
           >
             <ToggleGroupItem value="3">3 חודשים</ToggleGroupItem>
@@ -146,30 +150,32 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
             <ToggleGroupItem value="12">12 חודשים</ToggleGroupItem>
           </ToggleGroup>
           {errors.nextTreatmentRecallDate && (
-            <p className="text-sm text-red-600">
-              {errors.nextTreatmentRecallDate.message}
-            </p>
+            <p className="text-sm text-red-500">שדה חובה</p>
           )}
         </TabsContent>
 
         {/* Next Treatment Tab */}
         <TabsContent value="nextTreatment" className="rtl pt-4 space-y-4">
-          <Label className="text-sm font-semibold mb-2 text-right">
+          <Label className="text-sm font-semibold text-right">
             בחר תאריך לטיפול הבא
           </Label>
           <div className="space-y-3">
             <DateInput
               dir="rtl"
+              initialValue={watch("nextTreatment")}
               placeholder="הכנס תאריך"
               value={nextTreatment}
               className={cn(
                 errors.nextTreatment ? "border-red-500 shadow-sm" : ""
               )}
               {...register("nextTreatment", {
+                required: activeTab === "nextTreatment" && "שדה חובה",
                 validate: (value) => {
-                  if (!value) return true;
                   if (value === "Invalid Date") return "תאריך לא תקין";
-                  if (new Date(value).getTime() <= new Date().getTime())
+                  if (
+                    activeTab === "nextTreatment" &&
+                    new Date(value).getTime() <= new Date().getTime()
+                  )
                     return "יש לבחור תאריך עתידי";
                   return true;
                 },
@@ -178,7 +184,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               onBlur={() => trigger("nextTreatment")}
             />
             {errors.nextTreatment && (
-              <p className="text-sm text-red-600">
+              <p className="text-sm text-red-500">
                 {errors.nextTreatment.message}
               </p>
             )}
@@ -186,9 +192,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
           {/* Available Times */}
           <div className="space-y-2 mt-4">
-            <Label className="text-sm font-semibold text-right">
-              בחר שעה
-            </Label>
+            <Label className="text-sm font-semibold text-right">בחר שעה</Label>
             <div className="flex flex-wrap gap-4">
               {AVAILABLE_TIMES.map((time) => (
                 <Badge
@@ -208,7 +212,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsContent>
       </Tabs>
 
-      <Button type="submit" className="w-full" disabled={!isValid}>
+      <Button type="submit" className="w-full" disabled={!isFormValid}>
         {activeTab === "nextTreatment" ? "שמור תאריך לטיפול הבא" : "שמור תזכור"}
       </Button>
     </form>
