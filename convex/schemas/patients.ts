@@ -6,7 +6,10 @@ export const patientsSchema = {
   phone: v.union(v.string(), v.null()),
   dateOfBirth: v.string(),
   isAdult: v.boolean(),
-  nextTreatment: v.union(v.string(), v.null()),
+  nextTreatment: v.union(v.null(), v.object({
+    date: v.string(),
+    time: v.string(),
+  })),
   nextTreatmentRecallDate: v.union(v.string(), v.null()),
   parent: v.optional(
     v.object({

@@ -14,9 +14,11 @@ import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
 
 type NewTreatmentFormData = {
-  nextTreatment: string; // Date as string
-  nextTreatmentRecallDate: string; // Date as string
-  selectedTime: string; // Time as string
+  nextTreatment: {
+    date: string;
+    time: string;
+  } | null; // Treatment object or null
+  nextTreatmentRecallDate: string | null; // Recall date as a string
 };
 
 type Props = {
@@ -28,7 +30,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const [activeTab, setActiveTab] = useState("nextTreatment");
 
   const { closeModal } = useModal();
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
@@ -40,33 +41,33 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
     formState: { errors },
   } = useForm<NewTreatmentFormData>({
     defaultValues: {
-      nextTreatment: patient.nextTreatment || "",
-      nextTreatmentRecallDate: patient.nextTreatmentRecallDate || "",
-      selectedTime: "",
+      nextTreatment: patient.nextTreatment || null,
+      nextTreatmentRecallDate: patient.nextTreatmentRecallDate || null,
     },
     mode: "onChange",
   });
 
   const nextTreatment = watch("nextTreatment");
   const nextTreatmentRecallDate = watch("nextTreatmentRecallDate");
-  const selectedTime = watch("selectedTime");
 
   const isFormValid =
     (activeTab === "nextTreatment" &&
-      nextTreatment &&
-      selectedTime &&
-      !errors.nextTreatment &&
-      !errors.selectedTime) ||
+      nextTreatment?.date &&
+      nextTreatment?.time &&
+      !errors.nextTreatment) ||
     (activeTab === "nextRecall" &&
       nextTreatmentRecallDate &&
       !errors.nextTreatmentRecallDate);
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
-      setValue("nextTreatment", date.toString());
-      setValue("nextTreatmentRecallDate", ""); // Clear recall date
+      setValue("nextTreatment", {
+        date: date.toISOString().split("T")[0],
+        time: "",
+      });
+      setValue("nextTreatmentRecallDate", null); // Clear recall date
     } else {
-      setValue("nextTreatment", "");
+      setValue("nextTreatment", null);
     }
   };
 
@@ -85,11 +86,20 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75);
 
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
+    if (
+      activeTab === "nextTreatment" &&
+      (!data.nextTreatment?.date || !data.nextTreatment?.time)
+    ) {
+      toast.error("יש למלא את כל השדות", { position: "bottom-right" });
+      return;
+    }
+
     setIsLoading(true);
     await updatePatient({
       ...patient,
-      nextTreatment: data.nextTreatment,
-      nextTreatmentRecallDate: data.nextTreatmentRecallDate,
+      nextTreatment: activeTab === "nextTreatment" ? data.nextTreatment : null,
+      nextTreatmentRecallDate:
+        activeTab === "nextRecall" ? data.nextTreatmentRecallDate : null,
     });
 
     closeModal();
@@ -122,16 +132,12 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsList>
 
         {/* Next Recall Tab */}
-        <TabsContent
-          value="nextRecall"
-          className="rtl pt-8 space-y-4"
-        >
+        <TabsContent value="nextRecall" className="rtl pt-8 space-y-4">
           <Label className="text-sm font-semibold text-right">
             בחר תאריך תזכור לתור הבא
           </Label>
           <div className="flex flex-wrap gap-4">
             {[3, 4, 6, 12].map((months) => {
-              // Calculate the date for each option
               const recallDate = addMonths(new Date(), months)
                 .toISOString()
                 .split("T")[0];
@@ -145,9 +151,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                       : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
                   }`}
                   onClick={() => {
-                    // Set the selected date and clear the treatment date
                     setValue("nextTreatmentRecallDate", recallDate);
-                    setValue("nextTreatment", ""); // Clear next treatment
+                    setValue("nextTreatment", null); // Clear next treatment
                     trigger("nextTreatmentRecallDate");
                   }}
                 >
@@ -162,40 +167,35 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsContent>
 
         {/* Next Treatment Tab */}
-        <TabsContent
-          value="nextTreatment"
-          className="rtl pt-4 space-y-4"
-        >
+        <TabsContent value="nextTreatment" className="rtl pt-4 space-y-4">
           <Label className="text-sm font-semibold text-right">
             בחר תאריך לטיפול הבא
           </Label>
           <div className="space-y-3">
             <DateInput
               dir="rtl"
-              initialValue={watch("nextTreatment")}
+              initialValue={watch("nextTreatment")?.date}
               placeholder="הכנס תאריך"
-              value={nextTreatment}
+              value={nextTreatment?.date || ""}
               className={cn(
-                errors.nextTreatment ? "border-red-500 shadow-sm" : ""
+                errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""
               )}
-              {...register("nextTreatment", {
+              {...register("nextTreatment.date", {
                 required: activeTab === "nextTreatment" && "שדה חובה",
                 validate: (value) => {
-                  if (value === "Invalid Date") return "תאריך לא תקין";
-                  if (
-                    activeTab === "nextTreatment" &&
-                    new Date(value).getTime() <= new Date().getTime()
-                  )
+                  if(activeTab !== "nextTreatment") return true;
+                  if (!value) return "שדה חובה";
+                  if (new Date(value).getTime() <= new Date().getTime())
                     return "יש לבחור תאריך עתידי";
                   return true;
                 },
               })}
-              onChange={handleDateChange}
-              onBlur={() => trigger("nextTreatment")}
+              onChange={(date) => handleDateChange(date)}
+              onBlur={() => trigger("nextTreatment.date")}
             />
-            {errors.nextTreatment && (
+            {errors.nextTreatment?.date && (
               <p className="text-sm text-red-500">
-                {errors.nextTreatment.message}
+                {errors.nextTreatment.date.message}
               </p>
             )}
           </div>
@@ -208,11 +208,22 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                 <Badge
                   key={time}
                   className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
-                    selectedTime === time
+                    nextTreatment?.time === time
                       ? "bg-primary"
                       : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
                   }`}
-                  onClick={() => setValue("selectedTime", time)}
+                  onClick={() => {
+                    if (nextTreatment?.date) {
+                      setValue("nextTreatment", {
+                        date: nextTreatment.date,
+                        time: time,
+                      });
+                    } else {
+                      toast.error("יש לבחור תאריך תחילה", {
+                        position: "bottom-right",
+                      });
+                    }
+                  }}
                 >
                   {time}
                 </Badge>

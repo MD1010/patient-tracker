@@ -79,7 +79,7 @@ export function PatientTableRow({
       </TableCell>
       <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
         {patient.nextTreatment
-          ? format(new Date(patient.nextTreatment), "dd/MM/yyyy")
+          ? format(new Date(patient.nextTreatment.date), "dd/MM/yyyy")
           : "-"}
       </TableCell>
       <TableCell className="py-3 px-4 whitespace-nowrap hidden lg:table-cell">

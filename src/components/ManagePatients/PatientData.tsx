@@ -23,7 +23,7 @@ import {
   Loader2,
   Pencil,
   PlusIcon,
-  Trash2
+  Trash2,
 } from "lucide-react";
 
 import { formatCurrency, getClientTimeZone } from "@/lib/utils";
@@ -161,12 +161,16 @@ export function PatientData() {
                     selectedPatient,
                   })
                 }
-                title={selectedPatient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
+                title={
+                  selectedPatient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"
+                }
                 disabled={isDownloadingReport} // Disable while loading
               >
                 <ClipboardCheckIcon className="h-4 w-4" />
                 <span className="hidden md:block">
-                  {selectedPatient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
+                  {selectedPatient.nextTreatment
+                    ? "עריכת תור עתידי"
+                    : "תור חדש"}
                 </span>
               </Button>
               <Button
@@ -179,7 +183,7 @@ export function PatientData() {
                 }
               >
                 {/* <EditIcon className="h-4 w-4" /> */}
-                <Pencil className='h-4 w-4' />
+                <Pencil className="h-4 w-4" />
               </Button>
               {selectedPatient.phone || selectedPatient.parent?.phone ? (
                 <WhatsAppButton patient={selectedPatient} />
@@ -191,7 +195,7 @@ export function PatientData() {
                 title="הורדת דוח"
                 disabled={isDownloadingReport} // Disable while loading
               >
-               <Download className="h-4 w-4" />
+                <Download className="h-4 w-4" />
               </Button>
             </div>
           </DialogTitle>
@@ -251,13 +255,20 @@ export function PatientData() {
                 {selectedPatient.nextTreatment && (
                   <div>
                     <h1 className="text-sm font-semibold">הטיפול הבא</h1>
-                    <p className="text-sm text-muted-foreground">
-                      <div>
-                        {format(
-                          new Date(selectedPatient.nextTreatment?.toString()),
-                          "dd/MM/yyyy"
-                        )}
-                      </div>
+                    <p className="flex text-sm text-muted-foreground break-words">
+                      {format(
+                        new Date(selectedPatient.nextTreatment.date),
+                        "dd/MM/yyyy"
+                      )}
+                      {selectedPatient.nextTreatment.time && (
+                        <>
+                          {" "}
+                          בשעה
+                          <span className="mr-1 block">
+                            {selectedPatient.nextTreatment.time}
+                          </span>
+                        </>
+                      )}
                     </p>
                   </div>
                 )}
@@ -406,8 +417,15 @@ export function PatientData() {
                                 </h4>
                                 <p className="text-sm text-muted-foreground break-words">
                                   {format(
-                                    new Date(selectedPatient.nextTreatment),
+                                    new Date(
+                                      selectedPatient.nextTreatment.date
+                                    ),
                                     "dd/MM/yyyy"
+                                  )}{" "}
+                                  {selectedPatient.nextTreatment.time && (
+                                    <span className="block">
+                                      {selectedPatient.nextTreatment.time}
+                                    </span>
                                   )}
                                 </p>
                               </div>

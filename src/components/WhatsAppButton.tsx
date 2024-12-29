@@ -18,11 +18,13 @@ export function WhatsAppButton({ patient }: WhatsAppButtonProps) {
       const formattedPhone = patient.isAdult
         ? patient.phone?.replace(/\D/g, "").replace(/^0/, "+972")
         : patient.parent?.phone?.replace(/\D/g, "").replace(/^0/, "+972");
-      // Encode a predefined message
-      const formattedDate = new Date(patient.nextTreatment).toLocaleDateString(
-        "he-IL"
-      );
-      const predefinedMessage = `היי ${patient.firstName}, רציתי להזכיר לך על התור הבא שלך לשיננית בתאריך ${formattedDate}.`;
+
+      // Format the date and time
+      const formattedDate = new Date(patient.nextTreatment.date).toLocaleDateString("he-IL");
+      const formattedTime = patient.nextTreatment.time || "לא ידוע";
+
+      // Encode a predefined message with date and time
+      const predefinedMessage = `היי ${patient.firstName}, רציתי להזכיר לך על התור הבא שלך לשיננית בתאריך ${formattedDate} בשעה ${formattedTime}.`;
       const encodedMessage = encodeURIComponent(predefinedMessage);
 
       // Construct the WhatsApp URL with the message
@@ -40,10 +42,12 @@ export function WhatsAppButton({ patient }: WhatsAppButtonProps) {
       to={getWhatsappUrl() || ""}
       target="_blank"
       rel="noopener noreferrer"
-      className={`text-decoration-none ${!patient.nextTreatment ? "cursor-not-allowed pointer-events-none" : "cursor-pointer"}`}
+      className={`text-decoration-none ${
+        !patient.nextTreatment ? "cursor-not-allowed pointer-events-none" : "cursor-pointer"
+      }`}
     >
       <Button variant="outline" size="icon" disabled={!patient.nextTreatment}>
-      <FontAwesomeIcon icon={faWhatsapp} size="2x" />
+        <FontAwesomeIcon icon={faWhatsapp} size="2x" />
       </Button>
     </Link>
   );
