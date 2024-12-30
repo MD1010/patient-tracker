@@ -410,27 +410,6 @@ export function PatientData() {
                               </p>
                             </div>
 
-                            {selectedPatient?.nextTreatment && (
-                              <div className="col-span-2 break-words">
-                                <h4 className="text-sm font-semibold text-right">
-                                  תור הבא
-                                </h4>
-                                <p className="text-sm text-muted-foreground break-words">
-                                  {format(
-                                    new Date(
-                                      selectedPatient.nextTreatment.date
-                                    ),
-                                    "dd/MM/yyyy"
-                                  )}{" "}
-                                  {selectedPatient.nextTreatment.time && (
-                                    <span className="block">
-                                      {selectedPatient.nextTreatment.time}
-                                    </span>
-                                  )}
-                                </p>
-                              </div>
-                            )}
-
                             {treatment.notes && (
                               <div className="col-span-2 break-words">
                                 <h4 className="text-sm font-semibold text-right">

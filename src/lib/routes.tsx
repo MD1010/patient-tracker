@@ -1,16 +1,32 @@
 import { App } from "@/App";
 import { Layout } from "@/components/Layout";
 import LoginRedirect from "@/components/Redirect/LoginRedirect";
-
 import ProtectedRoute from "@/components/Redirect/ProtectedRoute";
 import RootRedirect from "@/components/Redirect/RootRedirect";
+import {
+  createBrowserRouter,
+  LoaderFunction,
+  Navigate,
+  redirect,
+} from "react-router-dom";
 
-import { createBrowserRouter, Navigate } from "react-router-dom";
+// Create an auth loader function
+const authLoader: LoaderFunction = async () => {
+  // Get auth status synchronously from Clerk
+  const auth = (window as any).Clerk?.user;
+
+  if (auth) {
+    // User is authenticated, redirect to dashboard
+    return redirect("/dashboard");
+  }
+
+  return null; // Allow rendering login page
+};
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootRedirect />, // Handle root redirection
+    element: <RootRedirect />,
   },
   {
     path: "/login",
@@ -19,6 +35,7 @@ export const router = createBrowserRouter([
         <LoginRedirect />
       </Layout>
     ),
+    loader: authLoader, // Add the loader here
   },
   {
     path: "/dashboard",

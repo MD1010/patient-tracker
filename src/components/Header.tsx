@@ -1,20 +1,12 @@
 import { useModal } from "@/store/modal-store";
-import { useClerk } from "@clerk/clerk-react";
+import { SignOutButton } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import { LogOutIcon, PlusIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
 
 export function Header() {
   const { openModal } = useModal();
-  const { signOut } = useClerk();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/login");
-  };
 
   return (
     <motion.header
@@ -39,11 +31,11 @@ export function Header() {
             </Button>
             <ThemeToggle />
 
-            {/* <SignOutButton> */}
-            <Button variant={"outline"} size={"icon"} onClick={handleSignOut}>
-              <LogOutIcon />
-            </Button>
-            {/* </SignOutButton> */}
+            <SignOutButton>
+              <Button variant={"outline"} size={"icon"}>
+                <LogOutIcon />
+              </Button>
+            </SignOutButton>
           </div>
         </div>
       </div>
