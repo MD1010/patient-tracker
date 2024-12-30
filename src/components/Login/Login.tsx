@@ -2,16 +2,20 @@ import { useSignIn } from "@clerk/clerk-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
+import { GradientText } from "../ui/gradient-text";
+import { BackgroundEffects } from "../ui/background-effects";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const Login = () => {
   const { isLoaded, signIn, setActive } = useSignIn();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -28,8 +32,6 @@ const Login = () => {
         password,
       });
 
-      console.log("sign in attempt", signInAttempt);
-
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
         navigate("/", { replace: true });
@@ -37,87 +39,97 @@ const Login = () => {
         setError("Sign-in incomplete. Please try again.");
       }
     } catch (err) {
-      setError("Sign-in failed. Please check your credentials and try again.");
+      setError("שם משתמש או סיסמה שגויים");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Left Side - Welcome Section */}
-      <div className="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex flex-col justify-center items-center px-8">
-        <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500 mb-4">
-          ברוכים הבאים
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 text-center mb-8">
-          התחברו כדי לנהל את החשבון שלכם וליהנות מהתכונות הייחודיות שלנו.
-        </p>
-        <img
-          src={
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "/login-icon-dark.png"
-              : "/login-icon-light.png"
-          }
-          alt="Login Icon"
-          className="w-56"
-        />
-      </div>
+    <div className="p-8 min-h-screen w-full flex items-center justify-center relative overflow-hidden">
+      <BackgroundEffects />
 
-      {/* Right Side - Login Form */}
-      <div className="flex-1 bg-black text-white flex flex-col justify-center items-center px-8">
-        <div className="w-full max-w-md bg-white/10 backdrop-blur-md rounded-lg p-8 shadow-lg">
-          <h2 className="text-3xl font-semibold text-center mb-6">
-            התחברות לחשבון
-          </h2>
-          <form onSubmit={handleSignIn} className="space-y-6">
-            {/* Username Field */}
-            <div>
+      {/* Content Container */}
+      <div className="container max-w-2xl mx-auto px-4 relative z-10">
+        <div className="relative backdrop-blur-xl">
+          <div className="text-center mb-12">
+            <h1 className="md:text-4xl font-bold mb-4 text-3xl">
+              <GradientText from="from-white" to="to-gray-400">
+                מערכת לניהול מטופלים
+              </GradientText>
+            </h1>
+            <p className="text-gray-300 md:text-lg text-md font-semibold">
+              שמחים לראות אותך! התחבר כדי להתחיל לעבוד
+            </p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto">
+            <div className="space-y-3">
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-300 mb-2"
+                className="text-base font-medium text-gray-200"
               >
                 שם משתמש
               </label>
               <input
                 id="username"
-                name="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black text-white border border-gray-600 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="הכנס שם משתמש"
+                className="w-full px-6 py-3 bg-white/5 rounded-lg
+                   focus:ring-2 focus:ring-white/20 focus:border-transparent
+                   text-primary  backdrop-blur-xl text-lg
+                   transition-all duration-200 hover:bg-white/10"
+                placeholder="הזן את שם המשתמש שלך"
                 required
+                dir="rtl"
               />
             </div>
 
-            {/* Password Field */}
-            <div>
+            <div className="space-y-3">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-300 mb-2"
+                className="text-base font-medium text-gray-200"
               >
                 סיסמה
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black text-white border border-gray-600 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="הכנס סיסמה"
-                required
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-6 py-3 bg-white/5 rounded-lg
+                     focus:ring-2 focus:ring-white/20 focus:border-transparent
+                     text-primary  backdrop-blur-xl text-lg
+                     transition-all duration-200 hover:bg-white/10"
+                  placeholder="הזן את הסיסמה שלך"
+                  required
+                  dir="rtl"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 left-5 flex items-center text-gray-400 hover:text-gray-200 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                </button>
+              </div>
             </div>
 
-            {/* Error Message */}
             {error && (
-              <p className="text-sm text-red-500 text-center">{error}</p>
+              <div className="text-red-400 text-base text-center bg-red-500/10 py-2 rounded-lg">
+                {error}
+              </div>
             )}
 
-            {/* Submit Button */}
-            <Button className='w-full' isLoading={isLoading}>התחבר</Button>
+            <Button
+              type="submit"
+              isLoading={isLoading}
+              className="w-full font-semibold text-lg py-6 rounded-lg cursor-pointer relative top-4"
+              disabled={isLoading}
+            >
+              התחבר 
+            </Button>
           </form>
         </div>
       </div>
