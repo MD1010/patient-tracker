@@ -3,7 +3,7 @@ export const BackgroundEffects = () => {
       <>
         {/* Animated Background */}
         <div className="fixed inset-0 bg-black">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-black to-black animate-gradient" />
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-pink-900 animate-gradient" />
           <div className="absolute inset-0">
             <div className="absolute inset-0 glow-effect" />
           </div>

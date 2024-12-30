@@ -3,14 +3,12 @@ import { Navigate } from "react-router-dom";
 
 const RootRedirect = () => {
   const { userId, isLoaded } = useAuth();
-  
-  if(!isLoaded) return null;
-  
-  if (userId) {
+
+  if (userId && isLoaded) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <Navigate to="/login"  />;
+  return <Navigate to="/login" />;
 };
 
 export default RootRedirect;

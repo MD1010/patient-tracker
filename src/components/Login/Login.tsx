@@ -46,12 +46,12 @@ const Login = () => {
   };
 
   return (
-    <div className="p-8 min-h-screen w-full flex items-center justify-center relative overflow-hidden">
+    <div className="p-8 h-[95vh] flex items-center justify-center relative overflow-hidden">
       <BackgroundEffects />
 
       {/* Content Container */}
       <div className="container max-w-2xl mx-auto px-4 relative z-10">
-        <div className="relative backdrop-blur-xl">
+        <div className="relative">
           <div className="text-center mb-12">
             <h1 className="md:text-4xl font-bold mb-4 text-3xl">
               <GradientText from="from-white" to="to-gray-400">
@@ -59,7 +59,7 @@ const Login = () => {
               </GradientText>
             </h1>
             <p className="text-gray-300 md:text-lg text-md font-semibold">
-              שמחים לראות אותך! התחבר כדי להתחיל לעבוד
+              איזה כיף לראות אותך! התחבר כדי להתחיל לעבוד
             </p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto">
@@ -71,6 +71,7 @@ const Login = () => {
                 שם משתמש
               </label>
               <input
+                autoComplete="off"
                 id="username"
                 type="text"
                 value={username}
@@ -94,6 +95,7 @@ const Login = () => {
               </label>
               <div className="relative">
                 <input
+                  autoComplete="off"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -127,8 +129,9 @@ const Login = () => {
               isLoading={isLoading}
               className="w-full font-semibold text-lg py-6 rounded-lg cursor-pointer relative top-4"
               disabled={isLoading}
+              loaderClasses="!h-6 !w-6"
             >
-              התחבר 
+              התחבר
             </Button>
           </form>
         </div>
