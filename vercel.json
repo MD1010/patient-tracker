@@ -3,6 +3,6 @@
       { "source": "/", "destination": "/" },
       { "source": "/login", "destination": "/login" },
       { "source": "/dashboard", "destination": "/dashboard" },
-      { "source": "/:path*", "destination": "/login" }
+      { "source": "/:path*", "destination": "/" }
     ]
   }
