@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   return (
-    <div className="p-8 h-[95vh] flex items-center justify-center relative overflow-hidden">
+    <div className="p-8 h-screen relative flex items-center justify-center  overflow-hidden">
       <BackgroundEffects />
 
       {/* Content Container */}

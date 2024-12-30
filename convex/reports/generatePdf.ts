@@ -20,6 +20,10 @@ export const generatePatientInfoPdf = async (
 
   let page = pdfDoc.addPage([600, 750]);
   let yOffset = 700;
+  
+  // Define consistent padding for all sections
+  const PAGE_PADDING = 50;
+  const CONTENT_WIDTH = 600 - (PAGE_PADDING * 2);
 
   const drawRTLText = (
     text: string,
@@ -30,7 +34,7 @@ export const generatePatientInfoPdf = async (
   ) => {
     const textWidth = regularFont.widthOfTextAtSize(text, size);
     page.drawText(text, {
-      x: x - textWidth, // Align to the right edge of the provided x
+      x: Math.min(x - textWidth, 600 - PAGE_PADDING - textWidth), // Ensure text stays within padding
       y,
       size,
       font: bold ? semiBoldFont : regularFont,
@@ -39,25 +43,25 @@ export const generatePatientInfoPdf = async (
   };
 
   const drawSeparator = () => {
-    yOffset += 10; // Increased margin below the separator
+    yOffset += 10;
     page.drawLine({
-      start: { x: 0, y: yOffset },
-      end: { x: 1000, y: yOffset },
+      start: { x: PAGE_PADDING, y: yOffset },
+      end: { x: 600 - PAGE_PADDING, y: yOffset },
       thickness: 0.7,
       color: rgb(0, 0, 0),
     });
-    yOffset -= 40; // Increased margin below the separator
+    yOffset -= 40;
   };
 
   const drawSectionHeader = (title: string) => {
-    drawRTLText(title, yOffset, 20, 550, true); // Bolder and larger font size for the title
-    yOffset -= 40; // Space after the title
+    drawRTLText(title, yOffset, 20, 600 - PAGE_PADDING, true);
+    yOffset -= 40;
   };
 
   const drawPersonalInfo = () => {
     const infoFontSize = 12;
-    const lineHeight = 25; // Adjusted line height for better readability
-    const labelValueGap = 10; // Reduced gap between labels and values
+    const lineHeight = 25;
+    const labelValueGap = 10;
 
     const phoneLabel = patient.phone ? "טלפון" : "טלפון הורה";
     const phoneValue = patient.phone || patient.parent?.phone || "N/A";
@@ -77,92 +81,115 @@ export const generatePatientInfoPdf = async (
     ];
 
     personalInfo.forEach((info) => {
-      drawRTLText(info.label, yOffset, infoFontSize, 550, true); // Bold for labels
-      drawRTLText(info.value, yOffset, infoFontSize, 550 - 200 - labelValueGap); // Align values closer to labels
-      yOffset -= lineHeight; // Move to the next row
+      drawRTLText(info.label, yOffset, infoFontSize, 600 - PAGE_PADDING, true);
+      drawRTLText(info.value, yOffset, infoFontSize, 600 - PAGE_PADDING - 200 - labelValueGap);
+      yOffset -= lineHeight;
     });
 
-    yOffset -= 20; // Extra padding after the section
+    yOffset -= 20;
   };
 
   const drawReportContent = (report: string) => {
     const sections = report.split(". ").map((s) => `${s.trim()}`);
     const contentFontSize = 12;
+    const maxWidth = CONTENT_WIDTH;
 
     for (const section of sections) {
       if (yOffset < 50) {
-        page = pdfDoc.addPage([600, 750]); // Add a new page to the PDF document
+        page = pdfDoc.addPage([600, 750]);
         yOffset = 700;
       }
-      drawRTLText(section, yOffset, contentFontSize, 550);
-      yOffset -= 20; // Adjusted line spacing
+
+      // Calculate how many characters can fit in the available width
+      const charsPerLine = Math.floor((maxWidth / contentFontSize) * 2); // Approximate RTL text fitting
+      const words = section.split(" ");
+      let currentLine = "";
+      let lines = [];
+
+      // Break text into lines that fit within the width
+      for (const word of words) {
+        if ((currentLine + " " + word).length <= charsPerLine) {
+          currentLine += (currentLine ? " " : "") + word;
+        } else {
+          if (currentLine) lines.push(currentLine);
+          currentLine = word;
+        }
+      }
+      if (currentLine) lines.push(currentLine);
+
+      // Draw each line
+      for (const line of lines) {
+        drawRTLText(line, yOffset, contentFontSize, 600 - PAGE_PADDING);
+        yOffset -= 20;
+      }
     }
 
-    yOffset -= 20; // Adjusted line spacing
+    yOffset -= 20;
   };
 
   const drawTreatmentsTable = (treatments: Doc<"treatments">[]) => {
     if (treatments.length === 0) {
-      drawRTLText("אין היסטוריית טיפולים", yOffset, 14, 550, false);
+      drawRTLText("אין היסטוריית טיפולים", yOffset, 14, 600 - PAGE_PADDING, false);
       yOffset -= 30;
       return;
     }
 
-    const pageWidth = 600;
-    const tablePadding = 50;
-    const totalTableWidth = pageWidth - 2 * tablePadding;
+    const totalTableWidth = CONTENT_WIDTH;
     const columnWidths = [80, 80, 150, totalTableWidth - 310];
     const rowHeight = 25;
     const fontSize = 10;
     const headers = ["תאריך", "עלות", "סוג", "תיאור"];
     const separatorMarginBottom = 10;
 
-    // Draw table headers
+    // Draw table headers with proper padding
     headers.forEach((header, index) => {
       const headerX =
-        pageWidth -
-        tablePadding -
+        600 -
+        PAGE_PADDING -
         columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
       drawRTLText(header, yOffset, fontSize + 2, headerX, true);
     });
 
-    yOffset -= 30; // Space between headers and content
+    yOffset -= 30;
 
-    // Separator after the headers
+    // Draw table content with proper padding
     page.drawLine({
-      start: { x: tablePadding, y: yOffset + 15 }, // Reduced margin above
-      end: { x: pageWidth - tablePadding, y: yOffset + 15 },
+      start: { x: PAGE_PADDING, y: yOffset + 15 },
+      end: { x: 600 - PAGE_PADDING, y: yOffset + 15 },
       thickness: 1,
       color: rgb(0.8, 0.8, 0.8),
     });
 
-    yOffset -= separatorMarginBottom; // Reduced space after the header separator
+    yOffset -= separatorMarginBottom;
 
-    // Draw table rows
     treatments.forEach((treatment, index) => {
       if (yOffset < 50) {
         page = pdfDoc.addPage([600, 750]);
         yOffset = 700;
       }
 
-      const rowValues = [getClientDate(treatment.date, userTimeZone), `${treatment.cost}₪`];
+      const rowValues = [
+        getClientDate(treatment.date, userTimeZone),
+        `${treatment.cost}₪`,
+      ];
 
-      // Draw תאריך and עלות columns
       rowValues.forEach((value, index) => {
         const valueX =
-          pageWidth -
-          tablePadding -
+          600 -
+          PAGE_PADDING -
           columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
         drawRTLText(value, yOffset, fontSize, valueX);
       });
 
-      // Handle סוג column with multi-line overflow
       const type = treatment.type || "";
-      const typeLines = type.match(/.{1,15}/g) || [type];
       const typeX =
-        pageWidth -
-        tablePadding -
+        600 -
+        PAGE_PADDING -
         columnWidths.slice(0, 2).reduce((a, b) => a + b, 0);
+
+      const typeWidth = columnWidths[2];
+      const typeCharsPerLine = Math.floor((typeWidth / fontSize) * 2);
+      const typeLines = type.match(new RegExp(`.{1,${typeCharsPerLine}}`, 'g')) || [type];
 
       let currentYOffset = yOffset;
       typeLines.forEach((line) => {
@@ -170,13 +197,15 @@ export const generatePatientInfoPdf = async (
         currentYOffset -= 12;
       });
 
-      // Handle תיאור column with multi-line overflow
       const description = treatment.description || "";
-      const descriptionLines = description.match(/.{1,30}/g) || [description];
       const descriptionX =
-        pageWidth -
-        tablePadding -
+        600 -
+        PAGE_PADDING -
         columnWidths.slice(0, 3).reduce((a, b) => a + b, 0);
+
+      const descriptionWidth = columnWidths[3];
+      const descriptionCharsPerLine = Math.floor((descriptionWidth / fontSize) * 2);
+      const descriptionLines = description.match(new RegExp(`.{1,${descriptionCharsPerLine}}`, 'g')) || [description];
 
       let descriptionYOffset = yOffset;
       descriptionLines.forEach((line) => {
@@ -191,11 +220,10 @@ export const generatePatientInfoPdf = async (
       );
 
       if (index !== treatments.length - 1) {
-        // Separator after each row
         page.drawLine({
-          start: { x: tablePadding, y: yOffset - maxColumnHeight + 2 },
+          start: { x: PAGE_PADDING, y: yOffset - maxColumnHeight + 2 },
           end: {
-            x: pageWidth - tablePadding,
+            x: 600 - PAGE_PADDING,
             y: yOffset - maxColumnHeight + 2,
           },
           thickness: 1,
@@ -203,18 +231,17 @@ export const generatePatientInfoPdf = async (
         });
       }
 
-      yOffset -= maxColumnHeight + separatorMarginBottom + 10; // Adjusted for consistent spacing
+      yOffset -= maxColumnHeight + separatorMarginBottom + 10;
     });
 
-    yOffset -= 20; // Space after the table
+    yOffset -= 20;
   };
 
-  // Draw "פרטים כלליים" section with header and personal info
+  // Draw sections
   drawSectionHeader("פרטים כלליים");
   drawPersonalInfo();
   drawSeparator();
 
-  // Draw "דו\"ח רפואי" section
   const report = generateMedicalConditionReport(patient, {
     withInfoDetails: false,
   });
@@ -222,11 +249,9 @@ export const generatePatientInfoPdf = async (
   drawReportContent(report);
   drawSeparator();
 
-  // Draw "היסטוריית טיפולים" section
   drawSectionHeader("היסטוריית טיפולים");
   drawTreatmentsTable(treatments);
 
-  // Serialize the PDF and return Base64
   const pdfBytes = await pdfDoc.save();
   return toBase64(pdfBytes);
 };
