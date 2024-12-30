@@ -206,11 +206,11 @@ export function PatientData() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-6 rtl"
+            className="space-y-6"
           >
             <h1 className="text-xl font-bold">פרטים כלליים</h1>
             <Card className="p-4 mt-4">
-              <div className="grid grid-cols-3 gap-4 rtl mobile:grid-cols-2">
+              <div className="grid grid-cols-3 gap-4 mobile:grid-cols-2">
                 <div>
                   <h4 className="text-sm font-semibold">תעודת זהות</h4>
                   <p className="text-sm text-muted-foreground">
@@ -300,7 +300,7 @@ export function PatientData() {
           >
             <h4 className="text-xl font-bold ">רקע רפואי</h4>
             <Card className="p-4">
-              <div dir="rtl">
+              <div>
                 {generateMedicalConditionReport(selectedPatient)}
               </div>
             </Card>
@@ -312,7 +312,7 @@ export function PatientData() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="space-y-6 min-h-[250px] mobile:min-h-[300px]"
           >
-            <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between rtl" >
+            <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between" >
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
               <Button
                 variant="outline"
@@ -332,7 +332,6 @@ export function PatientData() {
               onValueChange={handleAccordionOpen}
               collapsible
               className="w-full"
-              dir="rtl"
             >
               {treatments === undefined && (
                 <div className="flex justify-center items-center py-8">
@@ -354,13 +353,13 @@ export function PatientData() {
                         value={treatment._id}
                         className="border-b last:border-none"
                       >
-                        <AccordionTrigger className="sticky top-10 bg-background z-20">
-                          <div className="flex w-full gap-12 justify-end">
-                            <span className="font-medium">
-                              {treatment.type}
-                            </span>
+                        <AccordionTrigger className="sticky top-10 bg-background z-20 ">
+                          <div className="flex w-full gap-12">
                             <span className="text-sm text-muted-foreground text-right">
                               {format(new Date(treatment.date), "dd/MM/yyyy")}
+                            </span>
+                            <span className="font-medium">
+                              {treatment.type}
                             </span>
                           </div>
                         </AccordionTrigger>
