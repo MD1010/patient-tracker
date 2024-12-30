@@ -1,8 +1,10 @@
 import { App } from "@/App";
 import { Layout } from "@/components/Layout";
-import { Login } from "@/components/Login/Login";
-import ProtectedRoute from '@/components/Redirect/ProtectedRoute';
-import RootRedirect from '@/components/Redirect/RootRedirect';
+import Login from "@/components/Login/Login";
+import LoginRedirect from "@/components/Redirect/LoginRedirect";
+
+import ProtectedRoute from "@/components/Redirect/ProtectedRoute";
+import RootRedirect from "@/components/Redirect/RootRedirect";
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
@@ -15,7 +17,7 @@ export const router = createBrowserRouter([
     path: "/login",
     element: (
       <Layout>
-        <Login />
+        <LoginRedirect />
       </Layout>
     ),
   },

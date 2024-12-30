@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
-  const { userId } = useAuth(); 
+  const { userId, isLoaded } = useAuth();
 
-  if (!userId) {
+  if (!userId && isLoaded) {
     return <Navigate to="/login" replace />;
   }
 

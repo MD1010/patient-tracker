@@ -2,7 +2,8 @@ import { useModal } from "@/store/modal-store";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
-import { PlusIcon } from 'lucide-react';
+import { LogOutIcon, PlusIcon } from "lucide-react";
+import { SignOutButton } from "@clerk/clerk-react";
 
 export function Header() {
   const { openModal } = useModal();
@@ -25,9 +26,15 @@ export function Header() {
               className="flex items-center hover:shadow-sm "
             >
               <span className="font-bold -mx-1">הוספת מטופל</span>
-              <PlusIcon strokeWidth={4}/>
+              <PlusIcon strokeWidth={4} />
             </Button>
             <ThemeToggle />
+
+            <SignOutButton>
+              <Button variant={"outline"} size={"icon"}>
+                <LogOutIcon />
+              </Button>
+            </SignOutButton>
           </div>
         </div>
       </div>

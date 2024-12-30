@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: "https://your-issuer-url.clerk.accounts.dev/",
+      domain: "https://sterling-javelin-42.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],
