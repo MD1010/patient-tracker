@@ -5,12 +5,17 @@ import { generatePatientInfoPdf } from "./reports/generatePdf";
 import { sendEmailWithPDF } from "./reports/sendEmail";
 import { patientsSchema } from "./schemas/patients";
 import { getLastTreatmentDate } from "./treatments";
+import { getUserIdentity } from "./utils/auth";
 
 export const get = query({
   args: {},
   handler: async (ctx) => {
-    const patients = await ctx.db.query("patients").collect();
-    
+    const userId = await getUserIdentity(ctx);
+
+    const patients = await ctx.db
+      .query("patients")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
     const patientsWithLastTreatmentDate = await Promise.all(
       patients.map(async (p) => ({
         ...p,
@@ -25,20 +30,29 @@ export const get = query({
 export const getOne = query({
   args: { patientId: v.optional(v.id("patients")) },
   handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
     if (!args.patientId) return null;
     const patient = await ctx.db.get(args.patientId);
+
+    // Ensure the patient belongs to the user
+    if (patient?.userId !== userId) return null;
     return patient;
   },
 });
 
 export const add = mutation({
-  args: v.object({ ...patientsSchema, isAdult: v.optional(v.boolean()) }),
+  args: v.object({ ...patientsSchema, isAdult: v.optional(v.boolean()), userId: v.optional(v.string()), }),
   handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+
+    if (!userId) throw new Error("Unauthorized");
+
     const dateOfBirth = new Date(args.dateOfBirth);
     const age = new Date().getFullYear() - dateOfBirth.getFullYear();
 
     const patientId = await ctx.db.insert("patients", {
       ...args,
+      userId, // Associate patient with the authenticated user
       isAdult: age >= 18,
       nextTreatment: null,
     });
@@ -48,10 +62,15 @@ export const add = mutation({
 });
 
 export const deleteOne = mutation({
-  args: {
-    patientId: v.id("patients"), // Correct type-safe ID
-  },
+  args: { patientId: v.id("patients") },
   handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+
+    const patient = await ctx.db.get(args.patientId);
+
+    // Ensure the patient belongs to the user
+    if (patient?.userId !== userId) throw new Error("Unauthorized");
+
     await ctx.db.delete(args.patientId);
   },
 });
@@ -61,10 +80,19 @@ export const edit = mutation({
     ...patientsSchema,
     _id: v.id("patients"),
     _creationTime: v.optional(v.number()),
+    userId: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+
+    const patient = await ctx.db.get(args._id);
+
+    // Ensure the patient belongs to the user
+    if (patient?.userId !== userId) throw new Error("Unauthorized");
+
     const dateOfBirth = new Date(args.dateOfBirth);
     const age = new Date().getFullYear() - dateOfBirth.getFullYear();
+
     await ctx.db.patch(args._id, { ...args, isAdult: age >= 18 });
   },
 });
@@ -72,9 +100,14 @@ export const edit = mutation({
 export const getPatient = internalQuery({
   args: { patientId: v.id("patients") },
   handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+
     const patient = await ctx.db.get(args.patientId);
-    if (!patient) return null;
-    const lastTreatmentDate = await getLastTreatmentDate(ctx, patient?._id);
+
+    // Ensure the patient belongs to the user
+    if (!patient || patient?.userId !== userId) return null;
+
+    const lastTreatmentDate = await getLastTreatmentDate(ctx, patient._id);
     return { ...patient, lastTreatmentDate };
   },
 });
@@ -82,9 +115,14 @@ export const getPatient = internalQuery({
 export const sendEmailWithAttachment = action({
   args: { patientId: v.id("patients"), userTimeZone: v.string() },
   handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+
     const patient = await ctx.runQuery(internal.patients.getPatient, {
       patientId: args.patientId,
     });
+
+    // Ensure the patient belongs to the user
+    if (!patient || patient?.userId !== userId) throw new Error("Unauthorized");
 
     const treatments = await ctx.runQuery(api.treatments.get, {
       patientId: args.patientId,
@@ -102,6 +140,8 @@ export const sendEmailWithAttachment = action({
 export const generatePatientInfo = action({
   args: { patientId: v.id("patients"), userTimeZone: v.string() },
   handler: async (ctx, args) => {
+    // const userId = await getUserIdentity(ctx);
+
     const patient = await ctx.runQuery(internal.patients.getPatient, {
       patientId: args.patientId,
     });
@@ -118,16 +158,4 @@ export const generatePatientInfo = action({
       return res;
     }
   },
-});
-
-export const backfillNextTreatmentRecallDate = mutation(async ({ db }) => {
-  const patients = await db.query("patients").collect();
-
-  for (const patient of patients) {
-    if (!patient.nextTreatmentRecallDate) {
-      await db.patch(patient._id, {
-        nextTreatmentRecallDate: null, // Default value, or provide a meaningful default
-      });
-    }
-  }
 });

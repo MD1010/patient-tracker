@@ -110,7 +110,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
                       <ArrowLeftIcon />
                     </Button>
                   ) : (
-                    <Button type="submit" className="flex-1">
+                    <Button type="submit" className="flex-1" isLoading={isLoading}>
                       שמור
                     </Button>
                   )}

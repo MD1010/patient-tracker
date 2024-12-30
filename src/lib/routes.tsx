@@ -1,6 +1,5 @@
 import { App } from "@/App";
 import { Layout } from "@/components/Layout";
-import Login from "@/components/Login/Login";
 import LoginRedirect from "@/components/Redirect/LoginRedirect";
 
 import ProtectedRoute from "@/components/Redirect/ProtectedRoute";

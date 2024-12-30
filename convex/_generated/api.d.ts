@@ -22,6 +22,7 @@ import type * as schemas_index from "../schemas/index.js";
 import type * as schemas_patients from "../schemas/patients.js";
 import type * as schemas_treatments from "../schemas/treatments.js";
 import type * as treatments from "../treatments.js";
+import type * as utils_auth from "../utils/auth.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   "schemas/patients": typeof schemas_patients;
   "schemas/treatments": typeof schemas_treatments;
   treatments: typeof treatments;
+  "utils/auth": typeof utils_auth;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

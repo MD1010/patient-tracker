@@ -7,6 +7,7 @@ type RequiredFields =
   | "_creationTime"
   | "dateOfBirth"
   | "idNumber"
+  | "userId"
   | "isAdult";
 
 export default {

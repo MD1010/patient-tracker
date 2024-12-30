@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
 export const patientsSchema = {
+  userId: v.string(),
   firstName: v.string(),
   lastName: v.string(),
   phone: v.union(v.string(), v.null()),
