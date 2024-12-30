@@ -58,7 +58,7 @@ export function PatientTableRow({
       onClick={() => onRowClick(patient)}
     >
       <TableCell
-        className="py-3 px-4 text-center font-medium whitespace-nowrap"
+        className="py-3 px-4 mobile:text-right text-center font-medium whitespace-nowrap"
         style={{
           width: columnsWidth[0],
         }}

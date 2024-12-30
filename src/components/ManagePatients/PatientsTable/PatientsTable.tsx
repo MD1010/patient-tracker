@@ -102,7 +102,7 @@ export function PatientTable() {
   };
 
   const columnsWidth = [
-    "14%",
+    "12%",
     "12%",
     "12%",
     "14%",
@@ -149,7 +149,8 @@ export function PatientTable() {
                       "text-center py-3 whitespace-nowrap",
                       column.key && "cursor-pointer select-none",
                       index > 2 && "hidden lg:table-cell",
-                      index > 1 && "mobile:hidden lg:table-cell"
+                      index > 1 && "mobile:hidden lg:table-cell",
+                      index == 0 && "mobile:text-right mobile:px-6"
                     )}
                     style={{
                       width: columnsWidth[index],
