@@ -185,7 +185,7 @@ export function PatientTable() {
                 <TableRow>
                   <TableCell
                     colSpan={8}
-                    className="h-24  md:text-center font-semibold "
+                    className="h-24 pointer-events-none hover:bg-transparent text-center font-semibold "
                   >
                     לא נמצאו מטופלים
                   </TableCell>

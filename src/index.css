@@ -19,8 +19,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  body{
-      overflow-y: hidden;
+  body {
+    overflow-y: hidden;
   }
 }
 

@@ -28,8 +28,8 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
       differenceInYears(new Date(), watch("dateOfBirth")) >= 18);
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-6">
+    <div className="space-y-10">
+      <div className="grid grid-cols-2 gap-6 mobile:flex mobile:flex-col">
         {/* First Name */}
         <div className="space-y-2">
           <Label htmlFor="firstName">שם פרטי</Label>

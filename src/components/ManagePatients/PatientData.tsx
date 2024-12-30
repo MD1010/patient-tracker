@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePatients } from "@/store/patients-store";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
@@ -75,9 +74,7 @@ export function PatientData() {
     requestAnimationFrame(() => {
       // Add a small delay to ensure content is expanded
       setTimeout(() => {
-        const viewport = document.querySelector(
-          ".scroll"
-        );
+        const viewport = document.querySelector(".scroll");
         const itemElement = accordionRefs.current[id];
 
         if (!(viewport instanceof HTMLDivElement) || !itemElement) return;
@@ -260,15 +257,13 @@ export function PatientData() {
                         new Date(selectedPatient.nextTreatment.date),
                         "dd/MM/yyyy"
                       )}
-                      {selectedPatient.nextTreatment.time && (
-                        <>
-                          {" "}
-                          בשעה
+                      <div>
+                        {selectedPatient.nextTreatment.time && (
                           <span className="mr-1 block">
                             {selectedPatient.nextTreatment.time}
                           </span>
-                        </>
-                      )}
+                        )}
+                      </div>
                     </p>
                   </div>
                 )}
@@ -300,9 +295,7 @@ export function PatientData() {
           >
             <h4 className="text-xl font-bold ">רקע רפואי</h4>
             <Card className="p-4">
-              <div>
-                {generateMedicalConditionReport(selectedPatient)}
-              </div>
+              <div>{generateMedicalConditionReport(selectedPatient)}</div>
             </Card>
           </motion.div>
 
@@ -312,7 +305,7 @@ export function PatientData() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="space-y-6 min-h-[250px] mobile:min-h-[300px]"
           >
-            <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between" >
+            <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between">
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
               <Button
                 variant="outline"
@@ -353,12 +346,12 @@ export function PatientData() {
                         value={treatment._id}
                         className="border-b last:border-none"
                       >
-                        <AccordionTrigger className="sticky top-10 bg-background z-20 ">
+                        <AccordionTrigger className="bg-background ">
                           <div className="flex w-full gap-12">
                             <span className="text-sm text-muted-foreground text-right">
                               {format(new Date(treatment.date), "dd/MM/yyyy")}
                             </span>
-                            <span className="font-medium">
+                            <span className="font-medium mobile:max-w-[10rem] break-words max-w-20rem text-right">
                               {treatment.type}
                             </span>
                           </div>

@@ -70,7 +70,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap w-full gap-4 gap-x-6 justify-center items-center h-96">
+      <div className="flex flex-wrap w-full gap-4 gap-x-6 justify-center items-center sm:h-80 mt-4">
         {conditions.map((condition) => {
           const isChecked = !!watch(`conditions.${condition.id}` as keyof FormData);
 
