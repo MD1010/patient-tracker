@@ -97,7 +97,7 @@ export function TreatmentForm({
             <p className="text-sm text-red-600">{errors.type.message}</p>
           )}
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 mobile:flex-col mobile:space-y-4">
           <div className="space-y-2 flex-1">
             <DateInput
               placeholder="תאריך הטיפול"

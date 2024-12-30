@@ -101,15 +101,26 @@ export function PatientTable() {
     openModal("addOrEditNextTreatment", { selectedPatient: patient });
   };
 
+  const columnsWidth = [
+    "14%",
+    "12%",
+    "12%",
+    "14%",
+    "12%",
+    "14%",
+    "14%",
+    "14%",
+  ];
+
   const columns = [
-    { label: "שם", key: "name", width: "14%" },
-    { label: "ת.ז", key: "idNumber", width: "14%" },
-    { label: "טלפון", key: "phone", width: "14%" },
-    { label: "תאריך לידה", key: "dateOfBirth", width: "14%" },
-    { label: "סוג מטופל", key: "isAdult", width: "14%" },
-    { label: "טיפול אחרון", key: "lastTreatmentDate", width: "14%" },
-    { label: "טיפול עתידי", key: "nextTreatment", width: "auto" },
-    { label: "", key: "", width: "auto" },
+    { label: "שם", key: "name" },
+    { label: "ת.ז", key: "idNumber" },
+    { label: "טלפון", key: "phone" },
+    { label: "תאריך לידה", key: "dateOfBirth" },
+    { label: "סוג מטופל", key: "isAdult" },
+    { label: "טיפול אחרון", key: "lastTreatmentDate" },
+    { label: "טיפול עתידי", key: "nextTreatment" },
+    { label: "", key: "" },
   ];
 
   return (
@@ -135,12 +146,13 @@ export function PatientTable() {
                     key={index}
                     onClick={() => column.key && handleSort(column.key)}
                     className={cn(
-                      "text-right py-3 px-4 whitespace-nowrap",
+                      "text-center py-3 whitespace-nowrap",
                       column.key && "cursor-pointer select-none",
-                      index > 2 && "hidden lg:table-cell"
+                      index > 2 && "hidden lg:table-cell",
+                      index > 1 && "mobile:hidden lg:table-cell"
                     )}
                     style={{
-                      width: column.width,
+                      width: columnsWidth[index],
                     }}
                   >
                     {column.label}
@@ -153,6 +165,10 @@ export function PatientTable() {
                 ))}
               </TableRow>
             </TableHeader>
+          </Table>
+        </div>
+        <div className="w-full overflow-x-auto overflow-y-scroll max-h-[calc(100vh-20rem)]  scrollbar-rtl">
+          <Table>
             <TableBody>
               {isLoading ? (
                 <TableRow className="hover:bg-transparent">
@@ -177,6 +193,7 @@ export function PatientTable() {
               ) : (
                 sortedPatients?.map((patient) => (
                   <PatientTableRow
+                  columnsWidth={columnsWidth}
                     key={patient._id}
                     patient={patient}
                     onEdit={handleEdit}

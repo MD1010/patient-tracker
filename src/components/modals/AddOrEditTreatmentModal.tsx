@@ -20,7 +20,7 @@ export const AddOrEditTreatmentModal = ({}) => {
     <div className="flex flex-col items-center space-y-4">
       {isModalOpen && (
         <Dialog open={isOpen} onOpenChange={closeModal}>
-          <DialogContent className='max-w-lg'>
+          <DialogContent className='max-w-lg flex flex-col '>
             <DialogHeader>
               <DialogTitle className="text-right p-4 px-0">
                 {formTitle}

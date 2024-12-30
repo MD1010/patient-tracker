@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Doc } from "../../../convex/_generated/dataModel";
-import { ScrollArea } from "../ui/scroll-area";
 import DEFAULT_FORM_VALUES from "./defualtFormValues";
 import { FormSteps } from "./FormSteps";
 import { MedicalBackground } from "./steps/MedicalBackground";
@@ -39,12 +38,12 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const editPatientMutation = useMutation(api.patients.edit);
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true)
+    setIsLoading(true);
     patient ? await editPatientMutation(data) : await addPatientMutation(data);
     let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";
     toast.success(completedText, { position: "bottom-right" });
     closeModal();
-    setIsLoading(false)
+    setIsLoading(false);
   };
 
   const onStepClick = (stepNumber: number) => {
@@ -63,7 +62,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   };
 
   return (
-    <div className="max-w-4xl p-6">
+    <div className="max-w-4xl p-6 mobile:p-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
@@ -79,11 +78,11 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           />
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-            <ScrollArea className="h-[45vh] rtl px-4">
+            <div className="px-4 overflow-auto max-h-[45vh] scrollbar-rtl">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
               {currentStep === 3 && <MedicalHistory form={form} />}
-            </ScrollArea>
+            </div>
 
             <div className="mt-8 flex justify-between gap-4">
               {patient ? (
@@ -110,7 +109,11 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
                       <ArrowLeftIcon />
                     </Button>
                   ) : (
-                    <Button type="submit" className="flex-1" isLoading={isLoading}>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      isLoading={isLoading}
+                    >
                       שמור
                     </Button>
                   )}

@@ -76,7 +76,7 @@ export function PatientData() {
       // Add a small delay to ensure content is expanded
       setTimeout(() => {
         const viewport = document.querySelector(
-          "[data-radix-scroll-area-viewport]"
+          ".scroll"
         );
         const itemElement = accordionRefs.current[id];
 
@@ -201,7 +201,7 @@ export function PatientData() {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="p-4 text-right h-full">
+        <div className="p-4 text-right h-full overflow-auto scrollbar-rtl scroll">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -210,7 +210,7 @@ export function PatientData() {
           >
             <h1 className="text-xl font-bold">פרטים כלליים</h1>
             <Card className="p-4 mt-4">
-              <div className="grid grid-cols-3 gap-4 rtl">
+              <div className="grid grid-cols-3 gap-4 rtl mobile:grid-cols-2">
                 <div>
                   <h4 className="text-sm font-semibold">תעודת זהות</h4>
                   <p className="text-sm text-muted-foreground">
@@ -310,9 +310,9 @@ export function PatientData() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="space-y-6 min-h-[250px]"
+            className="space-y-6 min-h-[250px] mobile:min-h-[300px]"
           >
-            <div className="bg-background sticky -top-2 z-40 py-2 flex justify-between rtl">
+            <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between rtl" >
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
               <Button
                 variant="outline"
@@ -332,6 +332,7 @@ export function PatientData() {
               onValueChange={handleAccordionOpen}
               collapsible
               className="w-full"
+              dir="rtl"
             >
               {treatments === undefined && (
                 <div className="flex justify-center items-center py-8">
@@ -468,7 +469,7 @@ export function PatientData() {
                   )}
             </Accordion>
           </motion.div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

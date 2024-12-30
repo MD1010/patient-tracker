@@ -29,6 +29,7 @@ import {
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 
 interface PatientTableRowProps {
+  columnsWidth: string[];
   patient: Doc<"patients"> & { lastTreatmentDate: string };
   onEdit: (patient: any) => void;
   onDelete: (id: Id<"patients">) => void;
@@ -40,6 +41,7 @@ interface PatientTableRowProps {
 import { useState } from "react";
 
 export function PatientTableRow({
+  columnsWidth,
   patient,
   onEdit,
   onDelete,
@@ -55,34 +57,80 @@ export function PatientTableRow({
       className="cursor-pointer hover:bg-secondary/20 h-[3.5rem]"
       onClick={() => onRowClick(patient)}
     >
-      <TableCell className="py-3 px-4 text-right font-medium whitespace-nowrap">
+      <TableCell
+        className="py-3 px-4 text-center font-medium whitespace-nowrap"
+        style={{
+          width: columnsWidth[0],
+        }}
+      >
         {`${patient.firstName} ${patient.lastName}`}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap">
+      <TableCell
+        className="py-3 px-4 text-center whitespace-nowrap"
+        style={{
+          width: columnsWidth[1],
+        }}
+      >
         {patient.idNumber}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap">
+      <TableCell
+        className="py-3 px-4 text-center whitespace-nowrap mobile:hidden"
+        style={{
+          width: columnsWidth[2],
+        }}
+      >
         {patient.phone || patient.parent?.phone}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
+      <TableCell
+        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell"
+        style={{
+          width: columnsWidth[3],
+        }}
+      >
         {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
-        <Badge variant={patient.isAdult ? "blue" : "red"} className="px-2">
+      <TableCell
+        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell "
+        style={{
+          width: columnsWidth[4],
+        }}
+      >
+        <Badge
+          variant={patient.isAdult ? "blue" : "red"}
+          className="px-2"
+          style={{
+            width: "auto",
+          }}
+        >
           {patient.isAdult ? "מבוגר" : "ילד"}
         </Badge>
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
+      <TableCell
+        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell"
+        style={{
+          width: columnsWidth[6],
+        }}
+      >
         {patient.lastTreatmentDate
           ? format(new Date(patient.lastTreatmentDate), "dd/MM/yyyy")
           : "-"}
       </TableCell>
-      <TableCell className="py-3 px-4 text-right whitespace-nowrap hidden lg:table-cell">
+      <TableCell
+        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell"
+        style={{
+          width: columnsWidth[7],
+        }}
+      >
         {patient.nextTreatment
           ? format(new Date(patient.nextTreatment.date), "dd/MM/yyyy")
           : "-"}
       </TableCell>
-      <TableCell className="py-3 px-4 whitespace-nowrap hidden lg:table-cell">
+      <TableCell
+        className="py-3 px-4 text-centerwhitespace-nowrap hidden lg:table-cell"
+        style={{
+          width: columnsWidth[8],
+        }}
+      >
         <div className="flex justify-end">
           <DropdownMenu dir="rtl">
             <DropdownMenuTrigger
@@ -112,7 +160,7 @@ export function PatientTableRow({
                 {patient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="py-2 text-right px-2"
+                className="py-2  px-2"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNewTreatment(patient);
@@ -163,10 +211,8 @@ export function PatientTableRow({
           <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-right">
-                  מחיקת מטופל
-                </AlertDialogTitle>
-                <AlertDialogDescription className="ml-auto text-right">
+                <AlertDialogTitle className="">מחיקת מטופל</AlertDialogTitle>
+                <AlertDialogDescription className="ml-auto ">
                   האם אתה בטוח שברצונך למחוק את המטופל {patient.firstName}?
                   פעולה זו לא ניתנת לביטול.
                 </AlertDialogDescription>
