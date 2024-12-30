@@ -113,13 +113,14 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
   return (
     <form
-      className="space-y-6 flex flex-col gap-3"
+      className="space-y-6 flex flex-col gap-3 mobile:justify-between mobile:h-screen"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Tabs
         defaultValue={activeTab}
         className="w-full"
         onValueChange={setActiveTab}
+
       >
         {/* Tabs Header */}
         <TabsList className="flex justify-center gap-4 rtl">
