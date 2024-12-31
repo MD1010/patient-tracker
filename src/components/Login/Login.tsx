@@ -131,7 +131,7 @@ const Login = () => {
           {/* Button Container - Mobile-specific styling */}
           <div className="mobile:fixed left-0 right-0 bottom-0 px-0 mobile:px-8">
             <Button
-              className="w-full font-semibold text-lg rounded-lg cursor-pointer mb-8 text-black bg-white"
+              className="w-full font-semibold text-lg rounded-lg cursor-pointer mb-8 text-black bg-white py-6"
               type="submit"
               isLoading={isLoading}
               disabled={isLoading}

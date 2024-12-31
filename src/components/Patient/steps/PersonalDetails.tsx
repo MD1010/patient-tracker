@@ -94,6 +94,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         <div className="space-y-2">
           <Label htmlFor="idNumber">תעודת זהות</Label>
           <Input
+          type='number'
             autoComplete="off"
             id="idNumber"
             {...register("idNumber", {
@@ -113,6 +114,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             {isAdult || !watch("dateOfBirth") ? "טלפון" : "טלפון ההורה"}
           </Label>
           <Input
+            type="tel"
             autoComplete="off"
             id={isAdult ? "phone" : "parent.phone"}
             {...register(isAdult ? "phone" : "parent.phone", {
@@ -120,10 +122,10 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
               validate: (value) =>
                 validateIsraeliPhone(value!) || "מספר טלפון לא תקין",
             })}
-            className={
+            className={cn(
               errors.phone || errors.parent?.phone
                 ? "border-red-500 shadow-sm"
-                : ""
+                : "", "text-right")
             }
           />
           {(errors.phone || errors.parent?.phone) && (

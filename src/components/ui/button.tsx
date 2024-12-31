@@ -20,7 +20,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        submit: " mobile:font-semibold text-md mobile:!py-6 bg-primary text-secondary rounded-lg",
+        submit: "mobile:font-semibold text-md mobile:!py-6 bg-primary text-secondary rounded-lg",
       },
       size: {
         default: "h-9 px-4 py-2",

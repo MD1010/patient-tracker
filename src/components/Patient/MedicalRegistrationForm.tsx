@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useModal } from "@/store/modal-store";
 import { useMutation } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -86,7 +86,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             </div>
            
 
-            <div className="mt-8 mobile:mt-auto gap-4 space-y-8 flex se:pt-8">
+            <div className="mt-8 mobile:mt-auto gap-4 flex se:pt-8 items-center">
               {patient ? (
                 // Render only the submit button if patient exists
                 <Button type="submit" className="flex-1" isLoading={isLoading} variant="submit">
@@ -100,13 +100,14 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
                       type="button"
                       variant="link"
                       onClick={prevStep}
-                      className="flex-1"
+                      className="flex-1 mobile:py-6 !border-none"
                     >
+                      <ArrowRightIcon />
                       <span className="text-right ml-auto">הקודם</span>
                     </Button>
                   )}
                   {currentStep < 3 ? (
-                    <Button type="button" onClick={nextStep} className="flex-1">
+                    <Button type="button" onClick={nextStep} className="flex-1" variant="submit">
                       <span>לשלב הבא</span>
                       <ArrowLeftIcon />
                     </Button>
