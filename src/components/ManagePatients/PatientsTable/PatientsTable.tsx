@@ -101,26 +101,48 @@ export function PatientTable() {
     openModal("addOrEditNextTreatment", { selectedPatient: patient });
   };
 
-  const columnsWidth = [
-    "12%",
-    "12%",
-    "12%",
-    "14%",
-    "12%",
-    "14%",
-    "14%",
-    "14%",
-  ];
-
   const columns = [
-    { label: "שם", key: "name" },
-    { label: "ת.ז", key: "idNumber" },
-    { label: "טלפון", key: "phone" },
-    { label: "תאריך לידה", key: "dateOfBirth" },
-    { label: "סוג מטופל", key: "isAdult" },
-    { label: "טיפול אחרון", key: "lastTreatmentDate" },
-    { label: "טיפול עתידי", key: "nextTreatment" },
-    { label: "", key: "" },
+    {
+      label: "שם",
+      key: "name",
+      className: "text-center mobile:text-right mobile:px-4",
+    },
+    {
+      label: "ת.ז",
+      key: "idNumber",
+      className: "text-center mobile:text-right",
+    },
+    { label: "טלפון", key: "phone", className: "text-center  mobile:hidden" },
+    {
+      label: "תאריך לידה",
+      key: "dateOfBirth",
+      className: "text-center hidden laptop:table-cell tablet:table-cell",
+    },
+    {
+      label: "סוג מטופל",
+      key: "isAdult",
+      className: "text-center hidden lg:table-cell",
+    },
+    {
+      label: "טיפול אחרון",
+      key: "lastTreatmentDate",
+      className: "text-center  hidden lg:table-cell",
+    },
+    {
+      label: "טיפול עתידי",
+      key: "nextTreatment",
+      className: "text-center  hidden xl:table-cell",
+    },
+    {
+      label: "תזכור עתידי",
+      key: "nextTreatmentRecallDate",
+      className: "text-center  hidden xl:table-cell",
+    },
+    {
+      label: "",
+      key: "",
+      className: "text-center  hidden laptop:table-cell tablet:table-cell",
+    },
   ];
 
   return (
@@ -136,77 +158,101 @@ export function PatientTable() {
         />
       </div>
 
-      <div className={cn("rounded-md border", isLoading && "opacity-50")}>
-        <div className="w-full overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-muted-foreground/10 ">
-              <TableRow>
-                {columns.map((column, index) => (
-                  <TableHead
-                    key={index}
-                    onClick={() => column.key && handleSort(column.key)}
-                    className={cn(
-                      "text-center py-3 whitespace-nowrap",
-                      column.key && "cursor-pointer select-none",
-                      index > 2 && "hidden lg:table-cell",
-                      index > 1 && "mobile:hidden lg:table-cell",
-                      index == 0 && "mobile:text-right mobile:px-6"
-                    )}
-                    style={{
-                      width: columnsWidth[index],
-                    }}
-                  >
-                    {column.label}
-                    {column.key && sortColumn === column.key && (
-                      <span className="mr-2 text-muted-foreground">
-                        {sortDirection === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
+      <div className={cn("rounded-md", isLoading && "opacity-50")}>
+        <div className="relative">
+          <Table className="table-fixed">
+            {/* <TableHeader className="bg-[#1e1e1e] sticky z-50 top-0 table-fixed">
+              {columns.map((column, index) => (
+                <TableHead
+                  key={index}
+                  onClick={() => column.key && handleSort(column.key)}
+                  className={cn(
+                    "text-center  py-3 whitespace-nowrap",
+                    column.className
+                  )}
+                >
+                  {column.label}
+                  {column.key && sortColumn === column.key && (
+                    <span className="mr-2 text-muted-foreground">
+                      {sortDirection === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </TableHead>
+              ))}
+            </TableHeader> */}
           </Table>
-        </div>
-        <div className="w-full overflow-x-auto overflow-y-scroll max-h-[calc(100vh-20rem)]  scrollbar-rtl">
-          <Table>
-            <TableBody>
-              {isLoading ? (
-                <TableRow className="hover:bg-transparent">
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-80 text-center "
-                  >
-                    <div className="grid place-items-center h-full">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : sortedPatients?.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="h-24 pointer-events-none hover:bg-transparent text-center font-semibold "
-                  >
-                    לא נמצאו מטופלים
-                  </TableCell>
-                </TableRow>
-              ) : (
-                sortedPatients?.map((patient) => (
-                  <PatientTableRow
-                  columnsWidth={columnsWidth}
-                    key={patient._id}
-                    patient={patient}
-                    onEdit={handleEdit}
-                    onDelete={deletePatient}
-                    onNextTretmentDate={onNextTretmentDate}
-                    onNewTreatment={handleNewTreatment}
-                    onRowClick={setSelectedPatient}
-                  />
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <div className="w-full border-none scrollbar-rtl">
+            {/* Table container with peer */}
+            <div className="relative">
+              {/* Background placeholder that appears when the header becomes sticky */}
+              {/* <div className="h-[calc(68px+44px+20px)] bg-background hidden group-[.is-sticky]:block sticky top-0 z-40" /> */}
+
+              {/* Table */}
+              <Table>
+                {/* TableHeader */}
+                <TableHeader className="bg-background sticky z-50 top-[68px] peer border border-l-0 border-r-0 group">
+                  <TableRow>
+                    {columns.map((column, index) => (
+                      <TableHead
+                        key={index}
+                        onClick={() => column.key && handleSort(column.key)}
+                        className={cn(
+                          "text-center py-3 whitespace-nowrap font-extrabold",
+                          column.className
+                        )}
+                      >
+                        {column.label}
+                        {column.key && sortColumn === column.key && (
+                          <span className="mr-2 text-muted-foreground">
+                            {sortDirection === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+
+                {/* TableBody */}
+                <TableBody>
+                  {/* Table rows */}
+                  {isLoading ? (
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-80 text-center"
+                      >
+                        <div className="grid place-items-center h-full">
+                          <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : sortedPatients?.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className="h-24 pointer-events-none hover:bg-transparent text-center font-semibold"
+                      >
+                        לא נמצאו מטופלים
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sortedPatients?.map((patient) => (
+                      <PatientTableRow
+                        columns={columns}
+                        key={patient._id}
+                        patient={patient}
+                        onEdit={handleEdit}
+                        onDelete={deletePatient}
+                        onNextTretmentDate={onNextTretmentDate}
+                        onNewTreatment={handleNewTreatment}
+                        onRowClick={setSelectedPatient}
+                      />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

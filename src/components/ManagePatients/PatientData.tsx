@@ -303,7 +303,7 @@ export function PatientData() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="space-y-6 min-h-[250px] mobile:min-h-[300px]"
+            className="space-y-6"
           >
             <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between">
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
@@ -455,7 +455,7 @@ export function PatientData() {
                     </motion.div>
                   ))
                 : treatments !== undefined && (
-                    <div className="text-center text-muted-foreground py-4 h-[200px] grid items-center">
+                    <div className="text-center text-muted-foreground py-4 grid items-center">
                       <p>אין היסטוריית טיפולים</p>
                     </div>
                   )}

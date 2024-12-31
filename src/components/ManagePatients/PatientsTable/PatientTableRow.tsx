@@ -29,8 +29,8 @@ import {
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 
 interface PatientTableRowProps {
-  columnsWidth: string[];
   patient: Doc<"patients"> & { lastTreatmentDate: string };
+  columns: { key: string; label: string; className: string }[];
   onEdit: (patient: any) => void;
   onDelete: (id: Id<"patients">) => void;
   onNewTreatment: (patient: any) => void;
@@ -38,10 +38,11 @@ interface PatientTableRowProps {
   onRowClick: (patient: any) => void;
 }
 
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export function PatientTableRow({
-  columnsWidth,
+  columns,
   patient,
   onEdit,
   onDelete,
@@ -58,78 +59,56 @@ export function PatientTableRow({
       onClick={() => onRowClick(patient)}
     >
       <TableCell
-        className="py-3 px-4 mobile:text-right text-center font-medium whitespace-nowrap"
-        style={{
-          width: columnsWidth[0],
-        }}
+        className={`${cn("py-3 font-medium whitespace-nowrap ", columns[0].className)}`}
       >
         {`${patient.firstName} ${patient.lastName}`}
       </TableCell>
       <TableCell
-        className="py-3 px-4 text-center whitespace-nowrap"
-        style={{
-          width: columnsWidth[1],
-        }}
+        className={`${cn("py-3 whitespace-nowrap ", columns[1].className)}`}
       >
         {patient.idNumber}
       </TableCell>
       <TableCell
-        className="py-3 px-4 text-center whitespace-nowrap mobile:hidden"
-        style={{
-          width: columnsWidth[2],
-        }}
+        className={`${cn("py-3  whitespace-nowrap ", columns[2].className)}`}
       >
         {patient.phone || patient.parent?.phone}
       </TableCell>
       <TableCell
-        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell"
-        style={{
-          width: columnsWidth[3],
-        }}
+        className={`${cn("py-3  whitespace-nowrap  ", columns[3].className)}`}
       >
         {format(new Date(patient.dateOfBirth), "dd/MM/yyyy")}
       </TableCell>
       <TableCell
-        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell "
-        style={{
-          width: columnsWidth[4],
-        }}
+        className={`${cn("py-3  whitespace-nowrap  ", columns[4].className)}`}
       >
-        <Badge
-          variant={patient.isAdult ? "blue" : "red"}
-          className="px-2"
-          style={{
-            width: "auto",
-          }}
-        >
+        <Badge variant={patient.isAdult ? "blue" : "red"} className="px-2">
           {patient.isAdult ? "מבוגר" : "ילד"}
         </Badge>
       </TableCell>
       <TableCell
-        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell"
-        style={{
-          width: columnsWidth[6],
-        }}
+        className={`${cn("py-3  whitespace-nowrap ", columns[5].className)}`}
       >
         {patient.lastTreatmentDate
           ? format(new Date(patient.lastTreatmentDate), "dd/MM/yyyy")
           : "-"}
       </TableCell>
       <TableCell
-        className="py-3 px-4 text-center whitespace-nowrap hidden lg:table-cell"
-        style={{
-          width: columnsWidth[7],
-        }}
+        className={`${cn("py-3  whitespace-nowrap  ", columns[6].className)}`}
       >
         {patient.nextTreatment
           ? format(new Date(patient.nextTreatment.date), "dd/MM/yyyy")
           : "-"}
       </TableCell>
+
       <TableCell
-        className="py-3 px-4 text-centerwhitespace-nowrap hidden lg:table-cell"
-        style={{
-          width: columnsWidth[8],
-        }}
+        className={`${cn("py-3  whitespace-nowrap", columns[7].className)}`}
+      >
+        {patient.nextTreatmentRecallDate
+          ? format(new Date(patient.nextTreatmentRecallDate), "dd/MM/yyyy")
+          : "-"}
+      </TableCell>
+      <TableCell
+        className={`${cn("py-3  text-centerwhitespace-nowrap", columns[8].className)}`}
       >
         <div className="flex justify-end">
           <DropdownMenu dir="rtl">

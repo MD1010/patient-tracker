@@ -78,7 +78,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           />
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-            <div className="px-4 overflow-auto sm:max-h-[45vh] h-screen max-h-[calc(100vh-18rem)] scrollbar-rtl">
+            <div className="px-4 overflow-auto sm:max-h-[45vh]  max-h-[calc(100vh-18rem)] scrollbar-rtl">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
               {currentStep === 3 && <MedicalHistory form={form} />}

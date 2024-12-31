@@ -84,7 +84,10 @@ export default {
         mobile: {
           max: "640px",
         },
-        tablet: "641px",
+        tablet: {
+          min: "641px",
+          max: "1023px"
+        },
         laptop: "1024px",
         desktop: "1280px",
       },

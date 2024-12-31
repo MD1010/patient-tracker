@@ -19,9 +19,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  body {
+  /* body {
     overflow-y: hidden;
-  }
+  } */
 }
 
 .rtl {
@@ -193,7 +193,8 @@
   }
   ::-webkit-scrollbar-thumb {
     border-radius: 16px;
-    background-color: hsl(var(--secondary));
+    background-color: hsl(var(--muted-foreground));
+    
   }
   .scrollbar-rtl {
     direction: ltr; /* Forces the scrollbar to be on the right */
