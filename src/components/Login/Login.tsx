@@ -46,23 +46,26 @@ const Login = () => {
   };
 
   return (
-    <div className="p-8 h-screen  relative flex items-center justify-center  overflow-hidden">
+    <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:mt-10">
+
+
       <BackgroundEffects />
 
       {/* Content Container */}
-      <div className="container max-w-2xl mx-auto px-4 relative z-10">
-        <div className="relative">
-          <div className="text-center mb-12">
-            <h1 className="md:text-4xl font-bold mb-4 text-3xl">
-              <GradientText from="from-white" to="to-gray-400">
-                מערכת לניהול מטופלים
-              </GradientText>
-            </h1>
-            <p className="text-gray-300 md:text-lg text-md font-semibold">
-              איזה כיף לראות אותך! התחבר כדי להתחיל לעבוד
-            </p>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto">
+      <div className="container max-w-2xl mx-auto z-10 px-4">
+        <div className="text-center mb-12">
+          <h1 className="md:text-4xl font-bold mb-4 text-3xl">
+            <GradientText from="from-white" to="to-gray-400">
+              מערכת לניהול מטופלים
+            </GradientText>
+          </h1>
+          <p className="text-gray-300 md:text-lg text-md font-semibold">
+            איזה כיף לראות אותך! התחבר כדי להתחיל לעבוד
+          </p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-16 max-w-lg mx-auto">
+          <div className="space-y-6">
             <div className="space-y-3">
               <label
                 htmlFor="username"
@@ -78,7 +81,7 @@ const Login = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-6 py-3 bg-white/5 rounded-lg
                    focus:ring-2 focus:ring-white/20 focus:border-transparent
-                   text-primary  backdrop-blur-xl text-lg
+                   text-primary backdrop-blur-xl text-lg
                    transition-all duration-200 hover:bg-white/10"
                 placeholder="הזן את שם המשתמש שלך"
                 required
@@ -102,7 +105,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-6 py-3 bg-white/5 rounded-lg
                      focus:ring-2 focus:ring-white/20 focus:border-transparent
-                     text-primary  backdrop-blur-xl text-lg
+                     text-primary backdrop-blur-xl text-lg
                      transition-all duration-200 hover:bg-white/10"
                   placeholder="הזן את הסיסמה שלך"
                   required
@@ -123,18 +126,21 @@ const Login = () => {
                 {error}
               </div>
             )}
+          </div>
 
+          {/* Button Container - Mobile-specific styling */}
+          <div className="mobile:fixed left-0 right-0 bottom-0 px-0 mobile:px-8">
             <Button
               type="submit"
               isLoading={isLoading}
-              className="w-full font-semibold text-lg py-6 rounded-lg cursor-pointer relative top-4"
+              className="w-full font-semibold text-lg py-7 rounded-lg cursor-pointer mb-4"
               disabled={isLoading}
               loaderClasses="!h-6 !w-6"
             >
               התחבר
             </Button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

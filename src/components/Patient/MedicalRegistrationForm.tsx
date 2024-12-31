@@ -62,7 +62,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   };
 
   return (
-    <div className="max-w-4xl p-6 mobile:p-0 pt-0 ">
+    <div className="max-w-4xl p-6 mobile:p-0 pt-0 h-full overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
@@ -70,7 +70,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           initial="enter"
           animate="center"
           exit="exit"
-          className='sticky top-0'
+          className='flex flex-col h-full'
         >
           <FormSteps
             currentStep={currentStep}
@@ -78,14 +78,15 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             onStepClick={onStepClick}
           />
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
-            <div className="px-4 overflow-auto sm:max-h-[45vh] scrollbar-rtl">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 flex flex-col h-full">
+            <div className="px-4 overflow-auto sm:max-h-[45vh] max-h-[calc(100vh-18rem)] scrollbar-rtl">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
               {currentStep === 3 && <MedicalHistory form={form} />}
             </div>
+           
 
-            <div className="mt-8 gap-4 space-y-8 flex justify-between">
+            <div className="mt-auto gap-4 space-y-8 flex">
               {patient ? (
                 // Render only the submit button if patient exists
                 <Button type="submit" className="flex-1" isLoading={isLoading}>

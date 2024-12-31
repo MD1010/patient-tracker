@@ -8,7 +8,7 @@ export function PatientDashboard() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-8"
+      className="space-y-8 !overflow-auto"
     >
       <h1 className="text-3xl font-bold mb-8 text-right">ניהול מטופלים</h1>
       <PatientTable />
