@@ -113,7 +113,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
   return (
     <form
-      className="space-y-6 flex flex-col gap-3 mobile:justify-between mobile:h-screen"
+      className="space-y-6 flex flex-col gap-3 justify-between mobile:h-screen"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Tabs
@@ -236,7 +236,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
       <Button
         type="submit"
-        className="w-full"
+        className="w-full mt-auto"
         disabled={!isFormValid}
         isLoading={isLoading}
       >
