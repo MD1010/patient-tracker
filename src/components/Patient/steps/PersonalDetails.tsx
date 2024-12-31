@@ -72,10 +72,10 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             {...register("dateOfBirth", {
               required: "שדה חובה",
               validate: (value) => {
-              if (value === "Invalid Date" || new Date(value) >= new Date()) {
-                return "תאריך לא תקין";
-              }
-              return true;
+                if (value === "Invalid Date" || new Date(value) >= new Date()) {
+                  return "תאריך לא תקין";
+                }
+                return true;
               },
             })}
             onChange={(date) => {
@@ -94,7 +94,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         <div className="space-y-2">
           <Label htmlFor="idNumber">תעודת זהות</Label>
           <Input
-          type='number'
+            type="number"
             autoComplete="off"
             id="idNumber"
             {...register("idNumber", {
@@ -125,8 +125,9 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             className={cn(
               errors.phone || errors.parent?.phone
                 ? "border-red-500 shadow-sm"
-                : "", "text-right")
-            }
+                : "",
+              "text-right"
+            )}
           />
           {(errors.phone || errors.parent?.phone) && (
             <p className="text-sm text-red-600">
@@ -138,9 +139,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
         {/* Parent's Name (Animated) */}
         <AnimatePresence>
           {!isAdult && watch("dateOfBirth") && (
-            <div
-              className="space-y-2"
-            >
+            <div className="space-y-2">
               <Label htmlFor="parent.name">שם ההורה</Label>
               <Input
                 autoComplete="off"

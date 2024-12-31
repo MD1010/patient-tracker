@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { GradientText } from "../ui/gradient-text";
 import { BackgroundEffects } from "../ui/background-effects";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import Ripple from "../ui/ripple";
 
 const Login = () => {
   const { isLoaded, signIn, setActive } = useSignIn();
@@ -48,6 +49,9 @@ const Login = () => {
   return (
     <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:pt-20">
       <BackgroundEffects />
+      <Ripple
+        mainCircleOpacity={0.1}
+      />
 
       {/* Content Container */}
       <div className="container max-w-2xl mx-auto z-10 px-4">
