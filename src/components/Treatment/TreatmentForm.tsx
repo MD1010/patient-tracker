@@ -84,10 +84,10 @@ export function TreatmentForm({
   return (
     <>
       <form
-        className="space-y-4 flex flex-col gap-3"
+        className="space-y-8 flex flex-col h-full"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="space-y-2">
+        <div className="h-full space-y-4 mobile:space-y-8">
           <Input
             placeholder="סוג הטיפול"
             {...register("type", { required: "שדה חובה" })}
@@ -96,9 +96,8 @@ export function TreatmentForm({
           {errors.type && (
             <p className="text-sm text-red-600">{errors.type.message}</p>
           )}
-        </div>
-        <div className="flex gap-4 mobile:flex-col mobile:space-y-4">
-          <div className="space-y-2 flex-1">
+          <div className="flex gap-4 mobile:gap-8 mobile:flex-col">
+            {/* <div className="space-y-2 flex-1"> */}
             <DateInput
               placeholder="תאריך הטיפול"
               dir="rtl"
@@ -122,9 +121,8 @@ export function TreatmentForm({
             {errors.date && (
               <p className="text-sm text-red-600">{errors.date.message}</p>
             )}
-          </div>
+            {/* </div> */}
 
-          <div className="space-y-2">
             <CurrencyInput
               placeholder="עלות"
               currencySymbol="₪"
@@ -145,8 +143,7 @@ export function TreatmentForm({
               <p className="text-sm text-red-600">{errors.cost.message}</p>
             )}
           </div>
-        </div>
-        <div className="space-y-2">
+
           <Textarea
             placeholder="תיאור"
             className={errors.description ? "border-red-500 shadow-sm" : ""}
@@ -157,9 +154,15 @@ export function TreatmentForm({
               {errors.description?.message}
             </p>
           )}
+
+          <Textarea placeholder="הערות" {...register("notes")} />
         </div>
-        <Textarea placeholder="הערות" {...register("notes")} />
-        <Button type="submit" className="w-full" isLoading={isLoading} variant="submit">
+        <Button
+          type="submit"
+          className="w-full mt-auto"
+          isLoading={isLoading}
+          variant="submit"
+        >
           שמור
         </Button>
       </form>
