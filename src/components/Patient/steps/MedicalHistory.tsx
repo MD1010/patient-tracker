@@ -14,7 +14,6 @@ export function MedicalHistory({ form }: MedicalHistoryProps) {
 
   return (
     <div className="space-y-6">
-      {" "}
       {/* Consistent spacing between all sections */}
       <div className="space-y-2">
         <Label htmlFor="medications">אילו תרופות קבועות המטופל נוטל?</Label>

@@ -159,7 +159,7 @@ export function TreatmentForm({
           )}
         </div>
         <Textarea placeholder="הערות" {...register("notes")} />
-        <Button type="submit" className="w-full" isLoading={isLoading}>
+        <Button type="submit" className="w-full" isLoading={isLoading} variant="submit">
           שמור
         </Button>
       </form>

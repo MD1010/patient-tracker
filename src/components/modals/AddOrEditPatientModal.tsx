@@ -17,10 +17,10 @@ export const AddOrEditPatientModal = ({}) => {
   const formTitle = patientToEdit ? "עריכת מטופל" : "הוספת מטופל";
 
   return (
-    <div className="flex flex-col items-center space-y-4 ">
+    <div className="flex flex-col items-center ">
       {isModalOpen && (
         <Dialog open={isOpen} onOpenChange={closeModal}>
-          <DialogContent className='max-w-[38rem] gap-10 '>
+          <DialogContent className='max-w-[38rem]'>
             <DialogHeader>
               <DialogTitle className="text-right pr-6 mt-4">
                 {formTitle}

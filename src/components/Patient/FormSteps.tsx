@@ -20,7 +20,7 @@ export function FormSteps({
   onStepClick,
 }: FormStepsProps) {
   return (
-    <div className="relative">
+    <div className="relative top-1">
       <div className="absolute top-5 right-10 w-[80%] h-[0.05rem] bg-foreground">
         <motion.div
           className="absolute top-0 left-0 h-full bg-primary"

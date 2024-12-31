@@ -239,6 +239,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         className="w-full mt-auto"
         disabled={!isFormValid}
         isLoading={isLoading}
+        variant="submit"
       >
         {activeTab === "nextTreatment" ? "שמור תאריך לטיפול הבא" : "שמור תזכור"}
       </Button>

@@ -47,8 +47,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:pt-20">
-
-
       <BackgroundEffects />
 
       {/* Content Container */}
@@ -63,9 +61,9 @@ const Login = () => {
             איזה כיף לראות אותך! התחבר כדי להתחיל לעבוד
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-16 max-w-lg mx-auto">
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="space-y-3">
               <label
                 htmlFor="username"
@@ -82,7 +80,7 @@ const Login = () => {
                 className="w-full px-6 py-3 bg-white/5 rounded-lg
                    focus:ring-2 focus:ring-white/20 focus:border-transparent
                    text-primary backdrop-blur-xl text-lg
-                   transition-all duration-200 hover:bg-white/10"
+                   transition-all duration-200 hover:bg-white/10 text-white"
                 placeholder="הזן את שם המשתמש שלך"
                 required
                 dir="rtl"
@@ -106,7 +104,7 @@ const Login = () => {
                   className="w-full px-6 py-3 bg-white/5 rounded-lg
                      focus:ring-2 focus:ring-white/20 focus:border-transparent
                      text-primary backdrop-blur-xl text-lg
-                     transition-all duration-200 hover:bg-white/10"
+                     transition-all duration-200 hover:bg-white/10 text-white"
                   placeholder="הזן את הסיסמה שלך"
                   required
                   dir="rtl"
@@ -121,21 +119,23 @@ const Login = () => {
               </div>
             </div>
 
-            {error && (
-              <div className="text-red-400 text-base text-center bg-red-500/10 py-2 rounded-lg">
-                {error}
-              </div>
-            )}
+            <div className="">
+              {error && (
+                <div className="mt-3 text-red-400 text-base text-center bg-red-500/10 py-4 rounded-lg">
+                  {error}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Button Container - Mobile-specific styling */}
           <div className="mobile:fixed left-0 right-0 bottom-0 px-0 mobile:px-8">
             <Button
+              className="w-full font-semibold text-lg rounded-lg cursor-pointer mb-8 text-black bg-white"
               type="submit"
               isLoading={isLoading}
-              className="w-full font-semibold text-lg py-7 rounded-lg cursor-pointer mb-4"
               disabled={isLoading}
-              loaderClasses="!h-6 !w-6"
+              variant="submit"
             >
               התחבר
             </Button>

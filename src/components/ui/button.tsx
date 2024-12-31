@@ -20,6 +20,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        submit: " mobile:font-semibold text-md mobile:!py-6 bg-primary text-secondary rounded-lg",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -44,7 +45,18 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, isLoading, loaderClasses, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading,
+      loaderClasses,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
     <Button disabled>Please wait</Button>;
 
@@ -56,7 +68,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ref={ref}
           {...props}
         >
-          <Loader2 className={cn(`mr-2 h-4 w-4 animate-spin`, loaderClasses)}  />
+          <Loader2 className={cn(`mr-2 h-4 w-4 animate-spin`, loaderClasses, variant === 'submit' && '!h-6 !w-6')} />
         </Comp>
       );
     }
