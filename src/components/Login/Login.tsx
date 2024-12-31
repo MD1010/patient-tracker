@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:mt-10">
+    <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:pt-20">
 
 
       <BackgroundEffects />
