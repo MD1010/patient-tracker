@@ -78,7 +78,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             onStepClick={onStepClick}
           />
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 flex flex-col h-full">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 flex flex-col h-full se:max-h-[80%]">
             <div className="px-4 overflow-auto sm:max-h-[45vh] scrollbar-rtl mobile:px-1">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
@@ -86,7 +86,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             </div>
            
 
-            <div className="mt-8 mobile:mt-auto gap-4 space-y-8 flex">
+            <div className="mt-8 mobile:mt-auto gap-4 space-y-8 flex se:pt-8">
               {patient ? (
                 // Render only the submit button if patient exists
                 <Button type="submit" className="flex-1" isLoading={isLoading} variant="submit">

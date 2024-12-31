@@ -86,10 +86,11 @@ export default {
         },
         tablet: {
           min: "641px",
-          max: "1023px"
+          max: "1023px",
         },
         laptop: "1024px",
         desktop: "1280px",
+        se: { raw: "(max-height: 667px)" }, // Target small devices like iPhone SE
       },
     },
   },
