@@ -94,6 +94,7 @@ export const edit = mutation({
     const age = new Date().getFullYear() - dateOfBirth.getFullYear();
 
     await ctx.db.patch(args._id, { ...args, isAdult: age >= 18 });
+    return patient?._id;
   },
 });
 

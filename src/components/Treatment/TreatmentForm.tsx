@@ -50,35 +50,41 @@ export function TreatmentForm({
   });
 
   const onSubmit: SubmitHandler<Doc<"treatments">> = async (data) => {
-    setIsLoading(true);
-    treatment
-      ? await editTreatment({
-          ...data,
-          cost: +parseCurrencyInput(data.cost.toString()),
-        })
-      : await addTreatment({
-          patientId,
-          cost: +parseCurrencyInput(data.cost.toString()),
-          date: data.date,
-          description: data.description,
-          type: data.type,
-          notes: data.notes,
-          userTimeZone: getClientTimeZone(),
-        });
-    closeModal();
-
-    // if (selectedPatient) {
-    //   setSelectedPatient({
-    //     ...selectedPatient,
-    //   });
-    // }
-
-    reset();
-    let completedText = treatment
-      ? "הטיפול עודכן בהצלחה"
-      : "הטיפול נוסף בהצלחה, נשלח מייל חדש עם פרטי המטופל.";
-    toast.success(completedText, { position: "bottom-right" });
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      treatment
+        ? await editTreatment({
+            ...data,
+            cost: +parseCurrencyInput(data.cost.toString()),
+          })
+        : await addTreatment({
+            patientId,
+            cost: +parseCurrencyInput(data.cost.toString()),
+            date: data.date,
+            description: data.description,
+            type: data.type,
+            notes: data.notes,
+            userTimeZone: getClientTimeZone(),
+          });
+      closeModal();
+      reset();
+      let completedText = treatment
+        ? "הטיפול עודכן בהצלחה"
+        : "הטיפול נוסף בהצלחה, נשלח מייל חדש עם פרטי המטופל.";
+      toast.success(completedText, { position: "bottom-right" });
+      setIsLoading(false);
+    } catch (e) {
+      toast.error("ארעה שגיעה", {
+        position: "bottom-right",
+        style: {
+          backgroundColor: "#dc2626",
+          width: 150,
+        },
+      });
+    } finally {
+      setIsLoading(false);
+      closeModal();
+    }
   };
 
   return (
@@ -149,7 +155,7 @@ export function TreatmentForm({
             </div>
           </div>
 
-          <div className='space-y-2 flex-1'>
+          <div className="space-y-2 flex-1">
             <Textarea
               placeholder="תיאור"
               className={errors.description ? "border-red-500 shadow-sm" : ""}

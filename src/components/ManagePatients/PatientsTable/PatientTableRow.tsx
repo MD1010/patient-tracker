@@ -168,10 +168,10 @@ export function PatientTableRow({
             </DropdownMenuContent>
           </DropdownMenu>
           <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()} >
               <AlertDialogHeader>
-                <AlertDialogTitle className="">מחיקת מטופל</AlertDialogTitle>
-                <AlertDialogDescription className="ml-auto ">
+                <AlertDialogTitle className="text-right">מחיקת מטופל</AlertDialogTitle>
+                <AlertDialogDescription className="ml-auto text-right">
                   האם אתה בטוח שברצונך למחוק את המטופל {patient.firstName}?
                   פעולה זו לא ניתנת לביטול.
                 </AlertDialogDescription>

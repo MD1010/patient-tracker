@@ -86,29 +86,43 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75);
 
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
-    if (
-      activeTab === "nextTreatment" &&
-      (!data.nextTreatment?.date || !data.nextTreatment?.time)
-    ) {
-      toast.error("יש למלא את כל השדות", { position: "bottom-right" });
-      return;
+    try {
+      if (
+        activeTab === "nextTreatment" &&
+        (!data.nextTreatment?.date || !data.nextTreatment?.time)
+      ) {
+        toast.error("יש למלא את כל השדות", { position: "bottom-right" });
+        return;
+      }
+
+      setIsLoading(true);
+      await updatePatient({
+        ...patient,
+        nextTreatment:
+          activeTab === "nextTreatment" ? data.nextTreatment : null,
+        nextTreatmentRecallDate:
+          activeTab === "nextRecall" ? data.nextTreatmentRecallDate : null,
+      });
+
+      closeModal();
+      const completedText =
+        activeTab === "nextTreatment"
+          ? "תאריך הטיפול הבא נקבע בהצלחה"
+          : "התזכור נוסף בהצלחה";
+      toast.success(completedText, { position: "bottom-right" });
+      setIsLoading(false);
+    } catch (e) {
+      toast.error("ארעה שגיעה", {
+        position: "bottom-right",
+        style: {
+          backgroundColor: "#dc2626",
+          width: 150,
+        },
+      });
+    } finally {
+      setIsLoading(false);
+      closeModal();
     }
-
-    setIsLoading(true);
-    await updatePatient({
-      ...patient,
-      nextTreatment: activeTab === "nextTreatment" ? data.nextTreatment : null,
-      nextTreatmentRecallDate:
-        activeTab === "nextRecall" ? data.nextTreatmentRecallDate : null,
-    });
-
-    closeModal();
-    const completedText =
-      activeTab === "nextTreatment"
-        ? "תאריך הטיפול הבא נקבע בהצלחה"
-        : "התזכור נוסף בהצלחה";
-    toast.success(completedText, { position: "bottom-right" });
-    setIsLoading(false);
   };
 
   return (
@@ -120,7 +134,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         defaultValue={activeTab}
         className="w-full"
         onValueChange={setActiveTab}
-
       >
         {/* Tabs Header */}
         <TabsList className="flex justify-center gap-4 rtl">
@@ -184,7 +197,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               {...register("nextTreatment.date", {
                 required: activeTab === "nextTreatment" && "שדה חובה",
                 validate: (value) => {
-                  if(activeTab !== "nextTreatment") return true;
+                  if (activeTab !== "nextTreatment") return true;
                   if (!value) return "שדה חובה";
                   if (new Date(value).getTime() <= new Date().getTime())
                     return "יש לבחור תאריך עתידי";

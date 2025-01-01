@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/store/modal-store";
+import { usePatients } from "@/store/patients-store";
 import { useMutation } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
@@ -29,6 +30,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const { closeModal } = useModal();
   const [isLoading, setIsLoading] = useState(false);
+  const { setSelectedPatient } = usePatients();
 
   const form = useForm<FormData>({
     defaultValues: patient || DEFAULT_FORM_VALUES,
@@ -38,14 +40,41 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const editPatientMutation = useMutation(api.patients.edit);
 
   const onSubmit = async (data: FormData) => {
-    console.log("data", data);
-    
-    setIsLoading(true);
-    patient ? await editPatientMutation(data) : await addPatientMutation(data);
-    let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";
-    toast.success(completedText, { position: "bottom-right" });
-    closeModal();
-    setIsLoading(false);
+    try {
+      console.log("11111111111", data);
+
+      setIsLoading(true);
+      const patientId = patient
+        ? await editPatientMutation(data)
+        : await addPatientMutation(data);
+      let completedText = patient
+        ? "המטופל עודכן בהצלחה"
+        : "המטופל נוסף בהצלחה";
+      toast.success(completedText, { position: "bottom-right" });
+      closeModal();
+      setIsLoading(false);
+
+      if (patientId) {
+        setTimeout(() => {
+          setSelectedPatient({
+            ...data,
+            _creationTime: new Date().getTime(),
+            _id: patientId,
+          });
+        }, 250);
+      }
+    } catch (e) {
+      toast.error("ארעה שגיעה", {
+        position: "bottom-right",
+        style: {
+          backgroundColor: "#dc2626",
+          width: 150,
+        },
+      });
+    } finally {
+      setIsLoading(false);
+      closeModal();
+    }
   };
 
   const onStepClick = (stepNumber: number) => {
@@ -72,7 +101,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           initial="enter"
           animate="center"
           exit="exit"
-          className='flex flex-col h-full'
+          className="flex flex-col h-full"
         >
           <FormSteps
             currentStep={currentStep}
@@ -80,18 +109,25 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
             onStepClick={onStepClick}
           />
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 flex flex-col h-full se:max-h-[80%]">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="mt-8 flex flex-col h-full se:max-h-[80%]"
+          >
             <div className="px-4 overflow-auto sm:max-h-[45vh] scrollbar-rtl mobile:px-1">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
               {currentStep === 3 && <MedicalHistory form={form} />}
             </div>
-           
 
             <div className="mt-8 mobile:mt-auto gap-4 flex se:pt-8 items-center">
               {patient ? (
                 // Render only the submit button if patient exists
-                <Button type="submit" className="flex-1" isLoading={isLoading} variant="submit">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  isLoading={isLoading}
+                  variant="submit"
+                >
                   עדכן
                 </Button>
               ) : (
@@ -109,7 +145,12 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
                     </Button>
                   )}
                   {currentStep < 3 ? (
-                    <Button type="button" onClick={nextStep} className="flex-1" variant="submit">
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      className="flex-1"
+                      variant="submit"
+                    >
                       <span>לשלב הבא</span>
                       <ArrowLeftIcon />
                     </Button>
