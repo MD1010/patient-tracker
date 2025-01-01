@@ -89,6 +89,7 @@ export function TreatmentForm({
       >
         <div className="h-full space-y-4 mobile:space-y-8">
           <Input
+            autoComplete="off"
             placeholder="סוג הטיפול"
             {...register("type", { required: "שדה חובה" })}
             className={errors.type ? "border-red-500 shadow-sm" : ""}
@@ -97,51 +98,53 @@ export function TreatmentForm({
             <p className="text-sm text-red-600">{errors.type.message}</p>
           )}
           <div className="flex gap-4 mobile:gap-8 mobile:flex-col">
-            {/* <div className="space-y-2 flex-1"> */}
-            <DateInput
-              placeholder="תאריך הטיפול"
-              dir="rtl"
-              id="date"
-              initialValue={watch("date")}
-              value={watch("date")}
-              className={errors.date ? "border-red-500 shadow-sm" : ""}
-              {...register("date", {
-                required: "שדה חובה",
-                validate: (value: string | undefined) => {
-                  return value !== "Invalid Date" || "תאריך לידה לא תקין";
-                },
-              })}
-              onChange={(date) => {
-                setValue("date", date?.toString() || "");
-              }}
-              onBlur={() => {
-                trigger("date");
-              }}
-            />
-            {errors.date && (
-              <p className="text-sm text-red-600">{errors.date.message}</p>
-            )}
+            <div className="space-y-2 flex-1">
+              <DateInput
+                placeholder="תאריך הטיפול"
+                dir="rtl"
+                id="date"
+                initialValue={watch("date")}
+                value={watch("date")}
+                className={errors.date ? "border-red-500 shadow-sm" : ""}
+                {...register("date", {
+                  required: "שדה חובה",
+                  validate: (value: string | undefined) => {
+                    return value !== "Invalid Date" || "תאריך לידה לא תקין";
+                  },
+                })}
+                onChange={(date) => {
+                  setValue("date", date?.toString() || "");
+                }}
+                onBlur={() => {
+                  trigger("date");
+                }}
+              />
+              {errors.date && (
+                <p className="text-sm text-red-600">{errors.date.message}</p>
+              )}
+            </div>
             {/* </div> */}
+            <div className='relative'>
+              <CurrencyInput
+                placeholder="עלות"
+                currencySymbol="₪"
+                value={watch("cost")}
+                {...register("cost", { required: "שדה חובה" })}
+                onChange={(e) => {
+                  setValue(
+                    "cost",
+                    e.target.value ? +parseCurrencyInput(e.target.value) : NaN
+                  );
 
-            <CurrencyInput
-              placeholder="עלות"
-              currencySymbol="₪"
-              value={watch("cost")}
-              {...register("cost", { required: "שדה חובה" })}
-              onChange={(e) => {
-                setValue(
-                  "cost",
-                  e.target.value ? +parseCurrencyInput(e.target.value) : NaN
-                );
-
-                trigger("cost");
-              }}
-              error={!!errors.cost}
-              className={errors.cost ? "border-red-500 shadow-sm" : ""}
-            />
-            {errors.cost && (
-              <p className="text-sm text-red-600">{errors.cost.message}</p>
-            )}
+                  trigger("cost");
+                }}
+                error={!!errors.cost}
+                className={errors.cost ? "border-red-500 shadow-sm" : ""}
+              />
+              {errors.cost && (
+                <p className="text-sm text-red-600">{errors.cost.message}</p>
+              )}
+            </div>
           </div>
 
           <Textarea

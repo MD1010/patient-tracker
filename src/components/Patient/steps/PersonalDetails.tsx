@@ -101,6 +101,12 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
               required: "שדה חובה",
               pattern: { value: /^\d{9}$/, message: "תעודת זהות לא תקינה" },
             })}
+            onChange={(e) => {
+              setValue("idNumber", e.target.value);
+            }}
+            onBlur={() => {
+              trigger("idNumber");
+            }}
             className={errors.idNumber ? "border-red-500 shadow-sm" : ""}
           />
           {errors.idNumber && (
@@ -122,6 +128,12 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
               validate: (value) =>
                 validateIsraeliPhone(value!) || "מספר טלפון לא תקין",
             })}
+            onChange={(e) => {
+              setValue(isAdult ? "phone" : "parent.phone", e.target.value);
+            }}
+            onBlur={() => {
+              trigger(isAdult ? "phone" : "parent.phone");
+            }}
             className={cn(
               errors.phone || errors.parent?.phone
                 ? "border-red-500 shadow-sm"
