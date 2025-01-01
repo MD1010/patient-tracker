@@ -124,65 +124,45 @@ export function PatientTableRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem
-                className="py-2 px-2 pl-6"
+                className="py-2 px-2 pl-6 font-semibold"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNextTretmentDate(patient);
                 }}
               >
-                <ClipboardCheckIcon
-                  strokeWidth={3}
-                  height={14}
-                  width={16}
-                  className="ml-2"
-                />
-                {patient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}
+                <ClipboardCheckIcon strokeWidth={2} className="ml-3 h-5 w-5" />
+                <span>{patient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="py-2  px-2"
+                className="py-2  px-2 pl-6 font-semibold"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNewTreatment(patient);
                 }}
               >
-                <PlusIcon
-                  strokeWidth={3}
-                  height={20}
-                  width={16}
-                  className="ml-2"
-                />
+                <PlusIcon strokeWidth={3} className="h-5 w-5 ml-3" />
                 טיפול חדש
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="py-2 px-2"
+                className="py-2 px-2 pl-6 font-semibold"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(patient);
                 }}
               >
-                <Pencil
-                  strokeWidth={3}
-                  height={14}
-                  width={16}
-                  className="ml-2"
-                />
+                <Pencil strokeWidth={2} className="h-5 w-5 ml-3" />
                 ערוך מטופל
               </DropdownMenuItem>
 
               <Separator className="my-1" />
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive py-2 px-2"
+                className="text-destructive focus:text-destructive py-2 px-2 pl-6 font-semibold"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsDialogOpen(true); // Open the dialog
                 }}
               >
-                <TrashIcon
-                  strokeWidth={3}
-                  height={14}
-                  width={16}
-                  className="ml-2"
-                />
+                <TrashIcon strokeWidth={2} className="h-5 w-5 ml-3" />
                 מחק מטופל
               </DropdownMenuItem>
             </DropdownMenuContent>
