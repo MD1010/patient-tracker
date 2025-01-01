@@ -49,10 +49,7 @@ const Login = () => {
   return (
     <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:pt-20">
       <BackgroundEffects />
-      <Ripple
-      mainCircleSize={20}
-        mainCircleOpacity={0.6}
-      />
+      <Ripple mainCircleOpacity={0.1} />
 
       {/* Content Container */}
       <div className="container max-w-2xl mx-auto z-10 px-4">

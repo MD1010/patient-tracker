@@ -1,7 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
-import { ReactNode, FC } from "react";
+import { FC, ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import { LoadingScreen } from '../ui/LoadingScreen';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -10,9 +9,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   const { userId, isLoaded } = useAuth();
 
-  if(!isLoaded) return <LoadingScreen/>;
-
-  if (!userId) {
+  if (!userId && isLoaded) {
     return <Navigate to="/login" replace />;
   }
   
