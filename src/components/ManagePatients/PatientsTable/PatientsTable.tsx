@@ -151,113 +151,83 @@ export function PatientTable() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
+    <div className="space-y-6 ">
+      <div className="flex gap-2 mobile:block">
         <Input
           startIcon={<Search className="h-4 w-4 text-muted-foreground" />}
           placeholder="חיפוש מטופלים..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-sm"
+          // className="max-w-sm mobile:w-full"
           dir="rtl"
         />
       </div>
 
       <div className={cn("rounded-md", isLoading && "opacity-50")}>
-        <div className="relative">
-          <Table className="table-fixed">
-            {/* <TableHeader className="bg-[#1e1e1e] sticky z-50 top-0 table-fixed">
-              {columns.map((column, index) => (
-                <TableHead
-                  key={index}
-                  onClick={() => column.key && handleSort(column.key)}
-                  className={cn(
-                    "text-center  py-3 whitespace-nowrap",
-                    column.className
-                  )}
-                >
-                  {column.label}
-                  {column.key && sortColumn === column.key && (
-                    <span className="mr-2 text-muted-foreground">
-                      {sortDirection === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </TableHead>
-              ))}
-            </TableHeader> */}
+        <div className="relative overflow-auto max-h-[calc(100vh-324px)] scrollbar-rtl">
+          <Table>
+            {/* TableHeader */}
+            <TableHeader className="bg-background sticky z-50 -top-1 peer border border-l-0 border-r-0 group">
+              <TableRow>
+                {columns.map((column, index) => (
+                  <TableHead
+                    key={index}
+                    onClick={() => column.key && handleSort(column.key)}
+                    className={cn(
+                      "text-center py-3 whitespace-nowrap font-extrabold",
+                      column.className
+                    )}
+                  >
+                    {column.label}
+                    {column.key && sortColumn === column.key && (
+                      <span className="mr-2 text-muted-foreground">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+
+            {/* TableBody */}
+            <TableBody>
+              {/* Table rows */}
+              {isLoading ? (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-80 text-center"
+                  >
+                    <div className="grid place-items-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : sortedPatients?.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="h-24 pointer-events-none hover:bg-transparent text-center font-semibold"
+                  >
+                    לא נמצאו מטופלים
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sortedPatients?.map((patient) => (
+                  <PatientTableRow
+                    columns={columns}
+                    key={patient._id}
+                    patient={patient}
+                    onEdit={handleEdit}
+                    onDelete={deletePatient}
+                    onNextTretmentDate={onNextTretmentDate}
+                    onNewTreatment={handleNewTreatment}
+                    onRowClick={setSelectedPatient}
+                  />
+                ))
+              )}
+            </TableBody>
           </Table>
-          <div className="w-full border-none scrollbar-rtl">
-            {/* Table container with peer */}
-            <div className="relative">
-              {/* Background placeholder that appears when the header becomes sticky */}
-              {/* <div className="h-[calc(68px+44px+20px)] bg-background hidden group-[.is-sticky]:block sticky top-0 z-40" /> */}
-
-              {/* Table */}
-              <Table>
-                {/* TableHeader */}
-                <TableHeader className="bg-background sticky z-50 top-[68px] peer border border-l-0 border-r-0 group">
-                  <TableRow>
-                    {columns.map((column, index) => (
-                      <TableHead
-                        key={index}
-                        onClick={() => column.key && handleSort(column.key)}
-                        className={cn(
-                          "text-center py-3 whitespace-nowrap font-extrabold",
-                          column.className
-                        )}
-                      >
-                        {column.label}
-                        {column.key && sortColumn === column.key && (
-                          <span className="mr-2 text-muted-foreground">
-                            {sortDirection === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-
-                {/* TableBody */}
-                <TableBody>
-                  {/* Table rows */}
-                  {isLoading ? (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-80 text-center"
-                      >
-                        <div className="grid place-items-center h-full">
-                          <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : sortedPatients?.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={8}
-                        className="h-24 pointer-events-none hover:bg-transparent text-center font-semibold"
-                      >
-                        לא נמצאו מטופלים
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    sortedPatients?.map((patient) => (
-                      <PatientTableRow
-                        columns={columns}
-                        key={patient._id}
-                        patient={patient}
-                        onEdit={handleEdit}
-                        onDelete={deletePatient}
-                        onNextTretmentDate={onNextTretmentDate}
-                        onNewTreatment={handleNewTreatment}
-                        onRowClick={setSelectedPatient}
-                      />
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
         </div>
       </div>
     </div>
