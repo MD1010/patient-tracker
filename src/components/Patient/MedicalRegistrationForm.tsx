@@ -41,10 +41,8 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("11111111111", data);
-
       setIsLoading(true);
-      const patientId = patient
+      const updatedPatient = patient
         ? await editPatientMutation(data)
         : await addPatientMutation(data);
       let completedText = patient
@@ -54,13 +52,9 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
       closeModal();
       setIsLoading(false);
 
-      if (patientId) {
+      if (updatedPatient) {
         setTimeout(() => {
-          setSelectedPatient({
-            ...data,
-            _creationTime: new Date().getTime(),
-            _id: patientId,
-          });
+          setSelectedPatient(updatedPatient);
         }, 250);
       }
     } catch (e) {

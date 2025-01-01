@@ -1,22 +1,18 @@
 import { Badge } from "@/components/ui/badge";
+import { DateInput } from "@/components/ui/date-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCallback, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { useCallback } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormData } from "../MedicalRegistrationForm";
-import { DateInput } from "@/components/ui/date-input";
-import { cn } from "@/lib/utils";
 
 interface MedicalBackgroundProps {
   form: UseFormReturn<FormData>;
 }
 
 export function MedicalBackground({ form }: MedicalBackgroundProps) {
-  const { register, watch, setValue, trigger } = form;
-
-  const pregnancyInputRef = useRef<HTMLInputElement | null>(null);
-  const cancerDetailsRef = useRef<HTMLInputElement | null>(null);
-  const chemotherapyDateRef = useRef<HTMLInputElement | null>(null);
+  const { register, watch, setValue, trigger, setFocus } = form;
 
   const conditions = [
     { id: "diabetes", label: "סכרת" },
@@ -44,7 +40,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
       setValue(`conditions.${id}` as keyof FormData, !isChecked);
 
       if (id === "cancer" && !isChecked) {
-        setTimeout(() => cancerDetailsRef.current?.focus(), 0);
+        setTimeout(() => setFocus("cancerDetails"), 0);
       }
     },
     [setValue]
@@ -55,7 +51,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     setValue("conditions.chemotherapy.hasUndergoneTreatment", !hasUndergoneTreatment);
 
     if (!hasUndergoneTreatment) {
-      setTimeout(() => chemotherapyDateRef.current?.focus(), 0);
+      setTimeout(() => setFocus("conditions.chemotherapy.lastTreatmentDate"), 0);
     }
   }, [setValue, watch]);
 
@@ -64,7 +60,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
     setValue("pregnancy", !isPregnant);
 
     if (!isPregnant) {
-      setTimeout(() => pregnancyInputRef.current?.focus(), 0);
+      setTimeout(() => setFocus("pregnancyWeek"), 0);
     }
   }, [setValue, watch]);
 
@@ -136,7 +132,6 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
             <Input
               id="cancerDetails"
               {...register("cancerDetails")}
-              ref={cancerDetailsRef}
               className="w-full mt-4"
               placeholder="פרט על הסרטן"
             />
@@ -151,7 +146,6 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               type="number"
               id="pregnancyWeek"
               {...register("pregnancyWeek")}
-              ref={pregnancyInputRef}
               className="w-full mt-4"
               placeholder="הריון בשבוע.."
             />
@@ -166,7 +160,6 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               תאריך כימותרפיה אחרון
             </Label>
             <DateInput
-              dateInputRef={chemotherapyDateRef}
               placeholder="הקלד תאריך"
               dir="rtl"
               id="lastTreatmentDate"

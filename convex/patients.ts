@@ -41,7 +41,11 @@ export const getOne = query({
 });
 
 export const add = mutation({
-  args: v.object({ ...patientsSchema, isAdult: v.optional(v.boolean()), userId: v.optional(v.string()), }),
+  args: v.object({
+    ...patientsSchema,
+    isAdult: v.optional(v.boolean()),
+    userId: v.optional(v.string()),
+  }),
   handler: async (ctx, args) => {
     const userId = await getUserIdentity(ctx);
 
@@ -57,7 +61,11 @@ export const add = mutation({
       nextTreatment: null,
     });
 
-    return patientId;
+    if (patientId) {
+      const updatedPatient = await ctx.db.get(patientId);
+      return updatedPatient;
+    }
+    return null;
   },
 });
 
@@ -94,7 +102,12 @@ export const edit = mutation({
     const age = new Date().getFullYear() - dateOfBirth.getFullYear();
 
     await ctx.db.patch(args._id, { ...args, isAdult: age >= 18 });
-    return patient?._id;
+
+    if (patient?._id) {
+      const updatedPatient = await ctx.db.get(patient?._id);
+      return updatedPatient;
+    }
+    return null;
   },
 });
 

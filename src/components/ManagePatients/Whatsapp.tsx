@@ -3,8 +3,6 @@ import { toast } from "sonner";
 
 export const getWhatsappUrl = (patient: Doc<"patients">) => {
   if (!patient || !patient.nextTreatment) return;
-  console.log("1111111111", patient);
-  
 
   try {
     // Format the phone number by removing non-digit characters
