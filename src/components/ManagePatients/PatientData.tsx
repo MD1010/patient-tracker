@@ -20,6 +20,7 @@ import {
   ClipboardCheckIcon,
   Download,
   Loader2,
+  MoreHorizontalIcon,
   Pencil,
   PlusIcon,
   Trash2,
@@ -27,7 +28,10 @@ import {
 
 import { formatCurrency, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
@@ -41,7 +45,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { WhatsAppButton } from "../WhatsAppButton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { getWhatsappUrl } from "./Whatsapp";
+import { patientsSchema } from "convex/schemas";
 
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -145,56 +156,99 @@ export function PatientData() {
         )}
 
         <DialogHeader className="pb-0 pt-8 pr-4">
-          <DialogTitle className="flex justify-between w-full text-2xl">
-            <span className="max-w-[50%] text-right">
-              פרטי מטופל - {selectedPatient.firstName}
-              {selectedPatient.lastName}
-            </span>
-            <div className="flex justify-end items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() =>
-                  openModal("addOrEditNextTreatment", {
-                    selectedPatient,
-                  })
-                }
-                title={
-                  selectedPatient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"
-                }
-                disabled={isDownloadingReport} // Disable while loading
-              >
-                <ClipboardCheckIcon className="h-4 w-4" />
-                <span className="hidden md:block">
-                  {selectedPatient.nextTreatment
-                    ? "עריכת תור עתידי"
-                    : "תור חדש"}
-                </span>
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() =>
-                  openModal("addOrEditPatient", {
-                    patientToEdit: selectedPatient,
-                  })
-                }
-              >
-                {/* <EditIcon className="h-4 w-4" /> */}
-                <Pencil className="h-4 w-4" />
-              </Button>
-              {selectedPatient.phone || selectedPatient.parent?.phone ? (
-                <WhatsAppButton patient={selectedPatient} />
-              ) : null}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={downloadReport}
-                title="הורדת דוח"
-                disabled={isDownloadingReport} // Disable while loading
-              >
-                <Download className="h-4 w-4" />
-              </Button>
+          <DialogTitle className="flex justify-between items-center pr-2 pl-4">
+            <div className="text-right">
+              <div className="text-3xl mb-2">פרטי מטופל</div>
+              <div className="text-lg text-foreground/70">
+                {selectedPatient.firstName} {selectedPatient.lastName}
+              </div>
             </div>
+
+            <DropdownMenu dir="rtl">
+              <DropdownMenuTrigger
+                asChild
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <Button variant="outline" size="icon" className="h-10 w-10">
+                  <MoreHorizontalIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* Next Treatment Date */}
+                <DropdownMenuItem
+                  className="py-2 px-2 pl-6"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal("addOrEditNextTreatment", {
+                      selectedPatient,
+                    });
+                  }}
+                  disabled={isDownloadingReport}
+                >
+                  <ClipboardCheckIcon className="h-5 w-5 ml-3" />
+                  <span className="">
+                    {selectedPatient.nextTreatment
+                      ? "עריכת תור עתידי"
+                      : "תור חדש"}
+                  </span>
+                </DropdownMenuItem>
+
+                {/* Edit Patient */}
+                <DropdownMenuItem
+                  className="py-2 px-2 pl-6"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal("addOrEditPatient", {
+                      patientToEdit: selectedPatient,
+                    });
+                  }}
+                >
+                  <Pencil className="h-5 w-5 ml-3" />
+                  ערוך מטופל
+                </DropdownMenuItem>
+
+                {/* WhatsApp Button */}
+                {selectedPatient.phone || selectedPatient.parent?.phone ? (
+                  <DropdownMenuItem
+                    disabled={!selectedPatient.nextTreatment}
+                    className="py-2 px-2 pl-6"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Assuming WhatsAppButton handles its own click behavior
+                    }}
+                  >
+                    <Link
+                      to={getWhatsappUrl(selectedPatient) || ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="flex items-center">
+                        <FontAwesomeIcon
+                          icon={faWhatsapp}
+                          className="h-5 w-5 ml-3"
+                        />
+                        שלח תזכורת
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
+
+                {/* Download Report */}
+                <DropdownMenuItem
+                  className="py-2 px-2 pl-6"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadReport();
+                  }}
+                  disabled={isDownloadingReport}
+                >
+                  <Download className="h-5 w-5 ml-3" />
+                  הורדת דוח
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </DialogTitle>
         </DialogHeader>
 
@@ -308,6 +362,7 @@ export function PatientData() {
             <div className="bg-background sticky -top-6 z-40 py-2 flex justify-between">
               <h1 className="text-xl font-bold">היסטוריית טיפולים</h1>
               <Button
+                className="mobile:w-10 mobile:h-10"
                 variant="outline"
                 onClick={() =>
                   openModal("addOrEditTreatment", {
@@ -315,7 +370,7 @@ export function PatientData() {
                   })
                 }
               >
-                הוסף טיפול
+                <span className="mobile:hidden">הוסף טיפול</span>
                 <PlusIcon strokeWidth={2} />
               </Button>
             </div>
