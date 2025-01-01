@@ -89,8 +89,13 @@ export function PatientTable() {
     }
   };
 
-  const handleEdit = (patient: Doc<"patients">) => {
-    openModal("addOrEditPatient", { patientToEdit: patient });
+  const handleEdit = (
+    patient: Doc<"patients"> & { lastTreatmentDate: string }
+  ) => {
+    const { lastTreatmentDate, ...patientWithOutLastTreatment } = patient;
+    openModal("addOrEditPatient", {
+      patientToEdit: patientWithOutLastTreatment,
+    });
   };
 
   const handleNewTreatment = (patient: Doc<"patients">) => {

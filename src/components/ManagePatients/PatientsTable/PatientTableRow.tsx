@@ -124,7 +124,7 @@ export function PatientTableRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem
-                className="py-2 px-2 pl-6 font-semibold"
+                className="py-2 px-2 pl-6"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNextTretmentDate(patient);
@@ -134,17 +134,17 @@ export function PatientTableRow({
                 <span>{patient.nextTreatment ? "עריכת תור עתידי" : "תור חדש"}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="py-2  px-2 pl-6 font-semibold"
+                className="py-2  px-2 pl-6"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNewTreatment(patient);
                 }}
               >
-                <PlusIcon strokeWidth={3} className="h-5 w-5 ml-3" />
+                <PlusIcon strokeWidth={2} className="h-5 w-5 ml-3" />
                 טיפול חדש
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="py-2 px-2 pl-6 font-semibold"
+                className="py-2 px-2 pl-6"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(patient);
@@ -156,7 +156,7 @@ export function PatientTableRow({
 
               <Separator className="my-1" />
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive py-2 px-2 pl-6 font-semibold"
+                className="text-destructive focus:text-destructive py-2 px-2 pl-6"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsDialogOpen(true); // Open the dialog

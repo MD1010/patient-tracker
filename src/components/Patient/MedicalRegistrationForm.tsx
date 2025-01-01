@@ -38,6 +38,8 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const editPatientMutation = useMutation(api.patients.edit);
 
   const onSubmit = async (data: FormData) => {
+    console.log("data", data);
+    
     setIsLoading(true);
     patient ? await editPatientMutation(data) : await addPatientMutation(data);
     let completedText = patient ? "המטופל עודכן בהצלחה" : "המטופל נוסף בהצלחה";

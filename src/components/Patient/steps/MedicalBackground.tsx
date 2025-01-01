@@ -175,7 +175,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
               className={cn("mt-4")}
               {...register("conditions.chemotherapy.lastTreatmentDate")}
               onChange={(date) => {
-                setValue("conditions.chemotherapy.lastTreatmentDate", date?.toISOString() || "");
+                setValue("conditions.chemotherapy.lastTreatmentDate", date?.toString() || "");
               }}
               onBlur={() => {
                 trigger("conditions.chemotherapy.lastTreatmentDate");

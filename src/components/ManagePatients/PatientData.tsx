@@ -52,7 +52,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { getWhatsappUrl } from "./Whatsapp";
-import { patientsSchema } from "convex/schemas";
 
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -178,7 +177,7 @@ export function PatientData() {
               <DropdownMenuContent align="end">
                 {/* Next Treatment Date */}
                 <DropdownMenuItem
-                  className="py-2 px-2 pl-6 font-semibold"
+                  className="py-2 px-2 pl-6"
                   onClick={(e) => {
                     e.stopPropagation();
                     openModal("addOrEditNextTreatment", {
@@ -197,7 +196,7 @@ export function PatientData() {
 
                 {/* Edit Patient */}
                 <DropdownMenuItem
-                  className="py-2 px-2 pl-6 font-semibold"
+                  className="py-2 px-2 pl-6"
                   onClick={(e) => {
                     e.stopPropagation();
                     openModal("addOrEditPatient", {
@@ -213,7 +212,7 @@ export function PatientData() {
                 {selectedPatient.phone || selectedPatient.parent?.phone ? (
                   <DropdownMenuItem
                     disabled={!selectedPatient.nextTreatment}
-                    className="py-2 px-2 pl-6 font-semibold"
+                    className="py-2 px-2 pl-6"
                     onClick={(e) => {
                       e.stopPropagation();
                       // Assuming WhatsAppButton handles its own click behavior
@@ -237,7 +236,7 @@ export function PatientData() {
 
                 {/* Download Report */}
                 <DropdownMenuItem
-                  className="py-2 px-2 pl-6 font-semibold"
+                  className="py-2 px-2 pl-6"
                   onClick={(e) => {
                     e.stopPropagation();
                     downloadReport();
