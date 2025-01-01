@@ -122,7 +122,7 @@ export function MedicalBackground({ form }: MedicalBackgroundProps) {
         </Badge>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 pb-4 mobile:flex-col">
         {/* Conditional Inputs */}
         {watch("conditions.cancer") && (
           <div className="flex-2 w-full">
