@@ -88,15 +88,17 @@ export function TreatmentForm({
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="h-full space-y-4 mobile:space-y-8">
-          <Input
-            autoComplete="off"
-            placeholder="סוג הטיפול"
-            {...register("type", { required: "שדה חובה" })}
-            className={errors.type ? "border-red-500 shadow-sm" : ""}
-          />
-          {errors.type && (
-            <p className="text-sm text-red-600">{errors.type.message}</p>
-          )}
+          <div className="space-y-2 flex-1">
+            <Input
+              autoComplete="off"
+              placeholder="סוג הטיפול"
+              {...register("type", { required: "שדה חובה" })}
+              className={errors.type ? "border-red-500 shadow-sm" : ""}
+            />
+            {errors.type && (
+              <p className="text-sm text-red-600">{errors.type.message}</p>
+            )}
+          </div>
           <div className="flex gap-4 mobile:gap-8 mobile:flex-col">
             <div className="space-y-2 flex-1">
               <DateInput
@@ -124,7 +126,7 @@ export function TreatmentForm({
               )}
             </div>
             {/* </div> */}
-            <div className='relative'>
+            <div className="relative">
               <CurrencyInput
                 placeholder="עלות"
                 currencySymbol="₪"
@@ -147,16 +149,18 @@ export function TreatmentForm({
             </div>
           </div>
 
-          <Textarea
-            placeholder="תיאור"
-            className={errors.description ? "border-red-500 shadow-sm" : ""}
-            {...register("description", { required: "שדה חובה" })}
-          />
-          {errors.description && (
-            <p className="text-sm text-red-600">
-              {errors.description?.message}
-            </p>
-          )}
+          <div className='space-y-2 flex-1'>
+            <Textarea
+              placeholder="תיאור"
+              className={errors.description ? "border-red-500 shadow-sm" : ""}
+              {...register("description", { required: "שדה חובה" })}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-600">
+                {errors.description?.message}
+              </p>
+            )}
+          </div>
 
           <Textarea placeholder="הערות" {...register("notes")} />
         </div>

@@ -50,7 +50,8 @@ const Login = () => {
     <div className="min-h-screen p-8 relative flex items-center justify-center overflow-hidden mobile:items-start mobile:pt-20">
       <BackgroundEffects />
       <Ripple
-        mainCircleOpacity={0.1}
+      mainCircleSize={20}
+        mainCircleOpacity={0.6}
       />
 
       {/* Content Container */}
