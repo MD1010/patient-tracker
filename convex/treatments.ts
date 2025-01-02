@@ -8,18 +8,16 @@ import { getUserIdentity } from "./utils/auth";
 
 const getPatientTreatments = async (
   ctx: GenericQueryCtx<DataModel>,
-  patientId: Id<"patients">
+  patientId: Id<"patients">,
+  userId: string
 ) => {
-  const userId = await getUserIdentity(ctx);
   if (!userId) throw new Error("Unauthorized");
 
   const treatments = await ctx.db
     .query("treatments")
-
     .withIndex("by_userId_patientId", (q) =>
       q.eq("userId", userId).eq("patientId", patientId)
     )
-
     .collect();
 
   return treatments.sort(
@@ -30,17 +28,20 @@ const getPatientTreatments = async (
 
 export async function getLastTreatmentDate(
   ctx: GenericQueryCtx<DataModel>,
-  patientId: Id<"patients">
+  patientId: Id<"patients">,
+  userId: string
 ) {
   // Fetch all treatments for the patient
-  const treatments = await getPatientTreatments(ctx, patientId);
+  const treatments = await getPatientTreatments(ctx, patientId, userId);
   return treatments?.[0]?.date;
 }
 
 export const get = query({
-  args: { patientId: v.id("patients") },
-  handler: async (ctx, { patientId }) => {
-    const treatments = await getPatientTreatments(ctx, patientId);
+  args: { patientId: v.id("patients"), userId: v.optional(v.string()) },
+  handler: async (ctx, { patientId, userId }) => {
+    const authenticatedUser = await getUserIdentity(ctx) || userId;
+    if (!authenticatedUser) throw new Error("Unauthorized");
+    const treatments = await getPatientTreatments(ctx, patientId, authenticatedUser);
     return treatments;
   },
 });
@@ -67,6 +68,7 @@ export const add = mutation({
     ctx.scheduler.runAt(new Date(), api.patients.sendEmailWithAttachment, {
       patientId: args.patientId,
       userTimeZone: args.userTimeZone,
+      userId,
     });
 
     return treatmentId;
