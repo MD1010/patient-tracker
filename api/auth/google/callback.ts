@@ -14,20 +14,23 @@ async function storeTokensInConvex(
   // Example: calling your Convex endpoint
   // You might use a fetch call to your production or dev Convex function
   // Or use the 'convex' npm client if you have an auth context.
-  const response = await fetch(process.env.CONVEX_ACTIONS_URL + "/api/storeGoogleTokens", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.CONVEX_AUTH_TOKEN}`, 
-      // Or a user token
-    },
-    body: JSON.stringify({
-      userId,
-      accessToken,
-      refreshToken,
-      expiryDate,
-    }),
-  });
+  const response = await fetch(
+    process.env.CONVEX_ACTIONS_URL + "/api/storeGoogleTokens",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.CONVEX_AUTH_TOKEN}`,
+        // Or a user token
+      },
+      body: JSON.stringify({
+        userId,
+        accessToken,
+        refreshToken,
+        expiryDate,
+      }),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Failed to store tokens in Convex");
@@ -39,7 +42,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
   const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URL;
 
-  const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+  const oAuth2Client = new google.auth.OAuth2(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
+  );
 
   const { code, state } = req.query as { code?: string; state?: string };
   if (!code) {
@@ -48,9 +55,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // We embedded userId in the 'state' param
   let userId: string | undefined;
+  let patientId: string | undefined;
   try {
     const parsedState = JSON.parse(state || "{}");
     userId = parsedState.userId;
+    patientId = parsedState.patientId;
   } catch {}
   if (!userId) {
     return res.status(400).send("Missing userId in state.");
@@ -74,7 +83,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     // Redirect user back to your React front end
-    return res.redirect(`http://localhost:5173/dashboard?googleAuth=success`);
+    return res.redirect(
+      `http://localhost:5173/dashboard?googleAuth=success&patientId=${patientId}`
+    );
   } catch (error) {
     console.error("Error exchanging code:", error);
     return res.status(500).send("Failed to exchange code for tokens");

@@ -4,7 +4,7 @@ import { google } from "googleapis";
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
   // We'll read userId from query or session, identifying who is connecting.
-  const { userId } = req.query as { userId?: string };
+  const { userId, patientId } = req.query as { userId?: string, patientId?: string };
   if (!userId) {
     return res.status(400).send("Missing userId");
   }
@@ -29,7 +29,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     access_type: "offline",
     scope: SCOPES,
     prompt: "consent", // ensures we get a refresh token
-    state: JSON.stringify({ userId }),
+    state: JSON.stringify({ userId, patientId }),
   });
 
   // Redirect the user to Google's consent page

@@ -9,7 +9,7 @@ import { Doc } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { addMonths } from "date-fns";
 import { Loader2 } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
@@ -218,25 +218,16 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
     }
   };
 
-  /**
-   * If user has NO Google token, show a "Connect" button
-   */
-  const handleConnectGoogleCalendar = () => {
+  const handleConnectGoogleCalendar: MouseEventHandler<HTMLButtonElement> = (
+    e
+  ) => {
+    e.preventDefault();
     if (!activeUser) return;
     // window.open(`http://localhost:3002/api/auth/google/start?usearrId=${userId}`, "_blank")
     // Start your OAuth flow: direct user to your /api/auth/google/start
-    window.location.href = `http://localhost:3002/api/auth/google/start?userId=${activeUser.userId}`;
+    window.location.href = `http://localhost:3002/api/auth/google/start?userId=${activeUser.userId}&patientId=${patient._id}`;
   };
 
-  // if (!hasGoogleToken && isLoaded) {
-  //   return (
-  //     <div className="flex flex-col gap-4">
-
-  //     </div>
-  //   );
-  // }
-
-  // If the user DOES have a token, show the scheduling form
   return (
     <form
       className="space-y-6 flex flex-col gap-3 justify-between mobile:h-screen"
@@ -293,51 +284,61 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
         {/* Next Treatment Tab */}
         <TabsContent value="nextTreatment" className="rtl pt-4 space-y-4">
-          <Label className="text-sm font-semibold text-right">
-            בחר תאריך לטיפול הבא
-          </Label>
-          <div className="space-y-3">
-            <DateInput
-              dir="rtl"
-              initialValue={nextTreatment?.date}
-              placeholder="הכנס תאריך"
-              value={nextTreatment?.date || ""}
-              className={cn(
-                errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""
-              )}
-              {...register("nextTreatment.date", {
-                required: activeTab === "nextTreatment" && "שדה חובה",
-                validate: (value) => {
-                  if (activeTab !== "nextTreatment") return true;
-                  if (!value) return "שדה חובה";
-                  if (new Date(value).getTime() <= new Date().getTime()) {
-                    return "יש לבחור תאריך עתידי";
-                  }
-                  return true;
-                },
-              })}
-              onChange={handleDateChange}
-              onBlur={() => trigger("nextTreatment.date")}
-            />
-            <div className="h-2">
-              {errors.nextTreatment?.date && (
-                <p className="text-sm text-red-500">
-                  {errors.nextTreatment.date.message}
-                </p>
-              )}
-            </div>
-          </div>
+          {hasGoogleToken && (
+            <>
+              <Label className="text-sm font-semibold text-right">
+                בחר תאריך לטיפול הבא
+              </Label>
+              <div className="space-y-3">
+                <DateInput
+                  dir="rtl"
+                  initialValue={nextTreatment?.date}
+                  placeholder="הכנס תאריך"
+                  value={nextTreatment?.date || ""}
+                  className={cn(
+                    errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""
+                  )}
+                  {...register("nextTreatment.date", {
+                    required: activeTab === "nextTreatment" && "שדה חובה",
+                    validate: (value) => {
+                      if (activeTab !== "nextTreatment") return true;
+                      if (!value) return "שדה חובה";
+                      if (new Date(value).getTime() <= new Date().getTime()) {
+                        return "יש לבחור תאריך עתידי";
+                      }
+                      return true;
+                    },
+                  })}
+                  onChange={handleDateChange}
+                  onBlur={() => trigger("nextTreatment.date")}
+                />
+                <div className="h-2">
+                  {errors.nextTreatment?.date && (
+                    <p className="text-sm text-red-500">
+                      {errors.nextTreatment.date.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Available Times Section */}
           <div className="h-64 flex flex-col items-center relative -translate-y-4">
-            {isLoadingTimes ? (
+            {!hasGoogleToken ? (
+              <div className="mt-8 w-full">
+                <Button
+                  variant="outline"
+                  onClick={handleConnectGoogleCalendar}
+                  className="w-full"
+                >
+                  התחבר ליומן
+                </Button>
+              </div>
+            ) : isLoadingTimes ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-            ) : !hasGoogleToken ? (
-              <Button variant="default" onClick={handleConnectGoogleCalendar}>
-                התחבר ליומן
-              </Button>
             ) : (
               nextTreatment?.date &&
               !errors.nextTreatment?.date && (
@@ -377,7 +378,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       <Button
         type="submit"
         className="w-full mt-auto"
-        disabled={!isFormValid}
+        disabled={!isFormValid || !hasGoogleToken}
         isLoading={isLoading}
         variant="submit"
       >
