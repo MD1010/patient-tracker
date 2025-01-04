@@ -24,7 +24,7 @@ type NewTreatmentFormData = {
 };
 
 type Props = {
-  patient: Doc<"patients">;
+  patient: Doc<"patients"> & { lastTreatmentDate?: string };
 };
 
 const fetchAvailableTimes = async (
@@ -188,9 +188,10 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         return;
       }
 
+      const { lastTreatmentDate, ...patientWithOutLastTreatment } = patient;
       setIsLoading(true);
       await updatePatient({
-        ...patient,
+        ...patientWithOutLastTreatment,
         nextTreatment:
           activeTab === "nextTreatment" ? data.nextTreatment : null,
         nextTreatmentRecallDate:
@@ -326,9 +327,11 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           </div>
 
           {/* Available Times Section */}
-          <div className="h-64 flex flex-col items-center justify-center">
+          <div className="h-64 flex flex-col items-center">
             {isLoadingTimes ? (
-              <Loader2 className="h-8 w-8 animate-spin" />
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
             ) : !hasGoogleToken ? (
               <Button variant="default" onClick={handleConnectGoogleCalendar}>
                 התחבר ליומן
@@ -336,7 +339,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
             ) : (
               nextTreatment?.date &&
               !errors.nextTreatment?.date && (
-                <div className="space-y-4 mt-4">
+                <div className="space-y-4">
                   <Label className="text-sm font-semibold text-right">
                     בחר שעה
                   </Label>
