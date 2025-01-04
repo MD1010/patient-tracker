@@ -91,7 +91,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
    * we display a "connect" button instead of the rest of the form.
    */
 
-  const hasGoogleToken = !!activeUser?.googleTokens?.accessToken;
+  const hasGoogleToken = !!activeUser?.googleAccessToken;
 
   /**
    * If the form is valid in either tab, allow submission.
@@ -319,15 +319,17 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               onChange={handleDateChange}
               onBlur={() => trigger("nextTreatment.date")}
             />
-            {errors.nextTreatment?.date && (
-              <p className="text-sm text-red-500">
-                {errors.nextTreatment.date.message}
-              </p>
-            )}
+            <div className="h-2">
+              {errors.nextTreatment?.date && (
+                <p className="text-sm text-red-500">
+                  {errors.nextTreatment.date.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Available Times Section */}
-          <div className="h-64 flex flex-col items-center">
+          <div className="h-64 flex flex-col items-center relative -translate-y-4">
             {isLoadingTimes ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin" />

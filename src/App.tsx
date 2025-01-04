@@ -14,7 +14,7 @@ export const App = () => {
     if (user?.authToken) {
       setActiveUser(user);
     }
-  }, [user?.authToken, user?.googleTokens]);
+  }, [user?.authToken, user?.googleAccessToken]);
 
   return (
     <ClerkLoaded>

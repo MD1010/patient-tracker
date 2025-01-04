@@ -3,7 +3,7 @@ import { create } from "zustand";
 
 export type AppUser = {
   userId: Pick<Doc<"users">, "userId">["userId"];
-  googleTokens: Pick<Doc<"users">, "googleAuth">["googleAuth"];
+  googleAccessToken: string;
   authToken: string;
 };
 

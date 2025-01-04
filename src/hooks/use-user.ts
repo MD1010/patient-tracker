@@ -25,7 +25,7 @@ const useAppUser = () => {
   return {
     userId,
     authToken,
-    googleTokens: userGoogleToken,
+    googleAccessToken: userGoogleToken?.accessToken
   } as AppUser;
 };
 
