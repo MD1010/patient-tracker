@@ -1,6 +1,21 @@
 // api/timeslots.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { google } from "googleapis";
+// import { handleCORS } from '../lib/cors';
+
+function handleCORS(req: VercelRequest, res: VercelResponse): boolean {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return true; // Indicates CORS preflight was handled
+  }
+
+  return false; // Indicates request should proceed
+}
 
 // Reuse the same approach to call your Convex queries
 async function getTokensFromConvex(userId: string) {
@@ -114,24 +129,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     calendarId?: string;
   };
 
-  if (req.method === "OPTIONS") {
-    // The domains you allow. Use "*" to allow any domain or be more restrictive.
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    // The HTTP methods you allow (GET, POST, OPTIONS, etc.)
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    // The headers you allow or expect
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
-    // Return 200 so the browser knows it can proceed with the real request
-    return res.status(200).end();
-  }
-
-  // 2) Add CORS headers for all *other* requests as well
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (handleCORS(req, res)) return; // Handle CORS and terminate if it's a preflight
 
   if (!userId) {
     return res.status(400).json({ error: "Missing userId param" });
@@ -192,7 +190,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 4) Now call Google Calendar for events
   const minTime = new Date(`${date}T00:00:00Z`).toISOString();
   console.log("min time", minTime);
-  
+
   const maxTime = new Date(`${date}T23:59:59Z`).toISOString();
 
   try {
@@ -204,7 +202,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       singleEvents: true,
       orderBy: "startTime",
     });
-
 
     const items = response.data.items || [];
     const events = items.map((evt) => {

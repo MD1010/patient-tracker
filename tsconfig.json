@@ -33,6 +33,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Aliases */
     "baseUrl": ".",
@@ -45,6 +46,7 @@
     "src/lib/utils.ts",
     "src/main.tsx",
     "vite.config.ts",
-    "api"
+    "api",
+    "lib/cors.ts"
   ]
 }

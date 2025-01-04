@@ -1,13 +1,11 @@
 // In your Convex backend, e.g. /convex/auth.ts
 import { v } from "convex/values";
+import { api, internal } from "./_generated/api";
 import {
   httpAction,
   internalMutation,
-  internalQuery,
-  mutation,
-  query,
+  query
 } from "./_generated/server";
-import { api, internal } from "./_generated/api";
 
 export const getGoogleTokens = query({
   args: {

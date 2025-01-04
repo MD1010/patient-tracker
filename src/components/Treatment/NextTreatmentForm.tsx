@@ -10,10 +10,7 @@ import { useMutation } from "convex/react";
 import { addMonths, format } from "date-fns";
 import {
   Loader2,
-  LucideRefreshCcw,
-  RefreshCcwIcon,
-  RefreshCw,
-  RotateCw,
+  RotateCw
 } from "lucide-react";
 import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -406,7 +403,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                   </div>
                 </div>
               )
-            ) : (
+            ) : isFormValid &&  (
               <div className="h-full flex flex-col items-center justify-center">
                 <div>אין זמן פנוי בתאריך זה</div>
               </div>
