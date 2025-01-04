@@ -8,10 +8,7 @@ import { useUsersStore } from "@/store/user-store";
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { addMonths, format } from "date-fns";
-import {
-  Loader2,
-  RotateCw
-} from "lucide-react";
+import { Loader2, RotateCw } from "lucide-react";
 import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -58,8 +55,40 @@ const fetchAvailableTimes = async (
   return res.json(); // returns string[] of free start times
 };
 
+const saveTreatmentInCalendar = async ({
+  userId,
+  authToken,
+  date,
+  time,
+}: {
+  userId: string;
+  authToken: string;
+  date: string;
+  time: string;
+}): Promise<string[]> => {
+  // Make a call to your Vercel serverless endpoint:
+  const query = new URLSearchParams({
+    userId,
+    date,
+    time,  
+  });
+  const res = await fetch(
+    `http://localhost:3002/api/schedule?${query.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${authToken}`, // If needed, or do nothing if your endpoint doesn't require it
+      },
+    }
+  );
+  if (!res.ok) {
+    throw new Error("Failed to fetch timeslots");
+  }
+  return res.json(); // returns string[] of free start times
+};
+
 export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const updatePatient = useMutation(api.patients.edit);
+
   const { closeModal } = useModal();
 
   const [activeTab, setActiveTab] = useState("nextTreatment");
@@ -203,6 +232,14 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         nextTreatmentRecallDate:
           activeTab === "nextRecall" ? data.nextTreatmentRecallDate : null,
       });
+      if (data.nextTreatment && activeUser) {
+        await saveTreatmentInCalendar({
+          userId: activeUser?.userId,
+          authToken: activeUser?.authToken,
+          date: data.nextTreatment.date,
+          time: data.nextTreatment.time,
+        });
+      }
 
       closeModal();
       const completedText =
@@ -338,9 +375,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                     }}
                     disabled={isLoadingTimes}
                   >
-                    <RotateCw
-                      className={`h-5 w-5 text-foreground`}
-                    />
+                    <RotateCw className={`h-5 w-5 text-foreground`} />
                   </Button>
                 </div>
 
@@ -403,10 +438,12 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                   </div>
                 </div>
               )
-            ) : isFormValid &&  (
-              <div className="h-full flex flex-col items-center justify-center">
-                <div>אין זמן פנוי בתאריך זה</div>
-              </div>
+            ) : (
+              isFormValid && (
+                <div className="h-full flex flex-col items-center justify-center">
+                  <div>אין זמן פנוי בתאריך זה</div>
+                </div>
+              )
             )}
           </div>
         </TabsContent>

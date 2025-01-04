@@ -116,3 +116,5 @@ export const deleteOne = mutation({
     await ctx.db.delete(args.treatmentId);
   },
 });
+
+
