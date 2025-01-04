@@ -7,8 +7,14 @@ import { useModal } from "@/store/modal-store";
 import { useUsersStore } from "@/store/user-store";
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
-import { addMonths } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { addMonths, format } from "date-fns";
+import {
+  Loader2,
+  LucideRefreshCcw,
+  RefreshCcwIcon,
+  RefreshCw,
+  RotateCw,
+} from "lucide-react";
 import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -156,9 +162,12 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       return;
     }
 
-    // Format the date
-    const isoDate = date.toISOString().split("T")[0];
-    setValue("nextTreatment.date", isoDate);
+    if (date.toString() === "Invalid Date") return;
+
+    const stringDate = format(new Date(date), "yyyy-MM-dd");
+    console.log(stringDate);
+
+    setValue("nextTreatment.date", stringDate);
 
     // Validate
     const isValidDate = await trigger("nextTreatment.date");
@@ -170,9 +179,9 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
     }
 
     // If valid, load times
-    setValue("nextTreatment", { date: isoDate, time: "" });
+    setValue("nextTreatment", { date: stringDate, time: "" });
     setValue("nextTreatmentRecallDate", null);
-    await loadAvailableTimes(isoDate);
+    await loadAvailableTimes(stringDate);
   };
 
   /**
@@ -290,28 +299,55 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                 בחר תאריך לטיפול הבא
               </Label>
               <div className="space-y-3">
-                <DateInput
-                  dir="rtl"
-                  initialValue={nextTreatment?.date}
-                  placeholder="הכנס תאריך"
-                  value={nextTreatment?.date || ""}
-                  className={cn(
-                    errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""
-                  )}
-                  {...register("nextTreatment.date", {
-                    required: activeTab === "nextTreatment" && "שדה חובה",
-                    validate: (value) => {
-                      if (activeTab !== "nextTreatment") return true;
-                      if (!value) return "שדה חובה";
-                      if (new Date(value).getTime() <= new Date().getTime()) {
-                        return "יש לבחור תאריך עתידי";
+                {/* Date Input with Refresh Icon */}
+                <div className="relative">
+                  <DateInput
+                    dir="rtl"
+                    initialValue={nextTreatment?.date}
+                    placeholder="הכנס תאריך"
+                    value={nextTreatment?.date || ""}
+                    className={cn(
+                      "relative pl-10", // Add padding to the left for the icon
+                      errors.nextTreatment?.date
+                        ? "border-red-500 shadow-sm"
+                        : ""
+                    )}
+                    {...register("nextTreatment.date", {
+                      required: activeTab === "nextTreatment" && "שדה חובה",
+                      validate: (value) => {
+                        if (activeTab !== "nextTreatment") return true;
+                        if (!value) return "שדה חובה";
+                        if (new Date(value).getTime() <= new Date().getTime()) {
+                          return "יש לבחור תאריך עתידי";
+                        }
+                        return true;
+                      },
+                    })}
+                    onChange={handleDateChange}
+                    onBlur={() => trigger("nextTreatment.date")}
+                  />
+                  {/* Refresh Icon */}
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="icon"
+                    className="absolute left-1 top-1/2 transform -translate-y-1/2"
+                    onClick={() => {
+                      if (nextTreatment?.date) {
+                        loadAvailableTimes(nextTreatment.date);
+                      } else {
+                        toast.error("יש לבחור תאריך לפני רענון הזמנים");
                       }
-                      return true;
-                    },
-                  })}
-                  onChange={handleDateChange}
-                  onBlur={() => trigger("nextTreatment.date")}
-                />
+                    }}
+                    disabled={isLoadingTimes}
+                  >
+                    <RotateCw
+                      className={`h-5 w-5 text-foreground`}
+                    />
+                  </Button>
+                </div>
+
+                {/* Error Message */}
                 <div className="h-2">
                   {errors.nextTreatment?.date && (
                     <p className="text-sm text-red-500">
@@ -324,7 +360,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           )}
 
           {/* Available Times Section */}
-          <div className="h-64 flex flex-col items-center relative -translate-y-4">
+          <div className="h-64 flex flex-col relative -translate-y-4">
             {!hasGoogleToken ? (
               <div className="mt-8 w-full">
                 <Button
@@ -339,7 +375,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-            ) : (
+            ) : availableTimes.length ? (
               nextTreatment?.date &&
               !errors.nextTreatment?.date && (
                 <div className="space-y-4">
@@ -370,6 +406,10 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                   </div>
                 </div>
               )
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center">
+                <div>אין זמן פנוי בתאריך זה</div>
+              </div>
             )}
           </div>
         </TabsContent>

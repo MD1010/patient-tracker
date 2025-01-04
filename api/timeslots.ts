@@ -191,6 +191,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 4) Now call Google Calendar for events
   const minTime = new Date(`${date}T00:00:00Z`).toISOString();
+  console.log("min time", minTime);
+  
   const maxTime = new Date(`${date}T23:59:59Z`).toISOString();
 
   try {
@@ -202,6 +204,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       singleEvents: true,
       orderBy: "startTime",
     });
+
 
     const items = response.data.items || [];
     const events = items.map((evt) => {

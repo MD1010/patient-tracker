@@ -19,7 +19,7 @@ export const getGoogleTokens = query({
       .filter((q) => q.eq(q.field("userId"), userId))
       .first();
     if (!user) {
-      throw new Error("User not found");
+      return null;
     }
 
     return {
