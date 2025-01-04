@@ -7,7 +7,8 @@ import { useModal } from "@/store/modal-store";
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { addMonths } from "date-fns";
-import { FC, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { FC, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
@@ -17,18 +18,31 @@ type NewTreatmentFormData = {
   nextTreatment: {
     date: string;
     time: string;
-  } | null; // Treatment object or null
-  nextTreatmentRecallDate: string | null; // Recall date as a string
+  } | null;
+  nextTreatmentRecallDate: string | null;
 };
 
 type Props = {
   patient: Doc<"patients">;
 };
 
+const fetchAvailableTimes = async (date: string): Promise<string[]> => {
+  // Simulating API call with 1 second delay
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // Generate dummy data - 20 time slots (4 rows of 5 slots)
+  const times = [];
+  for (let hour = 8; hour <= 17; hour++) {
+    times.push(`${hour.toString().padStart(2, "0")}:00`);
+    if (hour !== 17) times.push(`${hour.toString().padStart(2, "0")}:30`);
+  }
+  return times.slice(0, 20); // Return exactly 20 slots
+};
+
 export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const updatePatient = useMutation(api.patients.edit);
   const [activeTab, setActiveTab] = useState("nextTreatment");
-
+  const [isLoadingTimes, setIsLoadingTimes] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const { closeModal } = useModal();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -44,7 +58,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       nextTreatment: patient.nextTreatment || null,
       nextTreatmentRecallDate: patient.nextTreatmentRecallDate || null,
     },
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const nextTreatment = watch("nextTreatment");
@@ -59,31 +73,66 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       nextTreatmentRecallDate &&
       !errors.nextTreatmentRecallDate);
 
-  const handleDateChange = (date: Date | undefined) => {
-    if (date) {
-      setValue("nextTreatment", {
-        date: date.toISOString().split("T")[0],
-        time: "",
+  useEffect(() => {
+    if (nextTreatment?.date) {
+      const dateObj = new Date(nextTreatment.date);
+      const now = new Date();
+      // if the date is valid and in the future, fetch times
+      if (!isNaN(dateObj.getTime()) && dateObj.getTime() > now.getTime()) {
+        loadAvailableTimes(nextTreatment.date);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
+
+  const loadAvailableTimes = async (dateString: string) => {
+    setIsLoadingTimes(true);
+    try {
+      const times = await fetchAvailableTimes(dateString);
+      setAvailableTimes(times);
+    } catch (error) {
+      toast.error("Failed to load available times", {
+        position: "bottom-right",
       });
-      setValue("nextTreatmentRecallDate", null); // Clear recall date
-    } else {
+      setAvailableTimes([]);
+    } finally {
+      setIsLoadingTimes(false);
+    }
+  };
+
+  /**
+   * Fix: handleDateChange sets form values first, then triggers validation.
+   * If invalid, we reset. If valid, we fetch times.
+   */
+  const handleDateChange = async (date: Date | undefined) => {
+    // If user cleared the date picker
+    if (!date) {
+      // setValue("nextTreatment.date", "");
       setValue("nextTreatment", null);
+      setAvailableTimes([]);
+      // Trigger validation so errors can show up if needed
+      await trigger("nextTreatment.date");
+      return;
     }
-  };
 
-  const generateTimeSlots = (start: number, end: number, gap: number) => {
-    const slots = [];
-    for (let time = start; time <= end; time += gap) {
-      const hours = Math.floor(time);
-      const minutes = Math.round((time - hours) * 60);
-      slots.push(
-        `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
-      );
+    // Format and set the date in the form
+    const isoDate = date.toISOString().split("T")[0];
+    setValue("nextTreatment.date", isoDate);
+
+    // Trigger validation to see if it's valid
+    const isValidDate = await trigger("nextTreatment.date");
+    if (!isValidDate) {
+      // If invalid (past date or other error), reset
+      setValue("nextTreatment", null);
+      setAvailableTimes([]);
+      return;
     }
-    return slots;
-  };
 
-  const AVAILABLE_TIMES = generateTimeSlots(8, 21, 0.75);
+    // If valid, finalize nextTreatment and fetch times
+    setValue("nextTreatment", { date: isoDate, time: "" });
+    setValue("nextTreatmentRecallDate", null); // Clear recall date
+    await loadAvailableTimes(isoDate);
+  };
 
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
     try {
@@ -110,7 +159,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           ? "תאריך הטיפול הבא נקבע בהצלחה"
           : "התזכור נוסף בהצלחה";
       toast.success(completedText, { position: "bottom-right" });
-      setIsLoading(false);
     } catch (e) {
       toast.error("ארעה שגיעה", {
         position: "bottom-right",
@@ -155,7 +203,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               const recallDate = addMonths(new Date(), months)
                 .toISOString()
                 .split("T")[0];
-
               return (
                 <Badge
                   key={months}
@@ -188,7 +235,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           <div className="space-y-3">
             <DateInput
               dir="rtl"
-              initialValue={watch("nextTreatment")?.date}
+              initialValue={nextTreatment?.date}
               placeholder="הכנס תאריך"
               value={nextTreatment?.date || ""}
               className={cn(
@@ -204,7 +251,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                   return true;
                 },
               })}
-              onChange={(date) => handleDateChange(date)}
+              onChange={handleDateChange}
               onBlur={() => trigger("nextTreatment.date")}
             />
             {errors.nextTreatment?.date && (
@@ -214,36 +261,43 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
             )}
           </div>
 
-          {/* Available Times */}
-          <div className="space-y-2 mt-4">
-            <Label className="text-sm font-semibold text-right">בחר שעה</Label>
-            <div className="flex flex-wrap gap-4">
-              {AVAILABLE_TIMES.map((time) => (
-                <Badge
-                  key={time}
-                  className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
-                    nextTreatment?.time === time
-                      ? "bg-primary"
-                      : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
-                  }`}
-                  onClick={() => {
-                    if (nextTreatment?.date) {
-                      setValue("nextTreatment", {
-                        date: nextTreatment.date,
-                        time: time,
-                      });
-                    } else {
-                      toast.error("יש לבחור תאריך תחילה", {
-                        position: "bottom-right",
-                      });
-                    }
-                  }}
-                >
-                  {time}
-                </Badge>
-              ))}
+          {/* Available Times Section */}
+
+          {nextTreatment?.date && !errors.nextTreatment?.date && (
+            <div className="space-y-2 mt-4">
+              <Label className="text-sm font-semibold text-right">
+                בחר שעה
+              </Label>
+              <div className="h-64 relative">
+                {isLoadingTimes ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {availableTimes.map((time) => (
+                      <Badge
+                        key={time}
+                        className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
+                          nextTreatment?.time === time
+                            ? "bg-primary"
+                            : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+                        }`}
+                        onClick={() =>
+                          setValue("nextTreatment", {
+                            date: nextTreatment.date,
+                            time,
+                          })
+                        }
+                      >
+                        {time}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </TabsContent>
       </Tabs>
 

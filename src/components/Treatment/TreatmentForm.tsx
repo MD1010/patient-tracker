@@ -117,7 +117,7 @@ export function TreatmentForm({
                 {...register("date", {
                   required: "שדה חובה",
                   validate: (value: string | undefined) => {
-                    return value !== "Invalid Date" || "תאריך לידה לא תקין";
+                    return value !== "Invalid Date" || "תאריך הטיפול לא תקין";
                   },
                 })}
                 onChange={(date) => {
