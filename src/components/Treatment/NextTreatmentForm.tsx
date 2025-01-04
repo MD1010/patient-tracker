@@ -4,8 +4,9 @@ import { DateInput } from "@/components/ui/date-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
-import { Doc, Id } from "convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useUsersStore } from "@/store/user-store";
+import { Doc } from "convex/_generated/dataModel";
+import { useMutation } from "convex/react";
 import { addMonths } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
@@ -13,7 +14,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
-import { useAuth } from "@clerk/clerk-react";
 
 type NewTreatmentFormData = {
   nextTreatment: {
@@ -64,12 +64,9 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const { userId, getToken } = useAuth();
+  const { activeUser } = useUsersStore();
 
   // Query Convex to see if we have Google tokens stored for this user
-  const userGoogleToken = useQuery(api.auth.getGoogleTokens, {
-    userId: userId as Id<"users">,
-  });
 
   const {
     register,
@@ -93,7 +90,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
    * If the user does not have a token,
    * we display a "connect" button instead of the rest of the form.
    */
-  const hasGoogleToken = Boolean(userGoogleToken?.accessToken);
+
+  const hasGoogleToken = !!activeUser?.googleTokens?.accessToken;
 
   /**
    * If the form is valid in either tab, allow submission.
@@ -126,15 +124,13 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
    * Load available times from our Vercel endpoint
    */
   const loadAvailableTimes = async (dateString: string) => {
-    if (!userId) return;
-    const token = await getToken(); // Clerk token if needed
-    console.log("token", token);
-    
-    if (!token) return;
+    if (!activeUser || !activeUser.authToken) return;
+
+    const { authToken, userId } = activeUser;
 
     setIsLoadingTimes(true);
     try {
-      const times = await fetchAvailableTimes(userId, token, dateString);
+      const times = await fetchAvailableTimes(userId, authToken, dateString);
       setAvailableTimes(times);
     } catch (error) {
       toast.error("Failed to load available times", {
@@ -225,23 +221,19 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
    * If user has NO Google token, show a "Connect" button
    */
   const handleConnectGoogleCalendar = () => {
-    console.log("userId", userId);
-
-    if (!userId) return;
+    if (!activeUser) return;
     // window.open(`http://localhost:3002/api/auth/google/start?usearrId=${userId}`, "_blank")
     // Start your OAuth flow: direct user to your /api/auth/google/start
-    window.location.href = `http://localhost:3002/api/auth/google/start?userId=${userId}`;
+    window.location.href = `http://localhost:3002/api/auth/google/start?userId=${activeUser.userId}`;
   };
 
-  if (!hasGoogleToken) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Button variant="default" onClick={handleConnectGoogleCalendar}>
-          התחבר ליומן
-        </Button>
-      </div>
-    );
-  }
+  // if (!hasGoogleToken && isLoaded) {
+  //   return (
+  //     <div className="flex flex-col gap-4">
+
+  //     </div>
+  //   );
+  // }
 
   // If the user DOES have a token, show the scheduling form
   return (
@@ -334,41 +326,46 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           </div>
 
           {/* Available Times Section */}
-          {nextTreatment?.date && !errors.nextTreatment?.date && (
-            <div className="space-y-2 mt-4">
-              <Label className="text-sm font-semibold text-right">
-                בחר שעה
-              </Label>
-              <div className="h-64 relative">
-                {isLoadingTimes ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin" />
+          <div className="h-64 flex flex-col items-center justify-center">
+            {isLoadingTimes ? (
+              <Loader2 className="h-8 w-8 animate-spin" />
+            ) : !hasGoogleToken ? (
+              <Button variant="default" onClick={handleConnectGoogleCalendar}>
+                התחבר ליומן
+              </Button>
+            ) : (
+              nextTreatment?.date &&
+              !errors.nextTreatment?.date && (
+                <div className="space-y-4 mt-4">
+                  <Label className="text-sm font-semibold text-right">
+                    בחר שעה
+                  </Label>
+                  <div className="relative">
+                    <div className="flex flex-wrap gap-4">
+                      {availableTimes.map((time) => (
+                        <Badge
+                          key={time}
+                          className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
+                            nextTreatment?.time === time
+                              ? "bg-primary"
+                              : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+                          }`}
+                          onClick={() =>
+                            setValue("nextTreatment", {
+                              date: nextTreatment.date,
+                              time,
+                            })
+                          }
+                        >
+                          {time}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                ) : (
-                  <div className="flex flex-wrap gap-4">
-                    {availableTimes.map((time) => (
-                      <Badge
-                        key={time}
-                        className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
-                          nextTreatment?.time === time
-                            ? "bg-primary"
-                            : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
-                        }`}
-                        onClick={() =>
-                          setValue("nextTreatment", {
-                            date: nextTreatment.date,
-                            time,
-                          })
-                        }
-                      >
-                        {time}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                </div>
+              )
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 

@@ -15,7 +15,7 @@ async function getTokensFromConvex(userId: string) {
       body: JSON.stringify({ userId }),
     }
   );
-  
+
   if (!response.ok) {
     throw new Error("Failed to fetch tokens from Convex");
   }
@@ -60,28 +60,40 @@ function toMinutes(hhmm: string): number {
   return hh * 60 + (mm || 0);
 }
 
+/**
+ * Finds free timeslots where each slot is exactly `duration` minutes long.
+ * Example: if `duration = 45`, you might get slots like "08:00", "08:45", "09:30".
+ */
 function findFreeTimes(
   events: Array<{ start: number; end: number }>,
   startInMins: number,
   endInMins: number,
   duration = 45
 ): string[] {
-  const increment = 15;
   const freeSlots: string[] = [];
   let pointer = startInMins;
 
+  // Check each potential slot from `pointer` to `pointer + duration`
+  // and skip ahead by `duration` minutes each time.
   while (pointer + duration <= endInMins) {
     const pointerEnd = pointer + duration;
+
+    // If any event overlaps [pointer, pointerEnd), this slot is not free
     const hasOverlap = events.some(
       (evt) => evt.start < pointerEnd && evt.end > pointer
     );
+
     if (!hasOverlap) {
+      // Format the pointer as HH:MM
       const hh = String(Math.floor(pointer / 60)).padStart(2, "0");
       const mm = String(pointer % 60).padStart(2, "0");
       freeSlots.push(`${hh}:${mm}`);
     }
-    pointer += increment;
+
+    // Jump `pointer` by `duration` each iteration
+    pointer += duration;
   }
+
   return freeSlots;
 }
 
