@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { Doc } from "convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { useMutation, useQueries, useQuery } from "convex/react";
 import { addMonths } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
+import { useAuth, useClerk, useUser } from "@clerk/clerk-react";
 
 type NewTreatmentFormData = {
   nextTreatment: {
@@ -26,16 +27,32 @@ type Props = {
   patient: Doc<"patients">;
 };
 
-const fetchAvailableTimes = async (date: string): Promise<string[]> => {
+const fetchAvailableTimes = async (
+  userId: string,
+  authToken: string,
+  date: string
+): Promise<string[]> => {
   // Simulating API call with 1 second delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  // Generate dummy data - 20 time slots (4 rows of 5 slots)
-  const times = [];
-  for (let hour = 8; hour <= 17; hour++) {
-    times.push(`${hour.toString().padStart(2, "0")}:00`);
-    if (hour !== 17) times.push(`${hour.toString().padStart(2, "0")}:30`);
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
+  // // Generate dummy data - 20 time slots (4 rows of 5 slots)
+  // const times = [];
+  // for (let hour = 8; hour <= 17; hour++) {
+  //   times.push(`${hour.toString().padStart(2, "0")}:00`);
+  //   if (hour !== 17) times.push(`${hour.toString().padStart(2, "0")}:30`);
+  // }
+  // return times.slice(0, 20); // Return exactly 20 slots
+  const query = new URLSearchParams({
+    userId,
+    date,
+    startOfDay: "08:00",
+    endOfDay: "20:00",
+    duration: "45",
+  });
+  const res = await fetch(`/api/timeslots?${query.toString()}`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch timeslots");
   }
-  return times.slice(0, 20); // Return exactly 20 slots
+  return res.json(); // returns string[] of free start times
 };
 
 export const NextTreatmentForm: FC<Props> = ({ patient }) => {
@@ -45,6 +62,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const { closeModal } = useModal();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { userId, getToken } = useAuth();
+  // const userGoogleToken = useQuery(api.auth.getGoogleTokens, { userId });
 
   const {
     register,
@@ -86,9 +105,11 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   }, []); // run once on mount
 
   const loadAvailableTimes = async (dateString: string) => {
+    const token = await getToken();
+    if (!userId || !token) return;
     setIsLoadingTimes(true);
     try {
-      const times = await fetchAvailableTimes(dateString);
+      const times = await fetchAvailableTimes(userId, token, dateString);
       setAvailableTimes(times);
     } catch (error) {
       toast.error("Failed to load available times", {

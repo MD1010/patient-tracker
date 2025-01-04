@@ -1,8 +1,12 @@
 {
-    "rewrites": [
-      { "source": "/", "destination": "/" },
-      { "source": "/login", "destination": "/login" },
-      { "source": "/dashboard", "destination": "/dashboard" },
-      { "source": "/:path*", "destination": "/" }
-    ]
-  }
+  "rewrites": [
+    { "source": "/", "destination": "/" },
+    { "source": "/login", "destination": "/login" },
+    { "source": "/dashboard", "destination": "/dashboard" },
+    { "source": "/:path*", "destination": "/" },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
+}

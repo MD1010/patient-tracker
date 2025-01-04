@@ -1,18 +1,34 @@
 {
   "compilerOptions": {
-    "target": "ES2022", // Set to the latest needed target
+    // Choose a valid target that your TS version recognizes (e.g. ES2022)
+    "target": "ES2022",
+
     "useDefineForClassFields": true,
-    "lib": ["ES2023", "DOM", "DOM.Iterable"], // Include all necessary libs
+
+    // Replace ES2023 with ES2022 or ES2021 if TS doesn't support ES2023
+    // (DOM and DOM.Iterable are still fine)
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    // ESNext is fine for modern bundlers like Vite
     "module": "ESNext",
-    "moduleResolution": "bundler",
+
+    // For serverless/Node usage, "node", "node16" or "nodenext" are valid.
+    // "bundler" is not a recognized TypeScript option.
+    "moduleResolution": "node",
+
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
+
+    // "allowImportingTsExtensions" is not recognized by TS at this time
+    // "isolatedModules" is fine for React/Vite
     "isolatedModules": true,
+
+    // "moduleDetection": "force" is a valid TS option for stricter module detection
     "moduleDetection": "force",
+
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
+    /* Linting / Strictness */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -29,5 +45,6 @@
     "src/lib/utils.ts",
     "src/main.tsx",
     "vite.config.ts",
+    "api"
   ]
 }
