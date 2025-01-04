@@ -14,7 +14,7 @@ async function storeTokensInConvex(
   // Example: calling your Convex endpoint
   // You might use a fetch call to your production or dev Convex function
   // Or use the 'convex' npm client if you have an auth context.
-  const response = await fetch(process.env.VITE_CONVEX_URL + "/api/storeGoogleTokens", {
+  const response = await fetch(process.env.CONVEX_ACTIONS_URL + "/api/storeGoogleTokens", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     // Redirect user back to your React front end
-    return res.redirect(`http://localhost:5173?googleAuth=success`);
+    return res.redirect(`http://localhost:5173/dashboard?googleAuth=success`);
   } catch (error) {
     console.error("Error exchanging code:", error);
     return res.status(500).send("Failed to exchange code for tokens");

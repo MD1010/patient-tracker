@@ -4,8 +4,8 @@ import { DateInput } from "@/components/ui/date-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
-import { Doc } from "convex/_generated/dataModel";
-import { useMutation, useQueries, useQuery } from "convex/react";
+import { Doc, Id } from "convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
 import { addMonths } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
@@ -13,7 +13,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
-import { useAuth, useClerk, useUser } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 
 type NewTreatmentFormData = {
   nextTreatment: {
@@ -32,15 +32,8 @@ const fetchAvailableTimes = async (
   authToken: string,
   date: string
 ): Promise<string[]> => {
-  // Simulating API call with 1 second delay
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
-  // // Generate dummy data - 20 time slots (4 rows of 5 slots)
-  // const times = [];
-  // for (let hour = 8; hour <= 17; hour++) {
-  //   times.push(`${hour.toString().padStart(2, "0")}:00`);
-  //   if (hour !== 17) times.push(`${hour.toString().padStart(2, "0")}:30`);
-  // }
-  // return times.slice(0, 20); // Return exactly 20 slots
+  // Make a call to your Vercel serverless endpoint:
+  // /api/timeslots?userId=...&date=...&startOfDay=...&endOfDay=...&duration=...
   const query = new URLSearchParams({
     userId,
     date,
@@ -48,7 +41,14 @@ const fetchAvailableTimes = async (
     endOfDay: "20:00",
     duration: "45",
   });
-  const res = await fetch(`/api/timeslots?${query.toString()}`);
+  const res = await fetch(
+    `http://localhost:3002/api/timeslots?${query.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${authToken}`, // If needed, or do nothing if your endpoint doesn't require it
+      },
+    }
+  );
   if (!res.ok) {
     throw new Error("Failed to fetch timeslots");
   }
@@ -57,13 +57,19 @@ const fetchAvailableTimes = async (
 
 export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const updatePatient = useMutation(api.patients.edit);
+  const { closeModal } = useModal();
+
   const [activeTab, setActiveTab] = useState("nextTreatment");
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const { closeModal } = useModal();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const { userId, getToken } = useAuth();
-  // const userGoogleToken = useQuery(api.auth.getGoogleTokens, { userId });
+
+  // Query Convex to see if we have Google tokens stored for this user
+  const userGoogleToken = useQuery(api.auth.getGoogleTokens, {
+    userId: userId as Id<"users">,
+  });
 
   const {
     register,
@@ -83,6 +89,15 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   const nextTreatment = watch("nextTreatment");
   const nextTreatmentRecallDate = watch("nextTreatmentRecallDate");
 
+  /**
+   * If the user does not have a token,
+   * we display a "connect" button instead of the rest of the form.
+   */
+  const hasGoogleToken = Boolean(userGoogleToken?.accessToken);
+
+  /**
+   * If the form is valid in either tab, allow submission.
+   */
   const isFormValid =
     (activeTab === "nextTreatment" &&
       nextTreatment?.date &&
@@ -92,21 +107,31 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       nextTreatmentRecallDate &&
       !errors.nextTreatmentRecallDate);
 
+  /**
+   * On mount, if there's a future nextTreatment.date,
+   * automatically load available times.
+   */
   useEffect(() => {
-    if (nextTreatment?.date) {
+    if (hasGoogleToken && nextTreatment?.date) {
       const dateObj = new Date(nextTreatment.date);
       const now = new Date();
-      // if the date is valid and in the future, fetch times
       if (!isNaN(dateObj.getTime()) && dateObj.getTime() > now.getTime()) {
         loadAvailableTimes(nextTreatment.date);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount
+  }, [hasGoogleToken]);
 
+  /**
+   * Load available times from our Vercel endpoint
+   */
   const loadAvailableTimes = async (dateString: string) => {
-    const token = await getToken();
-    if (!userId || !token) return;
+    if (!userId) return;
+    const token = await getToken(); // Clerk token if needed
+    console.log("token", token);
+    
+    if (!token) return;
+
     setIsLoadingTimes(true);
     try {
       const times = await fetchAvailableTimes(userId, token, dateString);
@@ -122,39 +147,41 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   };
 
   /**
-   * Fix: handleDateChange sets form values first, then triggers validation.
-   * If invalid, we reset. If valid, we fetch times.
+   * Handle date picker change
    */
   const handleDateChange = async (date: Date | undefined) => {
-    // If user cleared the date picker
+    if (!hasGoogleToken) return; // If no token, do nothing
+
+    // If user cleared the date
     if (!date) {
-      // setValue("nextTreatment.date", "");
       setValue("nextTreatment", null);
       setAvailableTimes([]);
-      // Trigger validation so errors can show up if needed
       await trigger("nextTreatment.date");
       return;
     }
 
-    // Format and set the date in the form
+    // Format the date
     const isoDate = date.toISOString().split("T")[0];
     setValue("nextTreatment.date", isoDate);
 
-    // Trigger validation to see if it's valid
+    // Validate
     const isValidDate = await trigger("nextTreatment.date");
     if (!isValidDate) {
-      // If invalid (past date or other error), reset
+      // Reset if invalid
       setValue("nextTreatment", null);
       setAvailableTimes([]);
       return;
     }
 
-    // If valid, finalize nextTreatment and fetch times
+    // If valid, load times
     setValue("nextTreatment", { date: isoDate, time: "" });
-    setValue("nextTreatmentRecallDate", null); // Clear recall date
+    setValue("nextTreatmentRecallDate", null);
     await loadAvailableTimes(isoDate);
   };
 
+  /**
+   * Form submission
+   */
   const onSubmit: SubmitHandler<NewTreatmentFormData> = async (data) => {
     try {
       if (
@@ -194,6 +221,29 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
     }
   };
 
+  /**
+   * If user has NO Google token, show a "Connect" button
+   */
+  const handleConnectGoogleCalendar = () => {
+    console.log("userId", userId);
+
+    if (!userId) return;
+    // window.open(`http://localhost:3002/api/auth/google/start?usearrId=${userId}`, "_blank")
+    // Start your OAuth flow: direct user to your /api/auth/google/start
+    window.location.href = `http://localhost:3002/api/auth/google/start?userId=${userId}`;
+  };
+
+  if (!hasGoogleToken) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Button variant="default" onClick={handleConnectGoogleCalendar}>
+          התחבר ליומן
+        </Button>
+      </div>
+    );
+  }
+
+  // If the user DOES have a token, show the scheduling form
   return (
     <form
       className="space-y-6 flex flex-col gap-3 justify-between mobile:h-screen"
@@ -204,7 +254,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         className="w-full"
         onValueChange={setActiveTab}
       >
-        {/* Tabs Header */}
         <TabsList className="flex justify-center gap-4 rtl">
           <TabsTrigger value="nextTreatment" className="w-1/2 text-center">
             טיפול הבא
@@ -234,7 +283,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                   }`}
                   onClick={() => {
                     setValue("nextTreatmentRecallDate", recallDate);
-                    setValue("nextTreatment", null); // Clear next treatment
+                    // Clear next treatment
+                    setValue("nextTreatment", null);
                     trigger("nextTreatmentRecallDate");
                   }}
                 >
@@ -267,8 +317,9 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                 validate: (value) => {
                   if (activeTab !== "nextTreatment") return true;
                   if (!value) return "שדה חובה";
-                  if (new Date(value).getTime() <= new Date().getTime())
+                  if (new Date(value).getTime() <= new Date().getTime()) {
                     return "יש לבחור תאריך עתידי";
+                  }
                   return true;
                 },
               })}
@@ -283,7 +334,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           </div>
 
           {/* Available Times Section */}
-
           {nextTreatment?.date && !errors.nextTreatment?.date && (
             <div className="space-y-2 mt-4">
               <Label className="text-sm font-semibold text-right">

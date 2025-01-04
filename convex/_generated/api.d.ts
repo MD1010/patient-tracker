@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as common_generateMedicalInfo from "../common/generateMedicalInfo.js";
+import type * as http from "../http.js";
 import type * as patients from "../patients.js";
 import type * as reports_generatePdf from "../reports/generatePdf.js";
 import type * as reports_sendEmail from "../reports/sendEmail.js";
@@ -37,6 +38,7 @@ import type * as utils_auth from "../utils/auth.js";
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   "common/generateMedicalInfo": typeof common_generateMedicalInfo;
+  http: typeof http;
   patients: typeof patients;
   "reports/generatePdf": typeof reports_generatePdf;
   "reports/sendEmail": typeof reports_sendEmail;
