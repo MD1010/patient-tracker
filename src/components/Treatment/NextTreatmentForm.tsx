@@ -56,11 +56,13 @@ const fetchAvailableTimes = async (
 };
 
 const saveTreatmentInCalendar = async ({
+  patient,
   userId,
   authToken,
   date,
   time,
 }: {
+  patient: Doc<"patients"> & { lastTreatmentDate?: string };
   userId: string;
   authToken: string;
   date: string;
@@ -68,9 +70,12 @@ const saveTreatmentInCalendar = async ({
 }): Promise<string[]> => {
   // Make a call to your Vercel serverless endpoint:
   const query = new URLSearchParams({
+    patientId: patient._id,
     userId,
     date,
-    time,  
+    time,
+    summary: `טיפול - ${patient.firstName} ${patient.lastName}`,
+    description: (patient.phone || patient.parent?.phone)!,
   });
   const res = await fetch(
     `http://localhost:3002/api/schedule?${query.toString()}`,
@@ -234,6 +239,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       });
       if (data.nextTreatment && activeUser) {
         await saveTreatmentInCalendar({
+          patient,
           userId: activeUser?.userId,
           authToken: activeUser?.authToken,
           date: data.nextTreatment.date,
