@@ -76,16 +76,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 1) Handle CORS
   if (handleCORS(req, res)) return;
 
-  // 2) Parse inputs (from query or body). Adjust to your use case.
+  // Ensure it's a POST request
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
+  // 2) Parse inputs from the POST body
   const {
     userId,
     patientId,
-    date,        // "YYYY-MM-DD"
-    time,        // "HH:MM"
+    date, // "YYYY-MM-DD"
+    time, // "HH:MM"
     calendarId = "primary",
     summary = "",
     description = "",
-  } = req.query as {
+  } = req.body as {
     userId?: string;
     patientId?: string;
     date?: string;
@@ -97,42 +102,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!userId) return res.status(400).json({ error: "Missing userId" });
   if (!patientId) return res.status(400).json({ error: "Missing patientId" });
-  if (!date) return res.status(400).json({ error: "Missing date (YYYY-MM-DD)" });
+  if (!date)
+    return res.status(400).json({ error: "Missing date (YYYY-MM-DD)" });
   if (!time) return res.status(400).json({ error: "Missing time (HH:MM)" });
 
   // 3) Get tokens from your DB/Convex
-  let { accessToken, refreshToken, expiryDate } = await getTokensFromConvex(userId);
+  let { accessToken, refreshToken, expiryDate } =
+    await getTokensFromConvex(userId);
   if (!accessToken || !refreshToken) {
-    return res.status(403).json({ error: "User has not connected Google Calendar." });
+    return res
+      .status(403)
+      .json({ error: "User has not connected Google Calendar." });
   }
 
-  // 4) Create OAuth2
+  // 4) Create OAuth2 client and refresh if necessary (same as before)
   const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.GOOGLE_REDIRECT_URL
   );
 
-  // 5) Refresh if expired
   const now = Date.now();
   if (expiryDate && now >= expiryDate) {
     oAuth2Client.setCredentials({ refresh_token: refreshToken });
     try {
-      // This returns a promise => no TS error about 'await' usage
       const { credentials } = await oAuth2Client.refreshAccessToken();
-
       accessToken = credentials.access_token || accessToken;
       refreshToken = credentials.refresh_token || refreshToken;
       expiryDate = credentials.expiry_date || expiryDate;
 
-      // Store updated tokens
       await storeTokensInConvex(userId, accessToken, refreshToken, expiryDate);
     } catch (err) {
       console.error("Failed to refresh access token:", err);
-      return res.status(401).json({ error: "Refresh token invalid or expired." });
+      return res
+        .status(401)
+        .json({ error: "Refresh token invalid or expired." });
     }
   } else {
-    // Not expired; set current credentials
     oAuth2Client.setCredentials({
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -140,11 +146,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // 6) Construct start/end times (45 min default)
+  // 5) Construct start/end times and prepare event data
   const startTime = new Date(`${date}T${time}:00`);
   const endTime = new Date(startTime.getTime() + 45 * 60 * 1000);
 
-  // 7) Prepare event data
   const eventPayload: calendar_v3.Schema$Event = {
     summary,
     description,
@@ -158,23 +163,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
     extendedProperties: {
       private: {
-        patientId, // So we can find this user's future event
+        patientId,
       },
     },
   };
 
-  // 8) Create a typed Calendar client
-  const calendar = google.calendar({
-    version: "v3",
-    auth: oAuth2Client,
-  });
+  // 6) Handle scheduling or updating (same logic as before)
+  const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
 
   try {
-    // 9) Look for existing future events with the same userId
     const listParams: calendar_v3.Params$Resource$Events$List = {
       calendarId,
-      timeMin: new Date().toISOString(),          // from now onward
-      privateExtendedProperty: [`patientId=${patientId}`], // MUST be an array of strings
+      timeMin: new Date().toISOString(),
+      privateExtendedProperty: [`patientId=${patientId}`],
       singleEvents: true,
       orderBy: "startTime",
     };
@@ -183,35 +184,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const existingEvents = listResponse.data.items || [];
 
     if (existingEvents.length > 0) {
-      // 9a) Update the first existing future event
       const eventId = existingEvents[0].id!;
       const patchParams: calendar_v3.Params$Resource$Events$Patch = {
         calendarId,
         eventId,
         requestBody: eventPayload,
       };
-      // .patch returns a promise => no TS 'await' complaint
       const updateResponse = await calendar.events.patch(patchParams);
-
-      return res.status(200).json({
-        action: "updated",
-        updatedEvent: updateResponse.data,
-      });
+      return res
+        .status(200)
+        .json({ action: "updated", updatedEvent: updateResponse.data });
     } else {
-      // 9b) Create a new event
       const insertParams: calendar_v3.Params$Resource$Events$Insert = {
         calendarId,
         requestBody: eventPayload,
       };
       const createResponse = await calendar.events.insert(insertParams);
-
-      return res.status(200).json({
-        action: "created",
-        createdEvent: createResponse.data,
-      });
+      return res
+        .status(200)
+        .json({ action: "created", createdEvent: createResponse.data });
     }
   } catch (error) {
     console.error("Error scheduling/editing event:", error);
-    return res.status(500).json({ error: "Failed to schedule or update the meeting." });
+    return res
+      .status(500)
+      .json({ error: "Failed to schedule or update the meeting." });
   }
 }

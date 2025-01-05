@@ -70,27 +70,29 @@ const saveTreatmentInCalendar = async ({
   date: string;
   time: string;
 }): Promise<string[]> => {
-  // Make a call to your Vercel serverless endpoint:
-  const query = new URLSearchParams({
+  const body = {
     patientId: patient._id,
     userId,
     date,
     time,
     summary: `טיפול - ${patient.firstName} ${patient.lastName}`,
     description: (patient.phone || patient.parent?.phone)!,
+  };
+
+  const res = await fetch("http://localhost:3002/api/schedule", {
+    method: "POST", // Use POST instead of GET
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(body),
   });
-  const res = await fetch(
-    `http://localhost:3002/api/schedule?${query.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${authToken}`, // If needed, or do nothing if your endpoint doesn't require it
-      },
-    }
-  );
+
   if (!res.ok) {
-    throw new Error("Failed to fetch timeslots");
+    throw new Error("Failed to schedule or update meeting");
   }
-  return res.json(); // returns string[] of free start times
+
+  return res.json();
 };
 
 export const NextTreatmentForm: FC<Props> = ({ patient }) => {
