@@ -80,7 +80,7 @@ function toMinutes(hhmm: string): number {
  * Example: if `duration = 45`, you might get slots like "08:00", "08:45", "09:30".
  */
 function findFreeTimes(
-  events: Array<{ start: number; end: number }>,
+  events: Array<{ start: number; end: number; isSystemScheduled: boolean }>,
   startInMins: number,
   endInMins: number,
   duration = 45
@@ -94,9 +94,11 @@ function findFreeTimes(
     const pointerEnd = pointer + duration;
 
     // If any event overlaps [pointer, pointerEnd), this slot is not free
-    const hasOverlap = events.some(
-      (evt) => evt.start < pointerEnd && evt.end > pointer
-    );
+    const hasOverlap = events.some((evt) => {
+      if(evt.isSystemScheduled) return false;
+
+      return evt.start < pointerEnd && evt.end > pointer;
+    });
 
     if (!hasOverlap) {
       // Format the pointer as HH:MM
@@ -114,6 +116,7 @@ function findFreeTimes(
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const {
+    patientId,
     userId,
     date,
     startOfDay = "08:00",
@@ -122,6 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     calendarId = "primary",
   } = req.query as {
     userId?: string;
+    patientId?: string;
     date?: string;
     startOfDay?: string;
     endOfDay?: string;
@@ -133,6 +137,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!userId) {
     return res.status(400).json({ error: "Missing userId param" });
+  }
+  if (!patientId) {
+    return res.status(400).json({ error: "Missing patientId param" });
   }
   if (!date) {
     return res.status(400).json({ error: "Missing date param (YYYY-MM-DD)" });
@@ -189,7 +196,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 4) Now call Google Calendar for events
   const minTime = new Date(`${date}T00:00:00Z`).toISOString();
-  console.log("min time", minTime);
 
   const maxTime = new Date(`${date}T23:59:59Z`).toISOString();
 
@@ -207,9 +213,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const events = items.map((evt) => {
       const startDate = new Date(evt.start?.dateTime || evt.start?.date || "");
       const endDate = new Date(evt.end?.dateTime || evt.end?.date || "");
+
       return {
         start: startDate.getHours() * 60 + startDate.getMinutes(),
         end: endDate.getHours() * 60 + endDate.getMinutes(),
+        isSystemScheduled: !!(
+          evt.extendedProperties?.private?.patientId === patientId
+        ),
       };
     });
 

@@ -29,12 +29,14 @@ type Props = {
 
 const fetchAvailableTimes = async (
   userId: string,
+  patientId: string,
   authToken: string,
   date: string
 ): Promise<string[]> => {
   // Make a call to your Vercel serverless endpoint:
   // /api/timeslots?userId=...&date=...&startOfDay=...&endOfDay=...&duration=...
   const query = new URLSearchParams({
+    patientId,
     userId,
     date,
     startOfDay: "08:00",
@@ -167,7 +169,12 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
 
     setIsLoadingTimes(true);
     try {
-      const times = await fetchAvailableTimes(userId, authToken, dateString);
+      const times = await fetchAvailableTimes(
+        userId,
+        patient._id,
+        authToken,
+        dateString
+      );
       setAvailableTimes(times);
     } catch (error) {
       toast.error("Failed to load available times", {
