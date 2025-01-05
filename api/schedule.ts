@@ -1,6 +1,7 @@
 // file: /api/scheduleOrUpdateMeeting.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { google, calendar_v3 } from "googleapis";
+import { fromZonedTime } from "date-fns-tz";
 
 /** Example: Minimal CORS handler. */
 function handleCORS(req: VercelRequest, res: VercelResponse): boolean {
@@ -85,6 +86,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const {
     userId,
     patientId,
+    userTimeZone,
     date, // "YYYY-MM-DD"
     time, // "HH:MM"
     calendarId = "primary",
@@ -93,6 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } = req.body as {
     userId?: string;
     patientId?: string;
+    userTimeZone?: string;
     date?: string;
     time?: string;
     calendarId?: string;
@@ -102,6 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!userId) return res.status(400).json({ error: "Missing userId" });
   if (!patientId) return res.status(400).json({ error: "Missing patientId" });
+  if (!userTimeZone) return res.status(400).json({ error: "Missing timezone" });
   if (!date)
     return res.status(400).json({ error: "Missing date (YYYY-MM-DD)" });
   if (!time) return res.status(400).json({ error: "Missing time (HH:MM)" });
@@ -147,7 +151,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 5) Construct start/end times and prepare event data
-  const startTime = new Date(`${date}T${time}:00`);
+  const startTime = fromZonedTime(`${date}T${time}:00`, userTimeZone); // Convert to tz
   const endTime = new Date(startTime.getTime() + 45 * 60 * 1000);
 
   const eventPayload: calendar_v3.Schema$Event = {
@@ -155,11 +159,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     description,
     start: {
       dateTime: startTime.toISOString(),
-      timeZone: "UTC",
+      timeZone: userTimeZone,
     },
     end: {
       dateTime: endTime.toISOString(),
-      timeZone: "UTC",
+      timeZone: userTimeZone,
     },
     extendedProperties: {
       private: {

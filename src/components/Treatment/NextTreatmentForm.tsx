@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { cn, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { useUsersStore } from "@/store/user-store";
 import { Doc } from "convex/_generated/dataModel";
@@ -79,6 +79,7 @@ const saveTreatmentInCalendar = async ({
     time,
     summary: `טיפול - ${patient.firstName} ${patient.lastName}`,
     description: (patient.phone || patient.parent?.phone)!,
+    userTimeZone: getClientTimeZone()
   };
 
   const res = await fetch(`${VITE_VERCEL_SERVERLESS_API_URL}/schedule`, {

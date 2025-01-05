@@ -27,6 +27,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     (watch("dateOfBirth") &&
       differenceInYears(new Date(), watch("dateOfBirth")) >= 18);
 
+  console.log("12333333", watch("phone"));
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-2 gap-6">
@@ -120,6 +121,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             {isAdult || !watch("dateOfBirth") ? "טלפון" : "טלפון ההורה"}
           </Label>
           <Input
+            value={watch(isAdult ? "phone" : "parent.phone")!}
             type="tel"
             autoComplete="off"
             id={isAdult ? "phone" : "parent.phone"}
@@ -154,6 +156,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             <div className="space-y-2">
               <Label htmlFor="parent.name">שם ההורה</Label>
               <Input
+                value={watch("parent.name")}
                 autoComplete="off"
                 id="parent.name"
                 {...register("parent.name", { required: "שדה חובה" })}
