@@ -15,6 +15,9 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
 
+const VITE_VERCEL_SERVERLESS_API_URL = import.meta.env.VITE_VERCEL_SERVERLESS_API_URL
+
+
 type NewTreatmentFormData = {
   nextTreatment: {
     date: string;
@@ -33,8 +36,6 @@ const fetchAvailableTimes = async (
   authToken: string,
   date: string
 ): Promise<string[]> => {
-  // Make a call to your Vercel serverless endpoint:
-  // /api/timeslots?userId=...&date=...&startOfDay=...&endOfDay=...&duration=...
   const query = new URLSearchParams({
     patientId,
     userId,
@@ -43,8 +44,9 @@ const fetchAvailableTimes = async (
     endOfDay: "20:00",
     duration: "45",
   });
+
   const res = await fetch(
-    `http://localhost:3002/api/timeslots?${query.toString()}`,
+    `${VITE_VERCEL_SERVERLESS_API_URL}/timeslots?${query.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${authToken}`, // If needed, or do nothing if your endpoint doesn't require it
@@ -79,7 +81,7 @@ const saveTreatmentInCalendar = async ({
     description: (patient.phone || patient.parent?.phone)!,
   };
 
-  const res = await fetch("http://localhost:3002/api/schedule", {
+  const res = await fetch(`${VITE_VERCEL_SERVERLESS_API_URL}/schedule`, {
     method: "POST", // Use POST instead of GET
     headers: {
       "Content-Type": "application/json",
@@ -179,8 +181,12 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       );
       setAvailableTimes(times);
     } catch (error) {
-      toast.error("Failed to load available times", {
+      toast.error("ארעה שגיאה", {
         position: "bottom-right",
+        style: {
+          backgroundColor: "#dc2626",
+          width: 150,
+        },
       });
       setAvailableTimes([]);
     } finally {
@@ -281,9 +287,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   ) => {
     e.preventDefault();
     if (!activeUser) return;
-    // window.open(`http://localhost:3002/api/auth/google/start?usearrId=${userId}`, "_blank")
-    // Start your OAuth flow: direct user to your /api/auth/google/start
-    window.location.href = `http://localhost:3002/api/auth/google/start?userId=${activeUser.userId}&patientId=${patient._id}`;
+    window.location.href = `${VITE_VERCEL_SERVERLESS_API_URL}/auth/google/start?userId=${activeUser.userId}&patientId=${patient._id}`;
   };
 
   return (

@@ -84,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Redirect user back to your React front end
     return res.redirect(
-      `http://localhost:5173/dashboard?googleAuth=success&patientId=${patientId}`
+      `${process.env.FE_URL}/dashboard?googleAuth=success&patientId=${patientId}`
     );
   } catch (error) {
     console.error("Error exchanging code:", error);
