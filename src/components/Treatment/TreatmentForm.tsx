@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getClientTimeZone, parseCurrencyInput } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { useMutation } from "convex/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
@@ -29,6 +29,7 @@ export function TreatmentForm({
   // const { setSelectedPatient, selectedPatient } = usePatients();
 
   const {
+    setFocus,
     register,
     handleSubmit,
     setValue,
@@ -86,6 +87,10 @@ export function TreatmentForm({
       closeModal();
     }
   };
+
+  useEffect(()=> {
+    setTimeout(() => setFocus("type"))
+  }, [])
 
   return (
     <>

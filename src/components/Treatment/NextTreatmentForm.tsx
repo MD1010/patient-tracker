@@ -15,8 +15,8 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
 
-const VITE_VERCEL_SERVERLESS_API_URL = import.meta.env.VITE_VERCEL_SERVERLESS_API_URL
-
+const VITE_VERCEL_SERVERLESS_API_URL = import.meta.env
+  .VITE_VERCEL_SERVERLESS_API_URL;
 
 type NewTreatmentFormData = {
   nextTreatment: {
@@ -79,7 +79,7 @@ const saveTreatmentInCalendar = async ({
     time,
     summary: `טיפול - ${patient.firstName} ${patient.lastName}`,
     description: (patient.phone || patient.parent?.phone)!,
-    userTimeZone: getClientTimeZone()
+    userTimeZone: getClientTimeZone(),
   };
 
   const res = await fetch(`${VITE_VERCEL_SERVERLESS_API_URL}/schedule`, {
@@ -387,10 +387,16 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                     size="icon"
                     className="absolute left-1 top-1/2 transform -translate-y-1/2"
                     onClick={() => {
-                      if (nextTreatment?.date) {
+                      if (
+                        nextTreatment?.date &&
+                        new Date(nextTreatment.date).getTime() <
+                          new Date().getTime()
+                      ) {
+                        toast.error("יש לבחור תאריך שלא חלף", {position:"bottom-right"});
+                      } else if (nextTreatment?.date) {
                         loadAvailableTimes(nextTreatment.date);
                       } else {
-                        toast.error("יש לבחור תאריך לפני רענון הזמנים");
+                        toast.error("יש לבחור תאריך לפני רענון הזמנים", {position:"bottom-right"});
                       }
                     }}
                     disabled={isLoadingTimes}

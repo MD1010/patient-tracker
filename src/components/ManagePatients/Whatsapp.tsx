@@ -22,7 +22,6 @@ export const getWhatsappUrl = (patient: Doc<"patients">) => {
 
     // Construct the WhatsApp URL with the message
     const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
-    console.log("whataurl", whatsappUrl);
 
     return whatsappUrl;
   } catch (error) {

@@ -16,7 +16,6 @@ interface DateInputProps {
   className?: string;
   placeholder?: string;
   autoFocus?: boolean;
-  dateInputRef?: React.Ref<HTMLInputElement>;
 }
 
 export function DateInput({
@@ -29,7 +28,6 @@ export function DateInput({
   className,
   placeholder,
   autoFocus,
-  dateInputRef,
   ...props
 }: DateInputProps) {
   const [inputValue, setInputValue] = useState(() =>
@@ -122,7 +120,6 @@ export function DateInput({
   return (
     <div className="relative">
       <Input
-        ref={dateInputRef}
         autoFocus={autoFocus}
         id={id}
         type="text"
