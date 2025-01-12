@@ -88,15 +88,22 @@ function findFreeTimes(
   const freeSlots: string[] = [];
   let pointer = startInMins;
 
-  // Check each potential slot from `pointer` to `pointer + duration`
-  // and skip ahead by `duration` minutes each time.
+  // First add all system scheduled event start times
+  events.forEach((evt) => {
+    if (evt.isSystemScheduled) {
+      const hh = String(Math.floor(evt.start / 60)).padStart(2, "0");
+      const mm = String(evt.start % 60).padStart(2, "0");
+      freeSlots.push(`${hh}:${mm}`);
+    }
+  });
+
+  // Then check for regular free slots
   while (pointer + duration <= endInMins) {
     const pointerEnd = pointer + duration;
 
-    // If any event overlaps [pointer, pointerEnd), this slot is not free
+    // If any non-system event overlaps [pointer, pointerEnd), this slot is not free
     const hasOverlap = events.some((evt) => {
-      if(evt.isSystemScheduled) return false;
-
+      if (evt.isSystemScheduled) return false;
       return evt.start < pointerEnd && evt.end > pointer;
     });
 
@@ -107,11 +114,11 @@ function findFreeTimes(
       freeSlots.push(`${hh}:${mm}`);
     }
 
-    // Jump `pointer` by `duration` each iteration
-    pointer += duration;
+    pointer += 15;
   }
 
-  return freeSlots;
+  // Sort the slots chronologically and remove duplicates
+  return [...new Set(freeSlots)].sort();
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

@@ -440,8 +440,8 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                   <Label className="text-sm font-semibold text-right">
                     בחר שעה
                   </Label>
-                  <div className="relative">
-                    <div className="flex flex-wrap gap-4">
+                  <div className="relative h-60 overflow-y-scroll scrollbar-rtl">
+                    <div className="flex flex-wrap gap-4 ">
                       {availableTimes.map((time) => (
                         <Badge
                           key={time}
