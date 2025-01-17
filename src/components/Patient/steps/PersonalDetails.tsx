@@ -81,6 +81,9 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             })}
             onChange={(date) => {
               setValue("dateOfBirth", date?.toString() || "");
+              if(date?.toString()){
+                trigger("dateOfBirth");  
+              }
             }}
             onBlur={() => {
               trigger("dateOfBirth");
@@ -103,6 +106,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             })}
             onChange={(e) => {
               setValue("idNumber", e.target.value);
+              if (e.target.value) trigger("idNumber");
             }}
             onBlur={() => {
               trigger("idNumber");
@@ -131,6 +135,8 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             })}
             onChange={(e) => {
               setValue(isAdult ? "phone" : "parent.phone", e.target.value);
+              if (validateIsraeliPhone(e.target.value))
+                trigger(isAdult ? "phone" : "parent.phone");
             }}
             onBlur={() => {
               trigger(isAdult ? "phone" : "parent.phone");
