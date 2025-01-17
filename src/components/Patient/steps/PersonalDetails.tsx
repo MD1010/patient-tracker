@@ -100,7 +100,6 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             id="idNumber"
             {...register("idNumber", {
               required: "שדה חובה",
-              pattern: { value: /^\d{9}$/, message: "תעודת זהות לא תקינה" },
             })}
             onChange={(e) => {
               setValue("idNumber", e.target.value);
