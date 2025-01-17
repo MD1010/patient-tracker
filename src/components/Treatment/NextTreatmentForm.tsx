@@ -40,7 +40,7 @@ const fetchAvailableTimes = async (
     patientId,
     userId,
     date,
-    startOfDay: "08:00",
+    startOfDay: "07:00",
     endOfDay: "20:00",
     duration: "45",
   });

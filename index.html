@@ -2,12 +2,24 @@
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=3.0" /> -->
+    <link id="favicon" rel="icon" type="image/svg+xml" href="/fav-light.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <meta name="viewport" content="interactive-widget=overlays-content" /> -->
 
     <title>Patient Tracker</title>
+    <script>
+      // Function to switch favicon based on the user's color scheme
+      function setFaviconBasedOnTheme() {
+        const favicon = document.getElementById('favicon');
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        favicon.href = isDarkMode ? '/fav-dark.svg' : '/fav-light.svg';
+      }
+
+      // Set the favicon on page load
+      setFaviconBasedOnTheme();
+
+      // Listen for changes in the color scheme
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setFaviconBasedOnTheme);
+    </script>
   </head>
   <body>
     <div id="root"></div>

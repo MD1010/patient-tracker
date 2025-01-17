@@ -77,7 +77,7 @@ function toMinutes(hhmm: string): number {
 
 /**
  * Finds free timeslots where each slot is exactly `duration` minutes long.
- * Example: if `duration = 45`, you might get slots like "08:00", "08:45", "09:30".
+ * Example: if `duration = 45`, you might get slots like "07:00", "08:45", "09:30".
  */
 function findFreeTimes(
   events: Array<{ start: number; end: number; isSystemScheduled: boolean }>,
@@ -126,7 +126,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     patientId,
     userId,
     date,
-    startOfDay = "08:00",
+    startOfDay = "07:00",
     endOfDay = "20:00",
     duration = "45",
     calendarId = "primary",
