@@ -55,7 +55,16 @@ export const generateMedicalConditionReport = (
 
   // Process conditions
   const existingConditions = Object.entries(conditions || {})
-    .filter(([_, hasCondition]) => hasCondition)
+    .filter(([key, hasCondition]) => {
+      if (key === "chemotherapy") {
+        return (
+          hasCondition &&
+          conditions[key].hasOwnProperty("hasUndergoneTreatment") &&
+          conditions[key].hasUndergoneTreatment === true
+        );
+      }
+      return hasCondition;
+    })
     .map(([key]) => (conditionDescriptions as any)[key]);
 
   // Start the report with the patient details
