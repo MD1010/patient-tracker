@@ -44,7 +44,7 @@ export function PatientTable() {
 
   const sortedPatients = filteredPatients?.slice().sort((a, b) => {
     if (!sortColumn) return 0;
-
+  
     const getValue = (patient: any, column: string) => {
       if (column === "name") {
         return `${patient.firstName} ${patient.lastName}`.toLowerCase();
@@ -52,32 +52,37 @@ export function PatientTable() {
       if (column === "dateOfBirth" || column === "lastTreatmentDate" || column === "nextTreatment") {
         return patient[column] ? new Date(patient[column]) : null;
       }
-      return patient[column] ?? "";
+      return patient[column] ?? null; // Explicitly return null for undefined values
     };
-
+  
     const aValue = getValue(a, sortColumn);
     const bValue = getValue(b, sortColumn);
-
+  
+    // Always sort null/undefined values to the end
     if (aValue == null && bValue == null) return 0;
-    if (aValue == null) return sortDirection === "asc" ? 1 : -1;
-    if (bValue == null) return sortDirection === "asc" ? -1 : 1;
-
+    if (aValue == null) return 1; // Move aValue after bValue
+    if (bValue == null) return -1; // Move bValue after aValue
+  
+    // Handle string comparison
     if (typeof aValue === "string" && typeof bValue === "string") {
       return sortDirection === "asc"
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
-
+  
+    // Handle date comparison
     if (aValue instanceof Date && bValue instanceof Date) {
       return sortDirection === "asc"
         ? aValue.getTime() - bValue.getTime()
         : bValue.getTime() - aValue.getTime();
     }
-
+  
+    // Handle numeric comparison
     if (typeof aValue === "number" && typeof bValue === "number") {
       return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     }
-
+  
+    // Fallback comparison for other types
     return sortDirection === "asc"
       ? String(aValue).localeCompare(String(bValue))
       : String(bValue).localeCompare(String(aValue));
