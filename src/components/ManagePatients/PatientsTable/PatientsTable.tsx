@@ -49,6 +49,9 @@ export function PatientTable() {
       if (column === "name") {
         return `${patient.firstName} ${patient.lastName}`.toLowerCase();
       }
+      if (column === "dateOfBirth" || column === "lastTreatmentDate" || column === "nextTreatment") {
+        return patient[column] ? new Date(patient[column]) : null;
+      }
       return patient[column] ?? "";
     };
 
