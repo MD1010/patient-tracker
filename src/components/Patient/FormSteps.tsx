@@ -2,17 +2,17 @@ import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const steps = [
-  { number: 1, title: "פרטים אישיים" },
-  { number: 2, title: "רקע ומחלות" },
-  { number: 3, title: "תרופות ועבר רפואי" },
-];
-
 interface FormStepsProps {
   currentStep: number;
   editable?: boolean; // New prop to enable free navigation
   onStepClick?: (stepNumber: number) => void; // Callback for step click
 }
+const steps = [
+  { number: 1, title: "פרטים אישיים" },
+  { number: 2, title: "רקע ומחלות" },
+  { number: 3, title: "תרופות ועבר רפואי" },
+  { number: 4, title: "חתימת המטופל" },
+];
 
 export function FormSteps({
   currentStep,
@@ -41,7 +41,7 @@ export function FormSteps({
             <li
               key={step.number}
               className={cn(
-                "flex flex-col items-center group", 
+                "flex flex-col items-center group",
                 editable && currentStep !== step.number && "cursor-pointer"
               )}
               onClick={() => editable && onStepClick?.(step.number)}
@@ -49,12 +49,14 @@ export function FormSteps({
               <div
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-transform duration-50 ",
-                  editable && currentStep !== step.number && "group-hover:scale-[1.15]",
+                  editable &&
+                    currentStep !== step.number &&
+                    "group-hover:scale-[1.15]",
                   isCompleted
                     ? "bg-primary"
                     : isCurrent
-                    ? "bg-primary"
-                    : "bg-muted border-foreground border-2"
+                      ? "bg-primary"
+                      : "bg-muted border-foreground border-2"
                 )}
               >
                 <span
@@ -65,10 +67,10 @@ export function FormSteps({
                         ? "text-primary-foreground"
                         : "text-foreground"
                       : isCurrent
-                      ? "text-primary-foreground"
-                      : isCompleted
-                      ? "text-primary-foreground"
-                      : "text-foreground"
+                        ? "text-primary-foreground"
+                        : isCompleted
+                          ? "text-primary-foreground"
+                          : "text-foreground"
                   )}
                 >
                   {editable || isCurrent || !isCompleted ? (
@@ -81,7 +83,7 @@ export function FormSteps({
               <span
                 className={cn(
                   "mt-2 text-sm font-medium transition-transform duration-50",
-                  isCurrent ? "text-primary" : "text-muted-foreground",
+                  isCurrent ? "text-primary" : "text-muted-foreground"
                   // editable && currentStep !== step.number && "group-hover:scale-[1.2]",
                 )}
               >

@@ -56,4 +56,5 @@ export const patientsSchema = {
   pregnancyWeek: v.optional(v.string()),
   cancerDetails: v.optional(v.string()),
   otherAllergies: v.optional(v.string()),
+  signature: v.optional(v.string())
 };
