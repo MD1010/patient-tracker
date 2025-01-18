@@ -6,9 +6,11 @@ export const sendEmailWithPDF = async ({
   patient,
   treatments,
   userTimeZone,
+  user
 }: {
   patient: Doc<"patients">;
   treatments: Doc<"treatments">[];
+  user: Doc<"users">;
   userTimeZone: string;
 }) => {
   const pdfBase64 = await generatePatientInfoPdf(
@@ -28,7 +30,7 @@ export const sendEmailWithPDF = async ({
         },
         To: [
           {
-            Email: process.env.REPORTS_EMAIL,
+            Email: user.email,
             Name: "Michael",
           },
         ],

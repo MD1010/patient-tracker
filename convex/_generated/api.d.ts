@@ -25,6 +25,7 @@ import type * as schemas_patients from "../schemas/patients.js";
 import type * as schemas_treatments from "../schemas/treatments.js";
 import type * as schemas_users from "../schemas/users.js";
 import type * as treatments from "../treatments.js";
+import type * as users from "../users.js";
 import type * as utils_auth from "../utils/auth.js";
 
 /**
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   "schemas/treatments": typeof schemas_treatments;
   "schemas/users": typeof schemas_users;
   treatments: typeof treatments;
+  users: typeof users;
   "utils/auth": typeof utils_auth;
 }>;
 export declare const api: FilterApi<

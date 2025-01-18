@@ -150,15 +150,23 @@ export const sendEmailWithAttachment = action({
     // Ensure the patient belongs to the user
     if (!patient || patient?.userId !== userId) throw new Error("Unauthorized");
 
+    const user = await ctx.runQuery(internal.users.get, {
+      userId: args.userId,
+    });
+
+    if (!user) throw new Error("Unauthorized");
+
     const treatments = await ctx.runQuery(api.treatments.get, {
       patientId: args.patientId,
       userId,
     });
+
     if (patient) {
       await sendEmailWithPDF({
         patient,
         treatments,
         userTimeZone: args.userTimeZone,
+        user,
       });
     }
   },
