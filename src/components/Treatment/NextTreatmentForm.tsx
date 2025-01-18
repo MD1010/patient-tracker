@@ -8,7 +8,7 @@ import { useUsersStore } from "@/store/user-store";
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { addMonths, format } from "date-fns";
-import { Loader2, RotateCw } from "lucide-react";
+import { Loader2, RotateCw, TrashIcon } from "lucide-react";
 import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -128,7 +128,6 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
   });
 
   const nextTreatment = watch("nextTreatment");
-  const nextTreatmentRecallDate = watch("nextTreatmentRecallDate");
 
   /**
    * If the user does not have a token,
@@ -145,9 +144,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
       nextTreatment?.date &&
       nextTreatment?.time &&
       !errors.nextTreatment) ||
-    (activeTab === "nextRecall" &&
-      nextTreatmentRecallDate &&
-      !errors.nextTreatmentRecallDate);
+    activeTab === "nextRecall";
 
   /**
    * On mount, if there's a future nextTreatment.date,
@@ -317,19 +314,35 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           </Label>
           <div className="flex flex-wrap gap-4">
             {[3, 4, 6, 12].map((months) => {
-              const recallDate = addMonths(new Date(), months)
-                .toISOString()
-                .split("T")[0];
+              // Generate the recall date and normalize it to YYYY-MM-DD
+              const recallDate = addMonths(new Date(), months);
+              const normalizedRecallDate = format(recallDate, "yyyy-MM-dd"); // Always use YYYY-MM-DD
+
+              // Get the current recall date and normalize it to YYYY-MM-DD
+              const currentRecallDate = watch("nextTreatmentRecallDate")
+                ? format(
+                    new Date(watch("nextTreatmentRecallDate") || ''),
+                    "yyyy-MM-dd"
+                  )
+                : null;
+
               return (
                 <Badge
                   key={months}
                   className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${
-                    watch("nextTreatmentRecallDate") === recallDate
+                    currentRecallDate === normalizedRecallDate
                       ? "bg-primary"
                       : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
                   }`}
                   onClick={() => {
-                    setValue("nextTreatmentRecallDate", recallDate);
+                    if (currentRecallDate === normalizedRecallDate) {
+                      // Clear the selection if already selected
+                      setValue("nextTreatmentRecallDate", null);
+                    } else {
+                      // Otherwise, set the new recall date
+                      setValue("nextTreatmentRecallDate", normalizedRecallDate);
+                    }
+
                     // Clear next treatment
                     setValue("nextTreatment", null);
                     trigger("nextTreatmentRecallDate");
@@ -392,11 +405,15 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                         new Date(nextTreatment.date).getTime() <
                           new Date().getTime()
                       ) {
-                        toast.error("יש לבחור תאריך שלא חלף", {position:"bottom-right"});
+                        toast.error("יש לבחור תאריך שלא חלף", {
+                          position: "bottom-right",
+                        });
                       } else if (nextTreatment?.date) {
                         loadAvailableTimes(nextTreatment.date);
                       } else {
-                        toast.error("יש לבחור תאריך לפני רענון הזמנים", {position:"bottom-right"});
+                        toast.error("יש לבחור תאריך לפני רענון הזמנים", {
+                          position: "bottom-right",
+                        });
                       }
                     }}
                     disabled={isLoadingTimes}
@@ -475,15 +492,68 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsContent>
       </Tabs>
 
-      <Button
-        type="submit"
-        className="w-full mt-auto"
-        disabled={!isFormValid || !hasGoogleToken}
-        isLoading={isLoading}
-        variant="submit"
-      >
-        {activeTab === "nextTreatment" ? "שמור תאריך לטיפול הבא" : "שמור תזכור"}
-      </Button>
+      <div className="flex gap-4 w-full mt-auto">
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          className="flex-1"
+          disabled={
+            !isFormValid ||
+            !hasGoogleToken ||
+            isLoading ||
+            (activeTab === "nextTreatment" && isLoadingTimes)
+          }
+          isLoading={isLoading}
+          variant="submit"
+        >
+          {activeTab === "nextTreatment"
+            ? "שמור תאריך לטיפול הבא"
+            : "שמור תזכור"}
+        </Button>
+
+        {/* Delete Button */}
+        {(activeTab === "nextTreatment" &&
+          (!patient.nextTreatment?.date || !patient.nextTreatment?.time)) ||
+        activeTab === "nextRecall" ? null : (
+          <Button
+            disabled={
+              isLoading || (activeTab === "nextTreatment" && isLoadingTimes)
+            }
+            type="button"
+            className="text-red-500/80 border border-red-500/40 hover:bg-red-500/20"
+            variant="outline"
+            onClick={handleSubmit(async () => {
+              try {
+                if (activeTab === "nextTreatment") {
+                  // Reset nextTreatment fields
+                  await updatePatient({
+                    ...patient,
+                    nextTreatment: null,
+                  });
+                  toast.success("תאריך הטיפול הבא בוטל", {
+                    position: "bottom-right",
+                  });
+                }
+
+                // Close the modal after submission
+                closeModal();
+              } catch (error) {
+                console.error("Error deleting treatment or recall:", error);
+                toast.error("שגיאה בעת ביטול הטיפול או התזכור", {
+                  position: "bottom-right",
+                  style: {
+                    backgroundColor: "#dc2626",
+                    width: 150,
+                  },
+                });
+              }
+            })}
+          >
+            <TrashIcon strokeWidth={2} className="h-4 w-4" />
+            {activeTab === "nextTreatment" ? "בטל טיפול הבא" : null}
+          </Button>
+        )}
+      </div>
     </form>
   );
 };
