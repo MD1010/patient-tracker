@@ -106,7 +106,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
 
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={"mt-8 flex flex-col h-[85%] se:max-h-[80%]"}
+            className={"mt-8 flex flex-col h-[85%] se:max-h-[70%]"}
           >
             <div className="px-4 overflow-auto sm:max-h-[45vh] scrollbar-rtl mobile:px-1">
               {currentStep === 1 && <PersonalDetails form={form} />}

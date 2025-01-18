@@ -82,7 +82,7 @@ export function FormSteps({
               </div>
               <span
                 className={cn(
-                  "mt-2 text-sm font-medium transition-transform duration-50",
+                  "mt-2 text-sm font-medium transition-transform duration-50 text-center mx-4",
                   isCurrent ? "text-primary" : "text-muted-foreground"
                   // editable && currentStep !== step.number && "group-hover:scale-[1.2]",
                 )}
