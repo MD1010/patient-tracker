@@ -27,12 +27,13 @@ import {
 } from "lucide-react";
 
 import { DateInput } from "@/components/ui/date-input";
-import { formatCurrency, getClientTimeZone } from "@/lib/utils";
+import { cn, formatCurrency, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
@@ -52,7 +53,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Input } from '../ui/input';
+import { Input } from "../ui/input";
 import { getWhatsappUrl } from "./Whatsapp";
 
 // Define the NewTreatmentFormData type
@@ -71,10 +72,25 @@ export function PatientData() {
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
   const [isDownloadingReport, setIsDownloadingReport] = useState(false);
-  const [isNextTreatmentModalOpen, setIsNextTreatmentModalOpen] = useState(false);
-  const [nextTreatmentDate, setNextTreatmentDate] = useState<Date | undefined>(undefined);
-  const [nextTreatmentTime, setNextTreatmentTime] = useState<string>("");
-  const { register, trigger, formState: { errors } } = useForm<NewTreatmentFormData>();
+  const [isNextTreatmentModalOpen, setIsNextTreatmentModalOpen] =
+    useState(false);
+
+  const {
+    watch,
+    setValue,
+    register,
+    clearErrors,
+    trigger,
+    formState: {errors},
+  } = useForm<NewTreatmentFormData>({
+    mode: "onBlur",
+    defaultValues: {
+      nextTreatment: {
+        date: undefined,
+        time: undefined,
+      },
+    },
+  });
 
   const fetchedPatient = useQuery(api.patients.getOne, {
     patientId: selectedPatient?._id,
@@ -158,6 +174,7 @@ export function PatientData() {
 
   if (!selectedPatient) return null;
 
+
   return (
     <Dialog
       open={!!selectedPatient}
@@ -228,27 +245,39 @@ export function PatientData() {
                 {selectedPatient.phone || selectedPatient.parent?.phone ? (
                   <DropdownMenuItem
                     className="py-2 px-2 pl-6"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (!selectedPatient.nextTreatment) {
                         setIsNextTreatmentModalOpen(true);
-                      } else {
-                        const whatsappUrl = getWhatsappUrl(selectedPatient);
-                        console.log(whatsappUrl);
-                        
-                        if (whatsappUrl) {
-                          console.log("!!!!!!!!!!");
-                          window.open(whatsappUrl, "_blank");
-                        }
                       }
                     }}
                   >
-                    <div className="flex items-center">
-                      <FontAwesomeIcon
-                        icon={faWhatsapp}
-                        className="h-5 w-5 ml-3"
-                      />
-                      שלח תזכורת
-                    </div>
+                    {selectedPatient.nextTreatment ? (
+                      <Link
+                        to={getWhatsappUrl(selectedPatient) || ""}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <div className="flex items-center">
+                          <FontAwesomeIcon
+                            icon={faWhatsapp}
+                            className="h-5 w-5 ml-3"
+                          />
+                          שלח תזכורת
+                        </div>
+                      </Link>
+                    ) : (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon
+                          icon={faWhatsapp}
+                          className="h-5 w-5 ml-3"
+                        />
+                        שלח תזכורת
+                      </div>
+                    )}
                   </DropdownMenuItem>
                 ) : null}
 
@@ -535,69 +564,102 @@ export function PatientData() {
           </motion.div>
         </div>
 
-        <Dialog open={isNextTreatmentModalOpen} onOpenChange={setIsNextTreatmentModalOpen}>
-          <DialogContent className={`p-10 max-w-md flex flex-col gap-8`}>
+        <Dialog
+          open={isNextTreatmentModalOpen}
+          onOpenChange={() => {
+            setIsNextTreatmentModalOpen(false);
+            clearErrors("nextTreatment.date");
+          }}
+        >
+          <DialogContent className={`p-10 max-w-md flex flex-col gap-6`}>
             <DialogHeader>
-              <DialogTitle className="text-right">הכנס תאריך התור הבא</DialogTitle>
+              <DialogTitle className="text-right">
+                הכנס תאריך התור הבא
+              </DialogTitle>
             </DialogHeader>
             <DateInput
               dir="rtl"
-              placeholder="הקלד תאריך"
-              className={errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""}
+              placeholder="הכנס תאריך"
+              value={watch("nextTreatment.date") || ""}
+              className={cn(
+                "relative pl-10", // Add padding to the left for the icon
+                errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""
+              )}
               {...register("nextTreatment.date", {
-                required: "שדה חובה",
                 validate: (value) => {
-                  if (!value || new Date(value) <= new Date()) {
+                  if (value === "Invalid Date") {
                     return "תאריך לא תקין";
+                  }
+                  if (new Date(value).getTime() <= new Date().getTime()) {
+                    return "יש לבחור תאריך עתידי";
                   }
                   return true;
                 },
               })}
               onChange={(date) => {
-                setNextTreatmentDate(date);
-                if (date) {
-                  trigger("nextTreatment.date"); // Trigger validation
-                }
+                setValue("nextTreatment.date", date?.toString() || "");
+                
               }}
-              onBlur={() => trigger("nextTreatment.date")}
+              onBlur={() => {
+                
+                trigger("nextTreatment.date");
+              //   console.log("12222222222", watch("nextTreatment.date"));
+                
+              //   if(!watch("nextTreatment.date")){
+              //     setError("nextTreatment.date", {
+              //       type: "required",
+              //       message: "שדה חובה"
+              //     });
+              //   }
+              }}
             />
+
+            {errors.nextTreatment?.date && (
+              <p className="text-sm text-red-600 -mt-4">
+                {errors.nextTreatment.date.message}
+              </p>
+            )}
             <Input
               dir="rtl"
               type="time"
-              value={nextTreatmentTime}
-              onChange={(e) => setNextTreatmentTime(e.target.value)}
+              value={watch("nextTreatment.time")}
+              onChange={(e) => setValue("nextTreatment.time", e.target.value)}
               className="mt-2 text-right flex-row-reverse"
             />
             <Button
               onClick={async () => {
-                if (nextTreatmentDate && nextTreatmentTime) {
-                  // Update the selectedPatient with the new treatment date and time
-                  await updatePatient({
-                    ...selectedPatient,
-                    nextTreatment: {
-                      date: format(nextTreatmentDate, "yyyy-MM-dd"), // Format the date
-                      time: nextTreatmentTime,
-                    },
-                  });
+                // Update the selectedPatient with the new treatment date and time
+                await updatePatient({
+                  ...selectedPatient,
+                  nextTreatment: {
+                    date: format(watch("nextTreatment.date"), "yyyy-MM-dd"), // Format the date
+                    time: watch("nextTreatment.time"),
+                  },
+                });
 
-                  // Generate the WhatsApp URL with the updated patient data
-                  const whatsappUrl = getWhatsappUrl({
-                    ...selectedPatient,
-                    nextTreatment: {
-                      date: format(nextTreatmentDate, "yyyy-MM-dd"),
-                      time: nextTreatmentTime,
-                    },
-                  });
+                // Generate the WhatsApp URL with the updated patient data
+                const whatsappUrl = getWhatsappUrl({
+                  ...selectedPatient,
+                  nextTreatment: {
+                    date: format(watch("nextTreatment.date"), "yyyy-MM-dd"),
+                    time: watch("nextTreatment.time"),
+                  },
+                });
 
-                  if (whatsappUrl) {
-                    window.open(whatsappUrl, "_blank");
-                  }
+                if (whatsappUrl) {
+                  window.open(whatsappUrl, "_blank");
                 }
+
                 // Clear the input fields
-                setNextTreatmentDate(undefined);
-                setNextTreatmentTime("");
+                setValue("nextTreatment.date", "");
+                setValue("nextTreatment.time", "");
                 setIsNextTreatmentModalOpen(false);
               }}
+              disabled={
+                !watch("nextTreatment.date") ||
+                !watch("nextTreatment.time") ||
+                !!errors.nextTreatment?.date
+              }
             >
               שלח תזכורת
             </Button>
