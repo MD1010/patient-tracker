@@ -14,6 +14,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 
 const VITE_VERCEL_SERVERLESS_API_URL = import.meta.env
   .VITE_VERCEL_SERVERLESS_API_URL;
@@ -321,7 +322,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               // Get the current recall date and normalize it to YYYY-MM-DD
               const currentRecallDate = watch("nextTreatmentRecallDate")
                 ? format(
-                    new Date(watch("nextTreatmentRecallDate") || ''),
+                    new Date(watch("nextTreatmentRecallDate") || ""),
                     "yyyy-MM-dd"
                   )
                 : null;
@@ -435,7 +436,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
           )}
 
           {/* Available Times Section */}
-          <div className="h-64 flex flex-col relative -translate-y-4">
+          <div className="h-64 flex flex-col relative -translate-y-4 mobile:h-96 se:h-64">
             {!hasGoogleToken ? (
               <div className="mt-8 w-full">
                 <Button
@@ -453,31 +454,51 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
             ) : availableTimes.length ? (
               nextTreatment?.date &&
               !errors.nextTreatment?.date && (
-                <div className="space-y-4">
-                  <Label className="text-sm font-semibold text-right">
-                    בחר שעה
-                  </Label>
-                  <div className="relative h-60 overflow-y-scroll scrollbar-rtl">
-                    <div className="flex flex-wrap gap-4 ">
-                      {availableTimes.map((time) => (
-                        <Badge
-                          key={time}
-                          className={`rounded-xl h-10 px-4 text-sm cursor-pointer ${
-                            nextTreatment?.time === time
-                              ? "bg-primary"
-                              : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
-                          }`}
-                          onClick={() =>
-                            setValue("nextTreatment", {
-                              date: nextTreatment.date,
-                              time,
-                            })
-                          }
-                        >
-                          {time}
-                        </Badge>
-                      ))}
+                <div className="space-y-4 h-[95%] flex  ">
+                  <div>
+                    <Label className="text-sm font-semibold text-right">
+                      בחר שעה
+                    </Label>
+                    <div className="relative h-full overflow-auto scrollbar-rtl w-[40%] se:h-60 mobile:max-h-[28rem]">
+                      <div className="flex flex-wrap gap-4 ">
+                        {availableTimes.map((time) => (
+                          <Badge
+                            key={time}
+                            className={`rounded-xl h-10 w-full px-4 cursor-pointer text-center justify-center text-md mr-4 ${
+                              nextTreatment?.time === time
+                                ? "bg-primary"
+                                : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+                            }`}
+                            onClick={() =>
+                              setValue("nextTreatment", {
+                                date: nextTreatment.date,
+                                time,
+                              })
+                            }
+                          >
+                            {time}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
+                  </div>
+                  <span className="text-lg text-center justify-self-center">
+                    או
+                  </span>
+                  <div>
+                    <Label className="text-sm font-semibold text-right">
+                      הכנס ידנית
+                    </Label>
+                    <Input
+                      type="time"
+                      value={nextTreatment?.time || ""}
+                      onChange={(e) =>
+                        setValue("nextTreatment", {
+                          ...nextTreatment,
+                          time: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                 </div>
               )
