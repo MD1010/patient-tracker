@@ -1,6 +1,7 @@
 // api/timeslots.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { google } from "googleapis";
+import { fromZonedTime } from "date-fns-tz";
 // import { handleCORS } from '../lib/cors';
 
 function handleCORS(req: VercelRequest, res: VercelResponse): boolean {
@@ -83,41 +84,52 @@ function findFreeTimes(
   events: Array<{ start: number; end: number; isSystemScheduled: boolean }>,
   startInMins: number,
   endInMins: number,
-  duration = 45
+  duration = 45,
+  userTimeZone: string,
+  date: string
 ): string[] {
   const freeSlots: string[] = [];
   let pointer = startInMins;
 
-  // First add all system scheduled event start times
+  // Handle system scheduled events with timezone
   events.forEach((evt) => {
     if (evt.isSystemScheduled) {
-      const hh = String(Math.floor(evt.start / 60)).padStart(2, "0");
-      const mm = String(evt.start % 60).padStart(2, "0");
+      // Create a date object for the specified date at the event's time
+      const eventDate = new Date(`${date}T${String(Math.floor(evt.start / 60)).padStart(2, "0")}:${String(evt.start % 60).padStart(2, "0")}:00`);
+      
+      // Convert to user's timezone
+      const eventInUserTz = fromZonedTime(eventDate, userTimeZone);
+      
+      const hh = String(eventInUserTz.getHours()).padStart(2, "0");
+      const mm = String(eventInUserTz.getMinutes()).padStart(2, "0");
       freeSlots.push(`${hh}:${mm}`);
     }
   });
 
-  // Then check for regular free slots
+  // Regular free slots handling with timezone
   while (pointer + duration <= endInMins) {
     const pointerEnd = pointer + duration;
 
-    // If any non-system event overlaps [pointer, pointerEnd), this slot is not free
     const hasOverlap = events.some((evt) => {
       if (evt.isSystemScheduled) return false;
       return evt.start < pointerEnd && evt.end > pointer;
     });
 
     if (!hasOverlap) {
-      // Format the pointer as HH:MM
-      const hh = String(Math.floor(pointer / 60)).padStart(2, "0");
-      const mm = String(pointer % 60).padStart(2, "0");
+      // Create a date object for the specified date at the pointer time
+      const slotDate = new Date(`${date}T${String(Math.floor(pointer / 60)).padStart(2, "0")}:${String(pointer % 60).padStart(2, "0")}:00`);
+      
+      // Convert to user's timezone
+      const slotInUserTz = fromZonedTime(slotDate, userTimeZone);
+      
+      const hh = String(slotInUserTz.getHours()).padStart(2, "0");
+      const mm = String(slotInUserTz.getMinutes()).padStart(2, "0");
       freeSlots.push(`${hh}:${mm}`);
     }
 
     pointer += 15;
   }
 
-  // Sort the slots chronologically and remove duplicates
   return [...new Set(freeSlots)].sort();
 }
 
@@ -130,6 +142,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     endOfDay = "20:00",
     duration = "45",
     calendarId = "primary",
+    userTimeZone = 'Asia/Jerusalem'
   } = req.query as {
     userId?: string;
     patientId?: string;
@@ -138,6 +151,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     endOfDay?: string;
     duration?: string;
     calendarId?: string;
+    userTimeZone?: string;
   };
 
   if (handleCORS(req, res)) return; // Handle CORS and terminate if it's a preflight
@@ -202,33 +216,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 4) Now call Google Calendar for events
-  const minTime = new Date(`${date}T00:00:00Z`).toISOString();
-
-  const maxTime = new Date(`${date}T23:59:59Z`).toISOString();
+  const minTime = new Date(`${date}T00:00:00`);
+  const maxTime = new Date(`${date}T23:59:59`);
 
   try {
     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
+    
     const response = await calendar.events.list({
       calendarId,
-      timeMin: minTime,
-      timeMax: maxTime,
+      timeMin: minTime.toISOString(),
+      timeMax: maxTime.toISOString(),
       singleEvents: true,
       orderBy: "startTime",
+      timeZone: userTimeZone,
     });
 
     const items = response.data.items || [];
     const events = items.map((evt) => {
-      const startDate = new Date(evt.start?.dateTime || evt.start?.date || "");
-      const endDate = new Date(evt.end?.dateTime || evt.end?.date || "");
+      const startDateTime = evt.start?.dateTime || evt.start?.date;
+      const endDateTime = evt.end?.dateTime || evt.end?.date;
+      
+      if (!startDateTime || !endDateTime) return null;
+
+      // Parse the dates - they will already be in user's timezone thanks to the API parameter
+      const startDate = fromZonedTime(new Date(startDateTime), userTimeZone);
+      const endDate = fromZonedTime(new Date(endDateTime), userTimeZone);
 
       return {
         start: startDate.getHours() * 60 + startDate.getMinutes(),
         end: endDate.getHours() * 60 + endDate.getMinutes(),
-        isSystemScheduled: !!(
-          evt.extendedProperties?.private?.patientId === patientId
-        ),
+        isSystemScheduled: !!(evt.extendedProperties?.private?.patientId === patientId),
       };
-    });
+    }).filter(Boolean) as Array<{ start: number; end: number; isSystemScheduled: boolean }>;
 
     const startInMins = toMinutes(startOfDay);
     const endInMins = toMinutes(endOfDay);
@@ -237,13 +256,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       events,
       startInMins,
       endInMins,
-      Number(duration)
+      Number(duration),
+      userTimeZone,
+      date
     );
+    
     return res.status(200).json(freeSlots);
   } catch (error) {
     console.error("Calendar error:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to retrieve calendar events." });
+    return res.status(500).json({ error: "Failed to retrieve calendar events." });
   }
 }

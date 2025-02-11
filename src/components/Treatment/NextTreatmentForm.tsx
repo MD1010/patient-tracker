@@ -35,7 +35,8 @@ const fetchAvailableTimes = async (
   userId: string,
   patientId: string,
   authToken: string,
-  date: string
+  date: string,
+  userTimeZone: string
 ): Promise<string[]> => {
   const query = new URLSearchParams({
     patientId,
@@ -44,6 +45,7 @@ const fetchAvailableTimes = async (
     startOfDay: "07:00",
     endOfDay: "20:00",
     duration: "45",
+    userTimeZone,
   });
 
   const res = await fetch(
@@ -176,8 +178,10 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         userId,
         patient._id,
         authToken,
-        dateString
+        dateString,
+        getClientTimeZone()
       );
+      console.log('Received times:', times);
       setAvailableTimes(times);
     } catch (error) {
       toast.error("ארעה שגיאה", {
@@ -502,12 +506,14 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                       type="time"
                       value={nextTreatment?.time || ""}
                       className="w-full flex-row-reverse text-md"
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const inputTime = e.target.value;
+                        // Store the time as-is, since it's in the user's local timezone
                         setValue("nextTreatment", {
                           ...nextTreatment,
-                          time: e.target.value,
-                        })
-                      }
+                          time: inputTime,
+                        });
+                      }}
                     />
                   </div>
                 </div>
