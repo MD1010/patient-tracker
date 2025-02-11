@@ -102,6 +102,7 @@ function findFreeTimes(
       
       const hh = String(eventInUserTz.getHours()).padStart(2, "0");
       const mm = String(eventInUserTz.getMinutes()).padStart(2, "0");
+      console.log("time system scheduled", `${hh}:${mm}`);
       freeSlots.push(`${hh}:${mm}`);
     }
   });
@@ -124,6 +125,7 @@ function findFreeTimes(
       
       const hh = String(slotInUserTz.getHours()).padStart(2, "0");
       const mm = String(slotInUserTz.getMinutes()).padStart(2, "0");
+      console.log("time free slot", `${hh}:${mm}`);
       freeSlots.push(`${hh}:${mm}`);
     }
 
