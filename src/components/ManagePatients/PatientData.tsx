@@ -26,12 +26,12 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { DateInput } from "@/components/ui/date-input";
 import { formatCurrency, getClientTimeZone } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
@@ -52,6 +52,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { getWhatsappUrl } from "./Whatsapp";
+import { Input } from '../ui/input';
 
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -59,6 +60,9 @@ export function PatientData() {
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
   const [isDownloadingReport, setIsDownloadingReport] = useState(false);
+  const [isNextTreatmentModalOpen, setIsNextTreatmentModalOpen] = useState(false);
+  const [nextTreatmentDate, setNextTreatmentDate] = useState<Date | undefined>(undefined);
+  const [nextTreatmentTime, setNextTreatmentTime] = useState<string>("");
 
   const fetchedPatient = useQuery(api.patients.getOne, {
     patientId: selectedPatient?._id,
@@ -180,9 +184,14 @@ export function PatientData() {
                   className="py-2 px-2 pl-6"
                   onClick={(e) => {
                     e.stopPropagation();
-                    openModal("addOrEditNextTreatment", {
-                      selectedPatient,
-                    });
+                    if (!selectedPatient.nextTreatment) {
+                      setIsNextTreatmentModalOpen(true);
+                    } else {
+                      const whatsappUrl = getWhatsappUrl(selectedPatient);
+                      if (whatsappUrl) {
+                        window.open(whatsappUrl, "_blank");
+                      }
+                    }
                   }}
                   disabled={isDownloadingReport}
                 >
@@ -211,26 +220,26 @@ export function PatientData() {
                 {/* WhatsApp Button */}
                 {selectedPatient.phone || selectedPatient.parent?.phone ? (
                   <DropdownMenuItem
-                    disabled={!selectedPatient.nextTreatment}
                     className="py-2 px-2 pl-6"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Assuming WhatsAppButton handles its own click behavior
+                      if (!selectedPatient.nextTreatment) {
+                        setIsNextTreatmentModalOpen(true);
+                      } else {
+                        const whatsappUrl = getWhatsappUrl(selectedPatient);
+                        if (whatsappUrl) {
+                          window.open(whatsappUrl, "_blank");
+                        }
+                      }
                     }}
                   >
-                    <Link
-                      to={getWhatsappUrl(selectedPatient) || ""}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="flex items-center">
-                        <FontAwesomeIcon
-                          icon={faWhatsapp}
-                          className="h-5 w-5 ml-3"
-                        />
-                        שלח תזכורת
-                      </div>
-                    </Link>
+                    <div className="flex items-center">
+                      <FontAwesomeIcon
+                        icon={faWhatsapp}
+                        className="h-5 w-5 ml-3"
+                      />
+                      שלח תזכורת
+                    </div>
                   </DropdownMenuItem>
                 ) : null}
 
@@ -516,6 +525,39 @@ export function PatientData() {
             </Accordion>
           </motion.div>
         </div>
+
+        <Dialog open={isNextTreatmentModalOpen} onOpenChange={setIsNextTreatmentModalOpen}>
+          <DialogContent className={`p-10 max-w-md flex flex-col gap-8`}>
+            <DialogHeader>
+              <DialogTitle className="text-right">הכנס תאריך התור הבא</DialogTitle>
+            </DialogHeader>
+            <DateInput
+              dir="rtl"
+              onChange={(date) => setNextTreatmentDate(date)}
+              placeholder="הקלד תאריך"
+            />
+            <Input
+              dir="rtl"
+              type="time"
+              value={nextTreatmentTime}
+              onChange={(e) => setNextTreatmentTime(e.target.value)}
+              className="mt-2 text-right"
+            />
+            <Button
+              onClick={() => {
+                if (nextTreatmentDate) {
+                  const whatsappUrl = getWhatsappUrl(selectedPatient);
+                  if (whatsappUrl) {
+                    window.open(whatsappUrl, "_blank");
+                  }
+                }
+                setIsNextTreatmentModalOpen(false);
+              }}
+            >
+              שלח תזכורת
+            </Button>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );
