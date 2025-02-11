@@ -32,6 +32,7 @@ import { useModal } from "@/store/modal-store";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { api } from "../../../convex/_generated/api";
 import { generateMedicalConditionReport } from "../../../convex/common/generateMedicalInfo";
 import {
@@ -51,8 +52,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { getWhatsappUrl } from "./Whatsapp";
 import { Input } from '../ui/input';
+import { getWhatsappUrl } from "./Whatsapp";
+
+// Define the NewTreatmentFormData type
+type NewTreatmentFormData = {
+  nextTreatment: {
+    date: string;
+    time: string;
+  } | null;
+  nextTreatmentRecallDate: string | null;
+};
 
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
@@ -64,6 +74,7 @@ export function PatientData() {
   const [isNextTreatmentModalOpen, setIsNextTreatmentModalOpen] = useState(false);
   const [nextTreatmentDate, setNextTreatmentDate] = useState<Date | undefined>(undefined);
   const [nextTreatmentTime, setNextTreatmentTime] = useState<string>("");
+  const { register, trigger, formState: { errors } } = useForm<NewTreatmentFormData>();
 
   const fetchedPatient = useQuery(api.patients.getOne, {
     patientId: selectedPatient?._id,
@@ -185,14 +196,9 @@ export function PatientData() {
                   className="py-2 px-2 pl-6"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!selectedPatient.nextTreatment) {
-                      setIsNextTreatmentModalOpen(true);
-                    } else {
-                      const whatsappUrl = getWhatsappUrl(selectedPatient);
-                      if (whatsappUrl) {
-                        window.open(whatsappUrl, "_blank");
-                      }
-                    }
+                    openModal("addOrEditNextTreatment", {
+                      selectedPatient,
+                    });
                   }}
                   disabled={isDownloadingReport}
                 >
@@ -222,13 +228,15 @@ export function PatientData() {
                 {selectedPatient.phone || selectedPatient.parent?.phone ? (
                   <DropdownMenuItem
                     className="py-2 px-2 pl-6"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       if (!selectedPatient.nextTreatment) {
                         setIsNextTreatmentModalOpen(true);
                       } else {
                         const whatsappUrl = getWhatsappUrl(selectedPatient);
+                        console.log(whatsappUrl);
+                        
                         if (whatsappUrl) {
+                          console.log("!!!!!!!!!!");
                           window.open(whatsappUrl, "_blank");
                         }
                       }
@@ -534,8 +542,24 @@ export function PatientData() {
             </DialogHeader>
             <DateInput
               dir="rtl"
-              onChange={(date) => setNextTreatmentDate(date)}
               placeholder="הקלד תאריך"
+              className={errors.nextTreatment?.date ? "border-red-500 shadow-sm" : ""}
+              {...register("nextTreatment.date", {
+                required: "שדה חובה",
+                validate: (value) => {
+                  if (!value || new Date(value) <= new Date()) {
+                    return "תאריך לא תקין";
+                  }
+                  return true;
+                },
+              })}
+              onChange={(date) => {
+                setNextTreatmentDate(date);
+                if (date) {
+                  trigger("nextTreatment.date"); // Trigger validation
+                }
+              }}
+              onBlur={() => trigger("nextTreatment.date")}
             />
             <Input
               dir="rtl"

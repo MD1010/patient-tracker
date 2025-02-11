@@ -520,7 +520,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
               isLoading || (activeTab === "nextTreatment" && isLoadingTimes)
             }
             type="button"
-            className="text-red-500/80 border border-red-500/40 hover:bg-red-500/20"
+            className="text-red-500/80 border-none hover:bg-red-500/90 mobile:p-6"
             variant="outline"
             onClick={handleSubmit(async () => {
               try {

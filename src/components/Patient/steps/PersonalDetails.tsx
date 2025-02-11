@@ -27,7 +27,6 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     (watch("dateOfBirth") &&
       differenceInYears(new Date(), watch("dateOfBirth")) >= 18);
 
-  console.log("12333333", watch("phone"));
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-2 gap-6">
