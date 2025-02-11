@@ -454,17 +454,18 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
             ) : availableTimes.length ? (
               nextTreatment?.date &&
               !errors.nextTreatment?.date && (
-                <div className="space-y-4 h-[95%] flex  ">
-                  <div>
-                    <Label className="text-sm font-semibold text-right">
+                <div className="flex items-start gap-12 h-full">
+                  {/* First Column - Time Selection */}
+                  <div className="w-[40%] h-full">
+                    <Label className="text-sm font-semibold text-right block mb-4">
                       בחר שעה
                     </Label>
-                    <div className="relative h-full overflow-auto scrollbar-rtl w-[40%] se:h-60 mobile:max-h-[28rem]">
-                      <div className="flex flex-wrap gap-4 ">
+                    <div className="relative h-[calc(100%-2rem)] overflow-auto scrollbar-rtl">
+                      <div className="flex flex-col gap-2 mr-4">
                         {availableTimes.map((time) => (
                           <Badge
                             key={time}
-                            className={`rounded-xl h-10 w-full px-4 cursor-pointer text-center justify-center text-md mr-4 ${
+                            className={`rounded-xl h-10 w-full px-4 cursor-pointer text-center justify-center text-md ${
                               nextTreatment?.time === time
                                 ? "bg-primary"
                                 : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
@@ -482,16 +483,25 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
                       </div>
                     </div>
                   </div>
-                  <span className="text-lg text-center justify-self-center">
-                    או
-                  </span>
-                  <div>
-                    <Label className="text-sm font-semibold text-right">
+
+                  {/* Middle Column - Divider with "או" */}
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="h-full w-[1px] bg-border relative">
+                      <div className="absolute top-1/2 -translate-y-1/2 translate-x-1/2 bg-background py-2">
+                        <span className="text-lg whitespace-nowrap">או</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Third Column - Manual Input */}
+                  <div className="flex-1 justify-center h-full items-center">
+                    <Label className="text-sm font-semibold text-right block mb-4">
                       הכנס ידנית
                     </Label>
                     <Input
                       type="time"
                       value={nextTreatment?.time || ""}
+                      className="w-full flex-row-reverse text-md"
                       onChange={(e) =>
                         setValue("nextTreatment", {
                           ...nextTreatment,
@@ -513,7 +523,7 @@ export const NextTreatmentForm: FC<Props> = ({ patient }) => {
         </TabsContent>
       </Tabs>
 
-      <div className="flex gap-4 w-full mt-auto">
+      <div className="flex gap-4 w-full mt-auto ">
         {/* Submit Button */}
         <Button
           type="submit"
