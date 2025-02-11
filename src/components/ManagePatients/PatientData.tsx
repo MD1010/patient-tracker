@@ -57,6 +57,7 @@ import { Input } from '../ui/input';
 export function PatientData() {
   const { selectedPatient, setSelectedPatient } = usePatients();
   const deleteTreatment = useMutation(api.treatments.deleteOne);
+  const updatePatient = useMutation(api.patients.edit);
   const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { openModal } = useModal();
   const [isDownloadingReport, setIsDownloadingReport] = useState(false);
@@ -541,16 +542,36 @@ export function PatientData() {
               type="time"
               value={nextTreatmentTime}
               onChange={(e) => setNextTreatmentTime(e.target.value)}
-              className="mt-2 text-right"
+              className="mt-2 text-right flex-row-reverse"
             />
             <Button
-              onClick={() => {
-                if (nextTreatmentDate) {
-                  const whatsappUrl = getWhatsappUrl(selectedPatient);
+              onClick={async () => {
+                if (nextTreatmentDate && nextTreatmentTime) {
+                  // Update the selectedPatient with the new treatment date and time
+                  await updatePatient({
+                    ...selectedPatient,
+                    nextTreatment: {
+                      date: format(nextTreatmentDate, "yyyy-MM-dd"), // Format the date
+                      time: nextTreatmentTime,
+                    },
+                  });
+
+                  // Generate the WhatsApp URL with the updated patient data
+                  const whatsappUrl = getWhatsappUrl({
+                    ...selectedPatient,
+                    nextTreatment: {
+                      date: format(nextTreatmentDate, "yyyy-MM-dd"),
+                      time: nextTreatmentTime,
+                    },
+                  });
+
                   if (whatsappUrl) {
                     window.open(whatsappUrl, "_blank");
                   }
                 }
+                // Clear the input fields
+                setNextTreatmentDate(undefined);
+                setNextTreatmentTime("");
                 setIsNextTreatmentModalOpen(false);
               }}
             >
