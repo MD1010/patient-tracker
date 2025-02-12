@@ -1,7 +1,6 @@
 // api/timeslots.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { google } from "googleapis";
-import { fromZonedTime } from "date-fns-tz";
 // import { handleCORS } from '../lib/cors';
 
 function handleCORS(req: VercelRequest, res: VercelResponse): boolean {
@@ -85,37 +84,20 @@ function findFreeTimes(
   startInMins: number,
   endInMins: number,
   duration = 45,
-  userTimeZone: string
 ): string[] {
   const freeSlots: string[] = [];
   let pointer = startInMins;
 
-  // Handle system scheduled events with timezone adjustment
+  // Handle all events consistently with timezone
   events.forEach((evt) => {
     if (evt.isSystemScheduled) {
-      // Create a date object in UTC
-      const today = new Date();
-      const utcDate = new Date(Date.UTC(
-        today.getUTCFullYear(),
-        today.getUTCMonth(),
-        today.getUTCDate(),
-        Math.floor(evt.start / 60),
-        evt.start % 60
-      ));
-
-      // Convert to user's timezone
-      const timeInUserTz = utcDate.toLocaleTimeString('en-US', {
-        timeZone: userTimeZone,
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      freeSlots.push(timeInUserTz);
+      // Since evt.start is already in minutes from midnight, just format it directly
+      const hh = String(Math.floor(evt.start / 60)).padStart(2, "0");
+      const mm = String(evt.start % 60).padStart(2, "0");
+      freeSlots.push(`${hh}:${mm}`);
     }
   });
 
-  // Regular free slots - no timezone conversion needed
   while (pointer + duration <= endInMins) {
     const pointerEnd = pointer + duration;
 
@@ -219,19 +201,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 4) Now call Google Calendar for events
-  const minTime = new Date(`${date}T00:00:00`);
-  const maxTime = new Date(`${date}T23:59:59`);
-
   try {
     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
     
+    // Use the date directly without timezone offset
+    const minTime = `${date}T00:00:00Z`;
+    const maxTime = `${date}T23:59:59Z`;
+    
     const response = await calendar.events.list({
       calendarId,
-      timeMin: minTime.toISOString(),
-      timeMax: maxTime.toISOString(),
+      timeMin: minTime,
+      timeMax: maxTime,
       singleEvents: true,
       orderBy: "startTime",
-      timeZone: userTimeZone,
+      timeZone: userTimeZone, // Google Calendar API will handle the timezone conversion
     });
 
     const items = response.data.items || [];
@@ -241,12 +224,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       if (!startDateTime || !endDateTime) return null;
 
+      // Parse the dates and force them into the user's timezone
       const startDate = new Date(startDateTime);
       const endDate = new Date(endDateTime);
 
+      // Get time in user's timezone
+      const startTimeStr = startDate.toLocaleTimeString('en-US', {
+        timeZone: userTimeZone,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      const endTimeStr = endDate.toLocaleTimeString('en-US', {
+        timeZone: userTimeZone,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Convert HH:MM to minutes
+      const [startHH, startMM] = startTimeStr.split(':').map(Number);
+      const [endHH, endMM] = endTimeStr.split(':').map(Number);
+
       return {
-        start: startDate.getHours() * 60 + startDate.getMinutes(),
-        end: endDate.getHours() * 60 + endDate.getMinutes(),
+        start: startHH * 60 + startMM,
+        end: endHH * 60 + endMM,
         isSystemScheduled: !!(evt.extendedProperties?.private?.patientId === patientId),
       };
     }).filter(Boolean) as Array<{ start: number; end: number; isSystemScheduled: boolean }>;
@@ -259,7 +261,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       startInMins,
       endInMins,
       Number(duration),
-      userTimeZone
     );
     
     return res.status(200).json(freeSlots);
