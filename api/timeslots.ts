@@ -85,29 +85,37 @@ function findFreeTimes(
   startInMins: number,
   endInMins: number,
   duration = 45,
-  userTimeZone: string,
-  date: string
+  userTimeZone: string
 ): string[] {
   const freeSlots: string[] = [];
   let pointer = startInMins;
 
-  // Handle system scheduled events with timezone
+  // Handle system scheduled events with timezone adjustment
   events.forEach((evt) => {
     if (evt.isSystemScheduled) {
-      // Create a date object for the specified date at the event's time
-      const eventDate = new Date(`${date}T${String(Math.floor(evt.start / 60)).padStart(2, "0")}:${String(evt.start % 60).padStart(2, "0")}:00`);
-      
+      // Create a date object in UTC
+      const today = new Date();
+      const utcDate = new Date(Date.UTC(
+        today.getUTCFullYear(),
+        today.getUTCMonth(),
+        today.getUTCDate(),
+        Math.floor(evt.start / 60),
+        evt.start % 60
+      ));
+
       // Convert to user's timezone
-      const eventInUserTz = fromZonedTime(eventDate, userTimeZone);
-      
-      const hh = String(eventInUserTz.getHours()).padStart(2, "0");
-      const mm = String(eventInUserTz.getMinutes()).padStart(2, "0");
-      console.log("time system scheduled", `${hh}:${mm}`);
-      freeSlots.push(`${hh}:${mm}`);
+      const timeInUserTz = utcDate.toLocaleTimeString('en-US', {
+        timeZone: userTimeZone,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      freeSlots.push(timeInUserTz);
     }
   });
 
-  // Regular free slots handling with timezone
+  // Regular free slots - no timezone conversion needed
   while (pointer + duration <= endInMins) {
     const pointerEnd = pointer + duration;
 
@@ -117,15 +125,8 @@ function findFreeTimes(
     });
 
     if (!hasOverlap) {
-      // Create a date object for the specified date at the pointer time
-      const slotDate = new Date(`${date}T${String(Math.floor(pointer / 60)).padStart(2, "0")}:${String(pointer % 60).padStart(2, "0")}:00`);
-      
-      // Convert to user's timezone
-      const slotInUserTz = fromZonedTime(slotDate, userTimeZone);
-      
-      const hh = String(slotInUserTz.getHours()).padStart(2, "0");
-      const mm = String(slotInUserTz.getMinutes()).padStart(2, "0");
-      console.log("time free slot", `${hh}:${mm}`);
+      const hh = String(Math.floor(pointer / 60)).padStart(2, "0");
+      const mm = String(pointer % 60).padStart(2, "0");
       freeSlots.push(`${hh}:${mm}`);
     }
 
@@ -240,9 +241,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       if (!startDateTime || !endDateTime) return null;
 
-      // Parse the dates - they will already be in user's timezone thanks to the API parameter
-      const startDate = fromZonedTime(new Date(startDateTime), userTimeZone);
-      const endDate = fromZonedTime(new Date(endDateTime), userTimeZone);
+      const startDate = new Date(startDateTime);
+      const endDate = new Date(endDateTime);
 
       return {
         start: startDate.getHours() * 60 + startDate.getMinutes(),
@@ -259,8 +259,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       startInMins,
       endInMins,
       Number(duration),
-      userTimeZone,
-      date
+      userTimeZone
     );
     
     return res.status(200).json(freeSlots);
