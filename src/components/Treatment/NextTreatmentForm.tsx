@@ -43,7 +43,7 @@ const fetchAvailableTimes = async (
     userId,
     date,
     startOfDay: "07:00",
-    endOfDay: "20:00",
+    endOfDay: "20:15",
     duration: "45",
     userTimeZone,
   });

@@ -124,7 +124,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     userId,
     date,
     startOfDay = "07:00",
-    endOfDay = "20:00",
+    endOfDay = "20:15",
     duration = "45",
     calendarId = "primary",
     userTimeZone = 'Asia/Jerusalem'
