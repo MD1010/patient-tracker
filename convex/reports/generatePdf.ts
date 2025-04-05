@@ -32,14 +32,65 @@ export const generatePatientInfoPdf = async (
     x: number,
     bold = false
   ) => {
-    const textWidth = regularFont.widthOfTextAtSize(text, size);
-    page.drawText(text, {
-      x: Math.min(x - textWidth, 600 - PAGE_PADDING - textWidth), // Ensure text stays within padding
-      y,
-      size,
-      font: bold ? semiBoldFont : regularFont,
-      color: rgb(0, 0, 0),
-    });
+    const font = bold ? semiBoldFont : regularFont;
+
+    // For RTL text, we need to reverse the entire text visually
+    // This is a completely different approach - treating the entire string as RTL
+    const hasHebrew = /[\u0590-\u05FF]/.test(text);
+    
+    if (!hasHebrew) {
+      // For Latin-only text, draw normally
+      const textWidth = font.widthOfTextAtSize(text, size);
+      page.drawText(text, {
+        x: Math.min(x - textWidth, 600 - PAGE_PADDING - textWidth),
+        y,
+        size,
+        font,
+        color: rgb(0, 0, 0),
+      });
+      return;
+    }
+    
+    // For RTL text (Hebrew), we need to reverse the word order
+    // Split the text into words
+    const words = text.split(/\s+/);
+    const reversedWords = [...words].reverse();
+    
+    // Calculate total width for alignment
+    let totalWidth = 0;
+    for (let i = 0; i < reversedWords.length; i++) {
+      totalWidth += font.widthOfTextAtSize(reversedWords[i], size);
+      if (i < reversedWords.length - 1) {
+        totalWidth += font.widthOfTextAtSize(" ", size);
+      }
+    }
+    
+    // Start position (right-aligned)
+    let currentX = Math.min(x, 600 - PAGE_PADDING);
+    currentX -= totalWidth;
+    
+    // Draw each word in the reversed order
+    for (let i = 0; i < reversedWords.length; i++) {
+      const word = reversedWords[i];
+      
+      // Draw the word
+      page.drawText(word, {
+        x: currentX,
+        y,
+        size,
+        font,
+        color: rgb(0, 0, 0),
+      });
+      
+      // Move to next position
+      currentX += font.widthOfTextAtSize(word, size);
+      
+      // Add space after word if not the last word
+      if (i < reversedWords.length - 1) {
+        const spaceWidth = font.widthOfTextAtSize(" ", size);
+        currentX += spaceWidth;
+      }
+    }
   };
 
   const drawSeparator = () => {
