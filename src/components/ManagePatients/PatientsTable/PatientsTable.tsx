@@ -12,17 +12,36 @@ import { cn } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { usePatients } from "@/store/patients-store";
 import { Loader2, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PatientTableRow } from "./PatientTableRow";
 import { Doc } from "../../../../convex/_generated/dataModel";
 
 export function PatientTable() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const { patients, isLoading, deletePatient } = usePatientActions();
+  const [sortColumn, setSortColumn] = useState<string | null>("_creationTime");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const { patients, isLoading, loadMore, canLoadMore, deletePatient } = usePatientActions();
   const { setSelectedPatient } = usePatients();
   const { openModal } = useModal();
+
+  // Infinite scroll functionality
+  const handleScroll = useCallback((e: Event) => {
+    const target = e.target as HTMLElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    
+    // Load more when user scrolls to within 100px of the bottom
+    if (scrollHeight - scrollTop <= clientHeight + 100 && canLoadMore && !isLoading) {
+      loadMore(25);
+    }
+  }, [canLoadMore, isLoading, loadMore]);
+
+  useEffect(() => {
+    const scrollContainer = document.querySelector('.scrollable-table-container');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
 
   const filteredPatients = patients?.filter((patient) => {
     const searchLower = searchQuery.toLowerCase();
@@ -172,7 +191,7 @@ export function PatientTable() {
       </div>
 
       <div className={cn("rounded-md", isLoading && "opacity-50")}>
-        <div className="relative overflow-auto max-h-[calc(100vh-324px)] scrollbar-rtl">
+        <div className="relative overflow-auto max-h-[calc(100vh-324px)] scrollbar-rtl scrollable-table-container">
           <Table>
             {/* TableHeader */}
             <TableHeader className="bg-background sticky z-50 -top-1 peer border border-l-0 border-r-0 group">
@@ -233,6 +252,21 @@ export function PatientTable() {
                     onRowClick={setSelectedPatient}
                   />
                 ))
+              )}
+              
+              {/* Loading indicator for infinite scroll */}
+              {canLoadMore && (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-16 text-center"
+                  >
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      <span className="mr-2 text-muted-foreground">טוען עוד מטופלים...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

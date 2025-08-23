@@ -16,6 +16,7 @@ export const get = query({
     const patients = await ctx.db
       .query("patients")
       .filter((q) => q.eq(q.field("userId"), userId))
+      .order("desc") // Sort by creation time descending (newest first)
       .collect();
     const patientsWithLastTreatmentDate = await Promise.all(
       patients.map(async (p) => ({
@@ -27,6 +28,7 @@ export const get = query({
     return patientsWithLastTreatmentDate;
   },
 });
+
 
 export const getOne = query({
   args: { patientId: v.optional(v.id("patients")) },
@@ -196,3 +198,5 @@ export const generatePatientInfo = action({
     }
   },
 });
+
+
