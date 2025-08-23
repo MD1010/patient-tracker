@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { usePatientActions } from "@/hooks/use-patient-actions";
+import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/store/modal-store";
 import { usePatients } from "@/store/patients-store";
@@ -18,9 +19,10 @@ import { Doc } from "../../../../convex/_generated/dataModel";
 
 export function PatientTable() {
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300); // 300ms debounce
   const [sortColumn, setSortColumn] = useState<string | null>("_creationTime");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const { patients, isLoading, loadMore, canLoadMore, deletePatient } = usePatientActions();
+  const { patients, isLoading, loadMore, canLoadMore, deletePatient, totalCount } = usePatientActions(debouncedSearchQuery);
   const { setSelectedPatient } = usePatients();
   const { openModal } = useModal();
 
@@ -43,25 +45,8 @@ export function PatientTable() {
     }
   }, [handleScroll]);
 
-  const filteredPatients = patients?.filter((patient) => {
-    const searchLower = searchQuery.toLowerCase();
-
-    // Check top-level properties
-    const topLevelMatch = Object.values(patient).some((value) =>
-      String(value ?? "")
-        .toLowerCase()
-        .includes(searchLower)
-    );
-
-    // Check nested parent.phone property if it exists
-    const parentPhoneMatch = patient.parent?.phone
-      ? patient.parent.phone.toLowerCase().includes(searchLower)
-      : false;
-
-    return topLevelMatch || parentPhoneMatch;
-  });
-
-  const sortedPatients = filteredPatients?.slice().sort((a, b) => {
+  // No need for frontend filtering since backend handles search
+  const sortedPatients = patients?.slice().sort((a, b) => {
     if (!sortColumn) return 0;
   
     const getValue = (patient: any, column: string) => {
@@ -189,6 +174,14 @@ export function PatientTable() {
           dir="rtl"
         />
       </div>
+
+      {/* Search results indicator */}
+      {debouncedSearchQuery && (
+        <div className="text-sm text-muted-foreground text-right">
+          נמצאו {totalCount} מטופלים
+          {patients && patients.length < totalCount && ` (מוצגים ${patients.length})`}
+        </div>
+      )}
 
       <div className={cn("rounded-md", isLoading && "opacity-50")}>
         <div className="relative overflow-auto max-h-[calc(100vh-324px)] scrollbar-rtl scrollable-table-container">

@@ -8,16 +8,40 @@ import { getLastTreatmentDate } from "./treatments";
 import { getUserIdentity } from "./utils/auth";
 
 export const get = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    searchQuery: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
     const userId = await getUserIdentity(ctx);
     if (!userId) return [];
 
-    const patients = await ctx.db
+    let patients = await ctx.db
       .query("patients")
       .filter((q) => q.eq(q.field("userId"), userId))
       .order("desc") // Sort by creation time descending (newest first)
       .collect();
+
+    // Apply search filter if provided
+    if (args.searchQuery && args.searchQuery.trim()) {
+      const searchLower = args.searchQuery.toLowerCase().trim();
+      patients = patients.filter((patient) => {
+        // Search in first name, last name, full name, phone, ID number, and parent phone
+        const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+        const firstName = patient.firstName?.toLowerCase() || '';
+        const lastName = patient.lastName?.toLowerCase() || '';
+        const phone = patient.phone?.toLowerCase() || '';
+        const idNumber = patient.idNumber?.toLowerCase() || '';
+        const parentPhone = patient.parent?.phone?.toLowerCase() || '';
+        
+        return fullName.includes(searchLower) ||
+               firstName.includes(searchLower) ||
+               lastName.includes(searchLower) ||
+               phone.includes(searchLower) ||
+               idNumber.includes(searchLower) ||
+               parentPhone.includes(searchLower);
+      });
+    }
+
     const patientsWithLastTreatmentDate = await Promise.all(
       patients.map(async (p) => ({
         ...p,

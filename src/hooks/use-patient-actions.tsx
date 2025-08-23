@@ -13,8 +13,8 @@ export interface Patient {
   dateOfBirth: string;
 }
 
-export function usePatientActions() {
-  const fetchedPatients = useQuery(api.patients.get);
+export function usePatientActions(searchQuery?: string) {
+  const fetchedPatients = useQuery(api.patients.get, { searchQuery });
   const [displayedCount, setDisplayedCount] = useState(25);
 
   const deletePatientMutation = useMutation(api.patients.deleteOne);
@@ -28,7 +28,7 @@ export function usePatientActions() {
     }
   };
 
-  // Client-side pagination
+  // Client-side pagination - now working on already filtered results from backend
   const patients = useMemo(() => {
     if (!fetchedPatients) return undefined;
     return fetchedPatients.slice(0, displayedCount);
@@ -43,11 +43,17 @@ export function usePatientActions() {
     return displayedCount < fetchedPatients.length;
   }, [fetchedPatients, displayedCount]);
 
+  // Reset displayed count when search query changes
+  useMemo(() => {
+    setDisplayedCount(25);
+  }, [searchQuery]);
+
   return {
     patients,
     isLoading: fetchedPatients === undefined,
     loadMore,
     canLoadMore,
     deletePatient,
+    totalCount: fetchedPatients?.length || 0,
   };
 }
