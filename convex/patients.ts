@@ -69,6 +69,34 @@ export const getOne = query({
   },
 });
 
+export const checkIdExists = query({
+  args: { 
+    idNumber: v.string(),
+    excludePatientId: v.optional(v.id("patients")) // For edit mode, exclude current patient
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+    if (!userId) return false;
+
+    const existingPatient = await ctx.db
+      .query("patients")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("userId"), userId),
+          q.eq(q.field("idNumber"), args.idNumber)
+        )
+      )
+      .first();
+
+    // If we're editing a patient, exclude the current patient from the check
+    if (existingPatient && args.excludePatientId && existingPatient._id === args.excludePatientId) {
+      return false;
+    }
+
+    return !!existingPatient;
+  },
+});
+
 export const add = mutation({
   args: v.object({
     ...patientsSchema,
@@ -222,5 +250,64 @@ export const generatePatientInfo = action({
     }
   },
 });
+
+// Query to get all patients with a specific idNumber
+export const getPatientsByIdNumber = query({
+  args: { idNumber: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getUserIdentity(ctx);
+    if (!userId) return [];
+
+    const patients = await ctx.db
+      .query("patients")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("userId"), userId),
+          q.eq(q.field("idNumber"), args.idNumber)
+        )
+      )
+      .collect();
+
+    return patients;
+  },
+});
+
+// Query to find all duplicate idNumbers and their associated patients
+export const findDuplicateIdNumbers = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getUserIdentity(ctx);
+    if (!userId) return [];
+
+    // Get all patients for the user
+    const allPatients = await ctx.db
+      .query("patients")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+
+    // Group patients by idNumber
+    const idNumberGroups: Record<string, typeof allPatients> = {};
+    
+    allPatients.forEach(patient => {
+      if (!idNumberGroups[patient.idNumber]) {
+        idNumberGroups[patient.idNumber] = [];
+      }
+      idNumberGroups[patient.idNumber].push(patient);
+    });
+
+    // Return only groups with more than one patient (duplicates)
+    const duplicates = Object.entries(idNumberGroups)
+      .filter(([_, patients]) => patients.length > 1)
+      .map(([idNumber, patients]) => ({
+        idNumber,
+        patients,
+        count: patients.length
+      }));
+
+    return duplicates;
+  },
+});
+
+
 
 

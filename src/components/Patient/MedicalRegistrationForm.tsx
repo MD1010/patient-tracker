@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/store/modal-store";
 import { usePatients } from "@/store/patients-store";
-import { useMutation } from "convex/react";
+import { useMutation, useConvex } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { FC, useState } from "react";
@@ -15,6 +15,7 @@ import { MedicalBackground } from "./steps/MedicalBackground";
 import { MedicalHistory } from "./steps/MedicalHistory";
 import { PersonalDetails } from "./steps/PersonalDetails";
 import { ESignature } from "../ESignature";
+
 
 export type FormData = Doc<"patients">;
 const formVariants = {
@@ -33,12 +34,14 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { setSelectedPatient } = usePatients();
 
+
   const form = useForm<FormData>({
     defaultValues: patient || DEFAULT_FORM_VALUES,
     mode: "onChange",
   });
   const addPatientMutation = useMutation(api.patients.add);
   const editPatientMutation = useMutation(api.patients.edit);
+  const convex = useConvex();
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -80,6 +83,34 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
 
   const nextStep = async () => {
     const isValid = await form.trigger();
+    
+    if (isValid && currentStep === 1) {
+      // Check for duplicate ID only when moving from step 1 (Personal Details)
+      const idNumber = form.getValues("idNumber");
+      if (idNumber) {
+        try {
+          const isDuplicate = await convex.query(api.patients.checkIdExists, {
+            idNumber,
+            excludePatientId: patient?._id // Exclude current patient in edit mode
+          });
+          
+          if (isDuplicate) {
+            form.setError("idNumber", {
+              type: "manual",
+              message: "מטופל עם מספר תעודת זהות קיים במערכת"
+            });
+            return; // Don't proceed to next step
+          }
+        } catch (error) {
+          console.error("Error checking ID:", error);
+          toast.error("שגיאה בבדיקת תעודת הזהות", {
+            position: "bottom-right",
+          });
+          return;
+        }
+      }
+    }
+    
     isValid && setCurrentStep((prev) => Math.min(prev + 1, 4));
   };
 
@@ -168,6 +199,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           </form>
         </motion.div>
       </AnimatePresence>
+
     </div>
   );
 };

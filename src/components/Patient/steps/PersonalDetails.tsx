@@ -18,6 +18,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
     setValue,
     watch,
     trigger,
+    clearErrors,
     formState: { errors },
   } = form;
 
@@ -105,6 +106,10 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             })}
             onChange={(e) => {
               setValue("idNumber", e.target.value);
+              // Clear any manual errors (like duplicate ID error)
+              if (errors.idNumber?.type === "manual") {
+                clearErrors("idNumber");
+              }
               if (e.target.value) trigger("idNumber");
             }}
             onBlur={() => {
@@ -113,7 +118,7 @@ export function PersonalDetails({ form }: PersonalDetailsProps) {
             className={errors.idNumber ? "border-red-500 shadow-sm" : ""}
           />
           {errors.idNumber && (
-            <p className="text-sm text-red-600">{errors.idNumber.message}</p>
+            <p className="text-sm text-red-600 text-right">{errors.idNumber.message}</p>
           )}
         </div>
 
