@@ -132,8 +132,17 @@ export const generateMedicalConditionReport = (
     report += `המטופל נוטל את התרופות הבאות: ${medicationInfo.join(", ")}. `;
   }
 
-  if (medications?.penicillinLatex) {
+  // Handle backward compatibility for old penicillinLatex field
+  if ((medications as any)?.penicillinLatex) {
     report += "ישנה רגישות לפניצילין/לטקס. ";
+  } else {
+    // Use new separate fields
+    if (medications?.penicillin) {
+      report += "ישנה רגישות לפניצילין. ";
+    }
+    if (medications?.latex) {
+      report += "ישנה רגישות ללטקס. ";
+    }
   }
 
   // Add general note if no relevant details exist

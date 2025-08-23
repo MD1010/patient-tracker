@@ -46,7 +46,9 @@ export const patientsSchema = {
   }),
   medications: v.object({
     coumadin: v.boolean(),
-    penicillinLatex: v.boolean(),
+    penicillin: v.optional(v.boolean()),
+    latex: v.optional(v.boolean()),
+    penicillinLatex: v.optional(v.boolean()),
     otherMedications: v.string(),
   }),
   surgeries: v.optional(v.string()),

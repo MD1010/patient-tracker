@@ -12,6 +12,11 @@ interface MedicalHistoryProps {
 export function MedicalHistory({ form }: MedicalHistoryProps) {
   const { register, watch, setValue } = form;
 
+  // Handle backward compatibility for old penicillinLatex field
+  const hasOldPenicillinLatex = !!(form.getValues() as any).medications?.penicillinLatex;
+  const showPenicillin = hasOldPenicillinLatex || watch("medications.penicillin");
+  const showLatex = hasOldPenicillinLatex || watch("medications.latex");
+
   return (
     <div className="space-y-6">
       {/* Consistent spacing between all sections */}
@@ -58,18 +63,33 @@ export function MedicalHistory({ form }: MedicalHistoryProps) {
           </Badge>
           <Badge
             className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${
-              watch("medications.penicillinLatex")
+              showPenicillin
                 ? "bg-primary"
                 : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
             }`}
             onClick={() =>
               setValue(
-                "medications.penicillinLatex",
-                !watch("medications.penicillinLatex")
+                "medications.penicillin",
+                !watch("medications.penicillin")
               )
             }
           >
-            פניצילין / לטקס
+            פניצילין
+          </Badge>
+          <Badge
+            className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${
+              showLatex
+                ? "bg-primary"
+                : "bg-secondary/50 text-primary hover:bg-secondary hover:text-primary"
+            }`}
+            onClick={() =>
+              setValue(
+                "medications.latex",
+                !watch("medications.latex")
+              )
+            }
+          >
+            לטקס
           </Badge>
           <Badge
             className={`rounded-xl h-9 px-4 text-sm cursor-pointer ${

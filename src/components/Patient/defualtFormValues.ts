@@ -43,7 +43,8 @@ export default {
   medications: {
     coumadin: false,
     otherMedications: "",
-    penicillinLatex: false,
+    penicillin: false,
+    latex: false,
   },
   nextTreatment: null,
   phone: null,
