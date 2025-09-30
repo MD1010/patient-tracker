@@ -127,7 +127,7 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
           initial="enter"
           animate="center"
           exit="exit"
-          className="flex flex-col h-full"
+          className="flex flex-col h-full overflow-hidden"
         >
           <FormSteps
             currentStep={currentStep}
@@ -137,65 +137,63 @@ export const MedicalRegistrationForm: FC<Props> = ({ patient }) => {
 
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={"mt-8 flex flex-col h-[85%] se:max-h-[70%]"}
+            className="mt-6 flex flex-col flex-1 overflow-hidden"
           >
-            <div className="px-4 overflow-auto sm:max-h-[45vh] scrollbar-rtl mobile:px-1">
+            <div className="px-4 overflow-auto max-h-[50vh] mobile:max-h-[55vh] scrollbar-rtl mobile:px-1">
               {currentStep === 1 && <PersonalDetails form={form} />}
               {currentStep === 2 && <MedicalBackground form={form} />}
               {currentStep === 3 && <MedicalHistory form={form} />}
               {currentStep === 4 && <ESignature form={form} isEditMode={!!patient?.signature}/>}
             </div>
 
-            {
-              <div className="mt-8 mobile:mt-auto gap-4 flex se:pt-8 items-center">
-                {patient ? (
-                  // Render only the submit button if patient exists
-                  <Button
-                    disabled={currentStep === 4 && !!patient.signature}
-                    type="submit"
-                    className="flex-1"
-                    isLoading={isLoading}
-                    variant="submit"
-                  >
-                    עדכן
-                  </Button>
-                ) : (
-                  // Render navigation buttons for steps if no patient
-                  <>
-                    {currentStep > 1 && (
-                      <Button
-                        type="button"
-                        variant="link"
-                        onClick={prevStep}
-                        className="flex-1 mobile:py-6 !border-none"
-                      >
-                        <ArrowRightIcon />
-                        <span className="text-right ml-auto">הקודם</span>
-                      </Button>
-                    )}
-                    {currentStep < 4 ? (
-                      <Button
-                        type="button"
-                        onClick={nextStep}
-                        className="flex-1"
-                        variant="submit"
-                      >
-                        <span>לשלב הבא</span>
-                        <ArrowLeftIcon />
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        className="flex-1"
-                        isLoading={isLoading}
-                      >
-                        שמור
-                      </Button>
-                    )}
-                  </>
-                )}
-              </div>
-            }
+            <div className="mt-auto pt-4 gap-4 flex items-center flex-shrink-0">
+              {patient ? (
+                // Render only the submit button if patient exists
+                <Button
+                  disabled={currentStep === 4 && !!patient.signature}
+                  type="submit"
+                  className="flex-1"
+                  isLoading={isLoading}
+                  variant="submit"
+                >
+                  עדכן
+                </Button>
+              ) : (
+                // Render navigation buttons for steps if no patient
+                <>
+                  {currentStep > 1 && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={prevStep}
+                      className="flex-1 mobile:py-6 !border-none"
+                    >
+                      <ArrowRightIcon />
+                      <span className="text-right ml-auto">הקודם</span>
+                    </Button>
+                  )}
+                  {currentStep < 4 ? (
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      className="flex-1"
+                      variant="submit"
+                    >
+                      <span>לשלב הבא</span>
+                      <ArrowLeftIcon />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      isLoading={isLoading}
+                    >
+                      שמור
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           </form>
         </motion.div>
       </AnimatePresence>
